@@ -153,18 +153,18 @@ export default function Landing() {
       </section>
       
       {/* CTA Section */}
-      <section className="relative z-10 px-6 py-24">
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-24">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-4xl sm:text-5xl mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl mb-4 sm:mb-6">
             START SHARING<br />YOUR MUSIC TODAY
           </h2>
-          <p className="text-muted-foreground text-lg mb-8">
-            Join thousands of artists using MyTrack.cc to reach their fans.
+          <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8 px-4">
+            Join thousands of artists using MyTrack to reach their fans.
           </p>
           <Link to="/register">
             <Button 
               data-testid="cta-get-started-btn"
-              className="bg-primary hover:bg-primary/90 rounded-full px-10 py-6 text-lg font-semibold"
+              className="bg-primary hover:bg-primary/90 rounded-full px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold"
             >
               Get Started Free
             </Button>
