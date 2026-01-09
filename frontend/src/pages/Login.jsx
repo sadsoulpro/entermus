@@ -21,7 +21,7 @@ export default function Login() {
     
     try {
       const data = await login(email, password);
-      toast.success("Welcome back!");
+      toast.success("С возвращением!");
       
       // Redirect based on role
       if (data.user.role === "admin") {
@@ -30,7 +30,7 @@ export default function Login() {
         navigate("/dashboard");
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Invalid credentials");
+      toast.error(error.response?.data?.detail || "Неверные учётные данные");
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ export default function Login() {
         <div className="w-full max-w-md mx-auto">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            Back to home
+            На главную
           </Link>
           
           <motion.div
@@ -58,14 +58,14 @@ export default function Login() {
               <span className="font-display text-2xl">MYTRACK</span>
             </div>
             
-            <h1 className="text-3xl font-semibold mb-2">Welcome back</h1>
+            <h1 className="text-3xl font-semibold mb-2">С возвращением</h1>
             <p className="text-muted-foreground mb-8">
-              Sign in to manage your smart link pages
+              Войдите, чтобы управлять вашими страницами
             </p>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Эл. почта</Label>
                 <Input
                   id="email"
                   type="email"
@@ -79,7 +79,7 @@ export default function Login() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Пароль</Label>
                 <Input
                   id="password"
                   type="password"
@@ -98,14 +98,14 @@ export default function Login() {
                 data-testid="login-submit-btn"
                 className="w-full h-12 bg-primary hover:bg-primary/90 rounded-xl font-semibold"
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? "Вход..." : "Войти"}
               </Button>
             </form>
             
             <p className="mt-8 text-center text-muted-foreground">
-              Don't have an account?{" "}
+              Нет аккаунта?{" "}
               <Link to="/register" className="text-primary hover:underline" data-testid="register-link">
-                Sign up
+                Зарегистрироваться
               </Link>
             </p>
           </motion.div>
@@ -118,9 +118,9 @@ export default function Login() {
           <div className="w-32 h-32 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-6">
             <Music className="w-16 h-16 text-primary" />
           </div>
-          <h2 className="font-display text-4xl mb-4">SHARE YOUR MUSIC</h2>
+          <h2 className="font-display text-4xl mb-4">ДЕЛИТЕСЬ МУЗЫКОЙ</h2>
           <p className="text-muted-foreground max-w-sm">
-            One link for all your streaming platforms. Simple analytics. Free forever.
+            Одна ссылка для всех платформ. Простая аналитика. Бесплатно навсегда.
           </p>
         </div>
       </div>

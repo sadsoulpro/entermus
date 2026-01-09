@@ -20,7 +20,7 @@ export default function Register() {
     e.preventDefault();
     
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("Пароль должен содержать минимум 6 символов");
       return;
     }
     
@@ -28,10 +28,10 @@ export default function Register() {
     
     try {
       await register(email, username, password);
-      toast.success("Account created! Welcome to MyTrack!");
+      toast.success("Аккаунт создан! Добро пожаловать в MyTrack!");
       navigate("/dashboard");
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Registration failed");
+      toast.error(error.response?.data?.detail || "Ошибка регистрации");
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ export default function Register() {
         <div className="w-full max-w-md mx-auto">
           <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            Back to home
+            На главную
           </Link>
           
           <motion.div
@@ -59,18 +59,18 @@ export default function Register() {
               <span className="font-display text-2xl">MYTRACK</span>
             </div>
             
-            <h1 className="text-3xl font-semibold mb-2">Create your account</h1>
+            <h1 className="text-3xl font-semibold mb-2">Создайте аккаунт</h1>
             <p className="text-muted-foreground mb-8">
-              Start sharing your music in minutes
+              Начните делиться музыкой за считанные минуты
             </p>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Эл. почта</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="вы@пример.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -80,11 +80,11 @@ export default function Register() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Имя пользователя</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="yourartistname"
+                  placeholder="вашеимяартиста"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -94,7 +94,7 @@ export default function Register() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Пароль</Label>
                 <Input
                   id="password"
                   type="password"
@@ -105,7 +105,7 @@ export default function Register() {
                   data-testid="register-password-input"
                   className="h-12 bg-zinc-900 border-zinc-800 focus:border-primary"
                 />
-                <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+                <p className="text-xs text-muted-foreground">Минимум 6 символов</p>
               </div>
               
               <Button 
@@ -114,14 +114,14 @@ export default function Register() {
                 data-testid="register-submit-btn"
                 className="w-full h-12 bg-primary hover:bg-primary/90 rounded-xl font-semibold"
               >
-                {loading ? "Creating account..." : "Create Account"}
+                {loading ? "Создание аккаунта..." : "Создать аккаунт"}
               </Button>
             </form>
             
             <p className="mt-8 text-center text-muted-foreground">
-              Already have an account?{" "}
+              Уже есть аккаунт?{" "}
               <Link to="/login" className="text-primary hover:underline" data-testid="login-link">
-                Sign in
+                Войти
               </Link>
             </p>
           </motion.div>
@@ -134,9 +134,9 @@ export default function Register() {
           <div className="w-32 h-32 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-6">
             <Music className="w-16 h-16 text-primary" />
           </div>
-          <h2 className="font-display text-4xl mb-4">JOIN MYTRACK</h2>
+          <h2 className="font-display text-4xl mb-4">ПРИСОЕДИНЯЙТЕСЬ К MYTRACK</h2>
           <p className="text-muted-foreground max-w-sm">
-            Create beautiful smart link pages for your music releases. Free to use.
+            Создавайте красивые страницы со смарт-ссылками для ваших релизов. Бесплатно.
           </p>
         </div>
       </div>
