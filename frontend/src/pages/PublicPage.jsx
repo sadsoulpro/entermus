@@ -14,7 +14,7 @@ const PLATFORMS = {
   youtube: { name: "YouTube", icon: FaYoutube, color: "#FF0000", bgClass: "platform-youtube" },
   soundcloud: { name: "SoundCloud", icon: FaSoundcloud, color: "#FF5500", bgClass: "platform-soundcloud" },
   tidal: { name: "Tidal", icon: SiTidal, color: "#000000", bgClass: "platform-tidal" },
-  deezer: { name: "Deezer", icon: SiDeezer, color: "#00C7F2", bgClass: "platform-deezer" },
+  deezer: { name: "Deezer", icon: FaLink, color: "#00C7F2", bgClass: "platform-deezer" },
   custom: { name: "Listen Now", icon: FaLink, color: "#888888", bgClass: "" },
 };
 
