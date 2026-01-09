@@ -30,6 +30,67 @@ export default function PublicPage() {
     fetchPage();
   }, [slug]);
 
+  // Update OG meta tags when page data loads
+  useEffect(() => {
+    if (!page) return;
+
+    const baseUrl = window.location.origin;
+    const coverUrl = getCoverUrl(page.cover_image);
+    const pageUrl = `${baseUrl}/${slug}`;
+    const title = `${page.artist_name} - ${page.release_title}`;
+    const description = page.description || `Listen to ${page.release_title} by ${page.artist_name} on all platforms`;
+
+    // Helper to set or create meta tag
+    const setMetaTag = (property, content) => {
+      let meta = document.querySelector(`meta[property="${property}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // Helper for name-based meta tags
+    const setNameMetaTag = (name, content) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    // Set page title
+    document.title = `${title} | BandLink`;
+
+    // Open Graph tags
+    setMetaTag('og:title', title);
+    setMetaTag('og:description', description);
+    setMetaTag('og:url', pageUrl);
+    setMetaTag('og:type', 'music.song');
+    setMetaTag('og:site_name', 'BandLink');
+    if (coverUrl) {
+      setMetaTag('og:image', coverUrl);
+      setMetaTag('og:image:width', '1000');
+      setMetaTag('og:image:height', '1000');
+    }
+
+    // Twitter Card tags
+    setNameMetaTag('twitter:card', 'summary_large_image');
+    setNameMetaTag('twitter:title', title);
+    setNameMetaTag('twitter:description', description);
+    if (coverUrl) {
+      setNameMetaTag('twitter:image', coverUrl);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.title = 'BandLink';
+    };
+  }, [page, slug]);
+
   const fetchPage = async () => {
     try {
       const response = await axios.get(`${API}/artist/${slug}`);
