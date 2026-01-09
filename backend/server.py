@@ -276,7 +276,7 @@ async def get_page(page_id: str, user: dict = Depends(get_current_user)):
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     
-    links = await db.links.find({"page_id": page_id}, {"_id": 0}).to_list(100)
+    links = await db.links.find({"page_id": page_id}, {"_id": 0}).sort("order", 1).to_list(100)
     page["links"] = links
     return page
 
