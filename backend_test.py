@@ -23,7 +23,7 @@ class BandLinkAPITester:
         # Add auth header if needed
         if use_admin and self.admin_token:
             test_headers['Authorization'] = f'Bearer {self.admin_token}'
-        elif self.token:
+        elif not use_admin and self.token:
             test_headers['Authorization'] = f'Bearer {self.token}'
             
         if headers:
