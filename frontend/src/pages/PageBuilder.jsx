@@ -251,69 +251,112 @@ export default function PageBuilder() {
       let coverArtUrl = "";
       let sourceUrl = scanInput.trim();
 
-      if (isAppleMusicLink) {
-        // Parse Apple Music URL to get identifiers
+      if (isSpotifyLink) {
+        // Parse Spotify URL and fetch cover from oEmbed
+        try {
+          const oembedResponse = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(scanInput)}`);
+          if (oembedResponse.ok) {
+            const oembedData = await oembedResponse.json();
+            if (oembedData.title) {
+              searchQuery = oembedData.title;
+            }
+            // Get high-res cover from thumbnail (replace size)
+            if (oembedData.thumbnail_url) {
+              // Spotify thumbnails can be resized by changing the URL
+              coverArtUrl = oembedData.thumbnail_url.replace(/\/\d+$/, '').replace('i.scdn.co/image/', 'i.scdn.co/image/');
+              // If that doesn't work, use original
+              if (!coverArtUrl) coverArtUrl = oembedData.thumbnail_url;
+            }
+          }
+        } catch (e) {
+          console.log("Could not fetch Spotify metadata");
+        }
+        
+        // Fallback: extract from URL path
+        if (!searchQuery) {
+          const urlParts = scanInput.split("/");
+          const trackIndex = urlParts.findIndex(p => p === "track" || p === "album");
+          if (trackIndex > -1 && urlParts[trackIndex + 1]) {
+            searchQuery = urlParts[trackIndex + 1].split("?")[0].replace(/-/g, " ");
+          }
+        }
+      } else if (isAppleMusicLink) {
+        // Parse Apple Music URL
         const urlParts = scanInput.split("/");
         const albumIndex = urlParts.findIndex(p => p === "album");
+        let trackId = "";
+        
         if (albumIndex > -1 && urlParts[albumIndex + 1]) {
           searchQuery = urlParts[albumIndex + 1].replace(/-/g, " ");
         }
         
-        // Try to fetch cover art from iTunes API
+        // Check for specific track ID in URL (?i=xxxxx)
+        const trackMatch = scanInput.match(/[?&]i=(\d+)/);
+        if (trackMatch) {
+          trackId = trackMatch[1];
+        }
+        
+        // Fetch cover art from iTunes API using track/album ID or search
         try {
-          const searchTerm = encodeURIComponent(searchQuery);
-          const itunesResponse = await fetch(`https://itunes.apple.com/search?term=${searchTerm}&media=music&limit=1`);
-          const itunesData = await itunesResponse.json();
-          if (itunesData.results && itunesData.results[0]) {
-            coverArtUrl = itunesData.results[0].artworkUrl100?.replace("100x100", "600x600") || "";
+          let itunesUrl;
+          if (trackId) {
+            itunesUrl = `https://itunes.apple.com/lookup?id=${trackId}&entity=song`;
+          } else {
+            // Extract album ID from URL if present
+            const albumIdMatch = scanInput.match(/\/album\/[^/]+\/(\d+)/);
+            if (albumIdMatch) {
+              itunesUrl = `https://itunes.apple.com/lookup?id=${albumIdMatch[1]}&entity=album`;
+            } else {
+              itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(searchQuery)}&media=music&limit=1`;
+            }
+          }
+          
+          const itunesResponse = await fetch(itunesUrl);
+          if (itunesResponse.ok) {
+            const itunesData = await itunesResponse.json();
+            if (itunesData.results && itunesData.results[0]) {
+              // Get high resolution artwork (600x600)
+              const artwork = itunesData.results[0].artworkUrl100 || itunesData.results[0].artworkUrl60;
+              if (artwork) {
+                coverArtUrl = artwork.replace(/\d+x\d+/, "600x600");
+              }
+              // Also get track name if available
+              if (itunesData.results[0].trackName) {
+                searchQuery = `${itunesData.results[0].artistName} ${itunesData.results[0].trackName}`;
+              }
+            }
           }
         } catch (e) {
           console.log("Could not fetch iTunes cover art");
         }
-      } else if (isSpotifyLink) {
-        // Parse Spotify URL to get track/album info
-        // Format: https://open.spotify.com/track/xxxxx or /album/xxxxx
-        const urlParts = scanInput.split("/");
-        const trackIndex = urlParts.findIndex(p => p === "track" || p === "album");
-        
-        if (trackIndex > -1) {
-          // Get the ID and try to extract name from URL or embed page
-          const spotifyId = urlParts[trackIndex + 1]?.split("?")[0];
-          
-          // Use Spotify embed to try to get metadata
-          try {
-            const embedUrl = `https://open.spotify.com/embed/${urlParts[trackIndex]}/${spotifyId}`;
-            // For search query, we'll use a simplified approach - extract from URL path
-            // In production, you'd use Spotify API with proper auth
-            const pathPart = urlParts[trackIndex + 1]?.split("?")[0];
-            if (pathPart) {
-              // Try to get track name from oEmbed
-              const oembedResponse = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(scanInput)}`);
-              const oembedData = await oembedResponse.json();
-              if (oembedData.title) {
-                searchQuery = oembedData.title;
-                // Extract cover from thumbnail
-                coverArtUrl = oembedData.thumbnail_url || "";
-              }
-            }
-          } catch (e) {
-            console.log("Could not fetch Spotify metadata, using generic search");
-            searchQuery = "spotify track";
-          }
-        }
       } else {
-        // UPC/ISRC code
-        searchQuery = scanInput.trim();
+        // UPC/ISRC code - search iTunes
+        try {
+          const itunesResponse = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(scanInput.trim())}&media=music&limit=1`);
+          if (itunesResponse.ok) {
+            const itunesData = await itunesResponse.json();
+            if (itunesData.results && itunesData.results[0]) {
+              const artwork = itunesData.results[0].artworkUrl100;
+              if (artwork) {
+                coverArtUrl = artwork.replace(/\d+x\d+/, "600x600");
+              }
+              searchQuery = `${itunesData.results[0].artistName} ${itunesData.results[0].trackName}`;
+            }
+          }
+        } catch (e) {
+          console.log("Could not search iTunes");
+        }
+        if (!searchQuery) searchQuery = scanInput.trim();
       }
 
       if (!searchQuery) {
         searchQuery = "music release";
       }
 
-      // Update cover image if we found one and don't have one yet
-      if (coverArtUrl && !formData.cover_image) {
+      // Always update cover image from the scanned track
+      if (coverArtUrl) {
         setFormData(prev => ({ ...prev, cover_image: coverArtUrl }));
-        toast.success("Cover art detected and applied!");
+        toast.success("Cover art from track applied!");
       }
 
       // Generate platform links based on the source
