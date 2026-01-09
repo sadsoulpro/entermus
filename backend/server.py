@@ -107,6 +107,13 @@ class LinkReorder(BaseModel):
 class PasswordReset(BaseModel):
     email: EmailStr
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
 class TokenResponse(BaseModel):
     token: str
     user: UserResponse
