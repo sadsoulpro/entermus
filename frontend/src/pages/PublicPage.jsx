@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Music, ExternalLink } from "lucide-react";
-import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink } from "react-icons/fa";
+import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink, FaYandex, FaVk } from "react-icons/fa";
 import { SiTidal } from "react-icons/si";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -15,6 +15,8 @@ const PLATFORMS = {
   soundcloud: { name: "SoundCloud", icon: FaSoundcloud, color: "#FF5500", bgClass: "platform-soundcloud" },
   tidal: { name: "Tidal", icon: SiTidal, color: "#000000", bgClass: "platform-tidal" },
   deezer: { name: "Deezer", icon: FaLink, color: "#00C7F2", bgClass: "platform-deezer" },
+  yandex: { name: "Yandex Music", icon: FaYandex, color: "#FF0000", bgClass: "platform-yandex" },
+  vk: { name: "VK Music", icon: FaVk, color: "#4C75A3", bgClass: "platform-vk" },
   custom: { name: "Listen Now", icon: FaLink, color: "#888888", bgClass: "" },
 };
 

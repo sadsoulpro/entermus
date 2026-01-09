@@ -55,7 +55,7 @@ export default function Landing() {
                   Create Your Page
                 </Button>
               </Link>
-              <Link to="/artist/demo">
+              <Link to="/demo">
                 <Button 
                   variant="outline" 
                   data-testid="hero-demo-btn"

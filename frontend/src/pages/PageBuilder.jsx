@@ -11,7 +11,7 @@ import {
   Music, ArrowLeft, Upload, Plus, Trash2, 
   GripVertical, ExternalLink, Save
 } from "lucide-react";
-import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink } from "react-icons/fa";
+import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink, FaYandex, FaVk } from "react-icons/fa";
 import { SiTidal } from "react-icons/si";
 import { motion } from "framer-motion";
 
@@ -22,6 +22,8 @@ const PLATFORMS = [
   { id: "soundcloud", name: "SoundCloud", icon: FaSoundcloud, color: "#FF5500" },
   { id: "tidal", name: "Tidal", icon: SiTidal, color: "#000000" },
   { id: "deezer", name: "Deezer", icon: FaLink, color: "#00C7F2" },
+  { id: "yandex", name: "Yandex Music", icon: FaYandex, color: "#FF0000" },
+  { id: "vk", name: "VK Music", icon: FaVk, color: "#4C75A3" },
   { id: "custom", name: "Custom Link", icon: FaLink, color: "#888888" },
 ];
 
@@ -218,11 +220,11 @@ export default function PageBuilder() {
             <h1 className="font-semibold">{isEditing ? "Edit Page" : "Create New Page"}</h1>
           </div>
           <div className="flex items-center gap-3">
-            {isEditing && (
-              <a href={`/artist/${formData.slug}`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="rounded-full" data-testid="preview-btn">
+            {isEditing && formData.slug && (
+              <a href={`/${formData.slug}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="rounded-full" data-testid="view-public-page-btn">
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Preview
+                  View Public Page
                 </Button>
               </a>
             )}

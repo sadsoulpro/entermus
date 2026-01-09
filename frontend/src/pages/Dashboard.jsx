@@ -50,7 +50,7 @@ export default function Dashboard() {
   };
 
   const copyLink = (slug) => {
-    const url = `${window.location.origin}/artist/${slug}`;
+    const url = `${window.location.origin}/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard");
   };
@@ -283,7 +283,7 @@ export default function Dashboard() {
                         <Copy className="w-4 h-4" />
                       </Button>
                       <a 
-                        href={`/artist/${page.slug}`} 
+                        href={`/${page.slug}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                       >

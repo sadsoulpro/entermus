@@ -103,7 +103,6 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/artist/:slug" element={<PublicPage />} />
           
           {/* Protected Routes */}
           <Route path="/dashboard" element={
@@ -124,8 +123,8 @@ function App() {
             <ProtectedRoute adminOnly><AdminPanel /></ProtectedRoute>
           } />
           
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Public Smart Link Page - must be last to catch /:slug */}
+          <Route path="/:slug" element={<PublicPage />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" richColors />
