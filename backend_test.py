@@ -112,7 +112,7 @@ class BandLinkAPITester:
         }
         
         # First register
-        success, _ = self.run_test(
+        success, reg_response = self.run_test(
             "Register for Login Test",
             "POST",
             "auth/register",
@@ -131,6 +131,12 @@ class BandLinkAPITester:
             200,
             data={"email": test_data["email"], "password": test_data["password"]}
         )
+        
+        # Update token for subsequent tests
+        if success and 'token' in response:
+            self.token = response['token']
+            if 'user' in response and 'id' in response['user']:
+                self.test_user_id = response['user']['id']
         
         return success and 'token' in response
 
