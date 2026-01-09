@@ -1,0 +1,533 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { api } from "@/App";
+import { toast } from "sonner";
+import { 
+  Music, ArrowLeft, Upload, Plus, Trash2, 
+  GripVertical, ExternalLink, Save
+} from "lucide-react";
+import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink } from "react-icons/fa";
+import { SiTidal, SiDeezer } from "react-icons/si";
+import { motion } from "framer-motion";
+
+const PLATFORMS = [
+  { id: "spotify", name: "Spotify", icon: FaSpotify, color: "#1DB954" },
+  { id: "apple", name: "Apple Music", icon: FaApple, color: "#FA233B" },
+  { id: "youtube", name: "YouTube", icon: FaYoutube, color: "#FF0000" },
+  { id: "soundcloud", name: "SoundCloud", icon: FaSoundcloud, color: "#FF5500" },
+  { id: "tidal", name: "Tidal", icon: SiTidal, color: "#000000" },
+  { id: "deezer", name: "Deezer", icon: SiDeezer, color: "#00C7F2" },
+  { id: "custom", name: "Custom Link", icon: FaLink, color: "#888888" },
+];
+
+export default function PageBuilder() {
+  const { pageId } = useParams();
+  const navigate = useNavigate();
+  const isEditing = Boolean(pageId);
+  
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    title: "",
+    slug: "",
+    artist_name: "",
+    release_title: "",
+    description: "",
+    cover_image: "",
+  });
+  
+  const [links, setLinks] = useState([]);
+  const [newLink, setNewLink] = useState({ platform: "spotify", url: "" });
+
+  useEffect(() => {
+    if (isEditing) {
+      fetchPage();
+    }
+  }, [pageId]);
+
+  const fetchPage = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/pages/${pageId}`);
+      setFormData({
+        title: response.data.title,
+        slug: response.data.slug,
+        artist_name: response.data.artist_name,
+        release_title: response.data.release_title,
+        description: response.data.description || "",
+        cover_image: response.data.cover_image || "",
+      });
+      setLinks(response.data.links || []);
+    } catch (error) {
+      toast.error("Failed to load page");
+      navigate("/dashboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Auto-generate slug from title
+    if (name === "title" && !isEditing) {
+      const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      setFormData(prev => ({ ...prev, slug }));
+    }
+  };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+    
+    try {
+      const response = await api.post("/upload", formDataUpload, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      setFormData(prev => ({ ...prev, cover_image: response.data.cover_url }));
+      toast.success("Image uploaded");
+    } catch (error) {
+      toast.error("Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    
+    try {
+      if (isEditing) {
+        await api.put(`/pages/${pageId}`, formData);
+        toast.success("Page updated");
+      } else {
+        const response = await api.post("/pages", formData);
+        // Add links if any
+        for (const link of links) {
+          await api.post(`/pages/${response.data.id}/links`, {
+            platform: link.platform,
+            url: link.url,
+            active: link.active ?? true
+          });
+        }
+        toast.success("Page created");
+        navigate(`/page/${response.data.id}/edit`);
+        return;
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to save page");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addLink = async () => {
+    if (!newLink.url) {
+      toast.error("Please enter a URL");
+      return;
+    }
+    
+    if (isEditing) {
+      try {
+        const response = await api.post(`/pages/${pageId}/links`, {
+          platform: newLink.platform,
+          url: newLink.url,
+          active: true
+        });
+        setLinks(prev => [...prev, response.data]);
+        setNewLink({ platform: "spotify", url: "" });
+        toast.success("Link added");
+      } catch (error) {
+        toast.error("Failed to add link");
+      }
+    } else {
+      setLinks(prev => [...prev, { 
+        id: Date.now().toString(),
+        platform: newLink.platform, 
+        url: newLink.url,
+        active: true,
+        clicks: 0
+      }]);
+      setNewLink({ platform: "spotify", url: "" });
+    }
+  };
+
+  const toggleLink = async (linkId, active) => {
+    if (isEditing) {
+      try {
+        await api.put(`/pages/${pageId}/links/${linkId}`, { active: !active });
+        setLinks(prev => prev.map(l => l.id === linkId ? { ...l, active: !active } : l));
+      } catch (error) {
+        toast.error("Failed to update link");
+      }
+    } else {
+      setLinks(prev => prev.map(l => l.id === linkId ? { ...l, active: !active } : l));
+    }
+  };
+
+  const deleteLink = async (linkId) => {
+    if (isEditing) {
+      try {
+        await api.delete(`/pages/${pageId}/links/${linkId}`);
+        setLinks(prev => prev.filter(l => l.id !== linkId));
+        toast.success("Link removed");
+      } catch (error) {
+        toast.error("Failed to remove link");
+      }
+    } else {
+      setLinks(prev => prev.filter(l => l.id !== linkId));
+    }
+  };
+
+  const getPlatformInfo = (platformId) => {
+    return PLATFORMS.find(p => p.id === platformId) || PLATFORMS[PLATFORMS.length - 1];
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <h1 className="font-semibold">{isEditing ? "Edit Page" : "Create New Page"}</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            {isEditing && (
+              <a href={`/artist/${formData.slug}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="rounded-full" data-testid="preview-btn">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+              </a>
+            )}
+            <Button 
+              onClick={handleSubmit}
+              disabled={saving}
+              className="bg-primary hover:bg-primary/90 rounded-full"
+              data-testid="save-page-btn"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </div>
+      </header>
+      
+      <div className="max-w-7xl mx-auto p-6 grid lg:grid-cols-2 gap-10">
+        {/* Form */}
+        <div className="space-y-8">
+          {/* Basic Info */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Basic Info</h2>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Page Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  placeholder="My New Single"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  data-testid="page-title-input"
+                  className="h-12 bg-zinc-900 border-zinc-800"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="slug">URL Slug</Label>
+                <div className="flex items-center">
+                  <span className="text-muted-foreground text-sm mr-2">/artist/</span>
+                  <Input
+                    id="slug"
+                    name="slug"
+                    placeholder="my-new-single"
+                    value={formData.slug}
+                    onChange={handleChange}
+                    required
+                    data-testid="page-slug-input"
+                    className="h-12 bg-zinc-900 border-zinc-800"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="artist_name">Artist Name</Label>
+                  <Input
+                    id="artist_name"
+                    name="artist_name"
+                    placeholder="Your Name"
+                    value={formData.artist_name}
+                    onChange={handleChange}
+                    required
+                    data-testid="artist-name-input"
+                    className="h-12 bg-zinc-900 border-zinc-800"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="release_title">Release Title</Label>
+                  <Input
+                    id="release_title"
+                    name="release_title"
+                    placeholder="Song or Album Name"
+                    value={formData.release_title}
+                    onChange={handleChange}
+                    required
+                    data-testid="release-title-input"
+                    className="h-12 bg-zinc-900 border-zinc-800"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="Tell fans about this release..."
+                  value={formData.description}
+                  onChange={handleChange}
+                  data-testid="description-input"
+                  className="bg-zinc-900 border-zinc-800 min-h-[100px]"
+                />
+              </div>
+            </div>
+          </section>
+          
+          {/* Cover Image */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Cover Image</h2>
+            <div className="space-y-4">
+              <div 
+                className="relative w-40 h-40 rounded-2xl bg-zinc-800 overflow-hidden border-2 border-dashed border-zinc-700 hover:border-primary/50 transition-colors cursor-pointer group"
+                onClick={() => document.getElementById('cover-upload').click()}
+              >
+                {formData.cover_image ? (
+                  <img 
+                    src={formData.cover_image.startsWith('/') ? `${process.env.REACT_APP_BACKEND_URL}${formData.cover_image}` : formData.cover_image}
+                    alt="Cover"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">Upload</span>
+                  </div>
+                )}
+                {uploading && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary"></div>
+                  </div>
+                )}
+              </div>
+              <input
+                id="cover-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleUpload}
+                className="hidden"
+                data-testid="cover-upload-input"
+              />
+              <p className="text-sm text-muted-foreground">
+                Recommended: 1000x1000px, JPG or PNG
+              </p>
+            </div>
+          </section>
+          
+          {/* Links */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Platform Links</h2>
+            
+            {/* Add New Link */}
+            <div className="flex gap-2 mb-4">
+              <select
+                value={newLink.platform}
+                onChange={(e) => setNewLink(prev => ({ ...prev, platform: e.target.value }))}
+                className="h-12 px-4 rounded-xl bg-zinc-900 border border-zinc-800 text-foreground"
+                data-testid="platform-select"
+              >
+                {PLATFORMS.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              <Input
+                placeholder="https://..."
+                value={newLink.url}
+                onChange={(e) => setNewLink(prev => ({ ...prev, url: e.target.value }))}
+                data-testid="link-url-input"
+                className="h-12 bg-zinc-900 border-zinc-800 flex-1"
+              />
+              <Button 
+                onClick={addLink}
+                className="h-12 bg-primary hover:bg-primary/90"
+                data-testid="add-link-btn"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            {/* Links List */}
+            <div className="space-y-2">
+              {links.map((link, i) => {
+                const platform = getPlatformInfo(link.platform);
+                const Icon = platform.icon;
+                
+                return (
+                  <motion.div
+                    key={link.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-white/5"
+                    data-testid={`link-item-${link.id}`}
+                  >
+                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
+                    <div 
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: platform.color }}
+                    >
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{platform.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{link.url}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={link.active}
+                        onCheckedChange={() => toggleLink(link.id, link.active)}
+                        data-testid={`toggle-link-${link.id}`}
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => deleteLink(link.id)}
+                        className="text-muted-foreground hover:text-red-400"
+                        data-testid={`delete-link-${link.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              
+              {links.length === 0 && (
+                <p className="text-center text-muted-foreground py-8 border border-dashed border-zinc-800 rounded-xl">
+                  No links added yet. Add your first platform link above.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+        
+        {/* Live Preview */}
+        <div className="hidden lg:block sticky top-24 h-fit">
+          <h2 className="text-lg font-semibold mb-4">Live Preview</h2>
+          <div className="relative mx-auto w-[300px]">
+            {/* Phone Frame */}
+            <div className="rounded-[40px] border-4 border-zinc-800 bg-zinc-900 p-2 shadow-2xl">
+              <div className="rounded-[32px] overflow-hidden aspect-[9/16] relative">
+                {/* Background */}
+                <div 
+                  className="absolute inset-0 bg-gradient-to-b from-purple-900/30 to-zinc-900"
+                  style={formData.cover_image ? {
+                    backgroundImage: `url(${formData.cover_image.startsWith('/') ? `${process.env.REACT_APP_BACKEND_URL}${formData.cover_image}` : formData.cover_image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    filter: 'blur(40px)',
+                    transform: 'scale(1.2)',
+                    opacity: 0.4
+                  } : {}}
+                />
+                
+                {/* Content */}
+                <div className="relative p-6 pt-10 flex flex-col items-center text-center h-full">
+                  {/* Cover */}
+                  <div className="w-24 h-24 rounded-xl bg-zinc-800 overflow-hidden mb-4 shadow-xl">
+                    {formData.cover_image ? (
+                      <img 
+                        src={formData.cover_image.startsWith('/') ? `${process.env.REACT_APP_BACKEND_URL}${formData.cover_image}` : formData.cover_image}
+                        alt="Cover"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Music className="w-10 h-10 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <h3 className="font-display text-lg uppercase">
+                    {formData.artist_name || "Artist Name"}
+                  </h3>
+                  <p className="text-sm text-zinc-400 mb-6">
+                    {formData.release_title || "Release Title"}
+                  </p>
+                  
+                  {/* Links Preview */}
+                  <div className="w-full space-y-2 flex-1 overflow-auto">
+                    {links.filter(l => l.active).map(link => {
+                      const platform = getPlatformInfo(link.platform);
+                      const Icon = platform.icon;
+                      
+                      return (
+                        <div 
+                          key={link.id}
+                          className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3"
+                        >
+                          <Icon className="w-5 h-5" style={{ color: platform.color }} />
+                          <span className="text-sm font-medium">{platform.name}</span>
+                        </div>
+                      );
+                    })}
+                    
+                    {links.filter(l => l.active).length === 0 && (
+                      <div className="py-3 px-4 rounded-xl border border-dashed border-white/10 text-xs text-muted-foreground">
+                        Links will appear here
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Footer */}
+                  <div className="mt-auto pt-4">
+                    <p className="text-[10px] text-zinc-500">Powered by BandLink</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Glow */}
+            <div className="absolute -inset-4 bg-primary/10 blur-3xl -z-10 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
