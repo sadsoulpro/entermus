@@ -502,6 +502,60 @@ async def admin_disable_page(page_id: str, admin_user: dict = Depends(get_admin_
     
     return {"message": f"Page {new_status}", "status": new_status}
 
+# ===================== METADATA LOOKUP =====================
+
+@api_router.get("/lookup/itunes")
+async def lookup_itunes(id: Optional[str] = None, term: Optional[str] = None):
+    """Proxy endpoint for iTunes API to avoid CORS issues"""
+    try:
+        async with httpx.AsyncClient() as client:
+            if id:
+                url = f"https://itunes.apple.com/lookup?id={id}"
+            elif term:
+                url = f"https://itunes.apple.com/search?term={term}&media=music&limit=1"
+            else:
+                raise HTTPException(status_code=400, detail="Provide id or term parameter")
+            
+            response = await client.get(url, timeout=10.0)
+            data = response.json()
+            
+            if data.get("results") and len(data["results"]) > 0:
+                result = data["results"][0]
+                artwork = result.get("artworkUrl100") or result.get("artworkUrl60") or ""
+                # Convert to high resolution
+                if artwork:
+                    artwork = artwork.replace("100x100bb", "600x600bb").replace("60x60bb", "600x600bb")
+                
+                return {
+                    "artwork": artwork,
+                    "trackName": result.get("trackName") or result.get("collectionName"),
+                    "artistName": result.get("artistName"),
+                    "collectionName": result.get("collectionName")
+                }
+            
+            return {"artwork": "", "trackName": "", "artistName": "", "collectionName": ""}
+    except Exception as e:
+        logging.error(f"iTunes lookup error: {e}")
+        return {"artwork": "", "trackName": "", "artistName": "", "collectionName": ""}
+
+@api_router.get("/lookup/spotify")
+async def lookup_spotify(url: str):
+    """Proxy endpoint for Spotify oEmbed to avoid CORS issues"""
+    try:
+        async with httpx.AsyncClient() as client:
+            oembed_url = f"https://open.spotify.com/oembed?url={url}"
+            response = await client.get(oembed_url, timeout=10.0)
+            data = response.json()
+            
+            return {
+                "artwork": data.get("thumbnail_url", ""),
+                "title": data.get("title", ""),
+                "provider": "spotify"
+            }
+    except Exception as e:
+        logging.error(f"Spotify lookup error: {e}")
+        return {"artwork": "", "title": "", "provider": "spotify"}
+
 # ===================== FILE UPLOAD =====================
 
 @api_router.post("/upload")
