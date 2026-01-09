@@ -348,6 +348,23 @@ async def create_link(page_id: str, data: LinkCreate, user: dict = Depends(get_c
     link.pop("_id", None)
     return link
 
+@api_router.put("/pages/{page_id}/links/reorder")
+async def reorder_links(page_id: str, data: LinkReorder, user: dict = Depends(get_current_user)):
+    page = await db.pages.find_one({"id": page_id, "user_id": user["id"]})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    # Update order for each link
+    for index, link_id in enumerate(data.link_ids):
+        await db.links.update_one(
+            {"id": link_id, "page_id": page_id},
+            {"$set": {"order": index}}
+        )
+    
+    # Return updated links in new order
+    links = await db.links.find({"page_id": page_id}, {"_id": 0}).sort("order", 1).to_list(100)
+    return links
+
 @api_router.put("/pages/{page_id}/links/{link_id}")
 async def update_link(page_id: str, link_id: str, data: LinkUpdate, user: dict = Depends(get_current_user)):
     page = await db.pages.find_one({"id": page_id, "user_id": user["id"]})
