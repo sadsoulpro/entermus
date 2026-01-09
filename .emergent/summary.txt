@@ -1,0 +1,150 @@
+<analysis>**original_problem_statement:**
+The user wants to build a minimal band.link-like smart link web service for musicians (MVP).
+
+**PRODUCT REQUIREMENTS:**
+- **Roles:** Guest (fan), User (artist), Admin.
+- **Core Features (MVP):**
+    1.  **Auth:** User registration (email/password), login/logout.
+    2.  **User Dashboard:** List smart pages, create new pages, view basic stats (views, clicks).
+    3.  **Smart Link Page (Public):** Public URL  containing artist name, release title, cover image, blurred background, and a list of platform links (Spotify, Apple Music, YouTube, etc.).
+    4.  **Page Builder (User):** Create/edit pages with fields for title, slug, artist info, cover image, and link management.
+    5.  **Analytics:** Track page views and clicks per platform.
+- **Subsequent Feature Requests (Implemented):**
+    - Added Yandex Music and VK Music platforms.
+    - Changed public URLs from  to .
+    - Added a View Public Page button in the page builder.
+    - Implemented link reordering (up/down buttons) with order saved to the database.
+    - Added dynamic Open Graph (OG) meta tags to public pages.
+    - Implemented a Scan Source feature to auto-populate links and cover art from Spotify and Apple Music URLs.
+    - Added a QR code generator with an enable/disable toggle in the page builder, with the state saved and reflected on the public page.
+    - Updated branding from BandLink to MyTrack.
+    - Performed several UI/UX and responsiveness fixes for mobile devices.
+- **Current Request:**
+    - Translate all UI text strings into Russian.
+
+**User's preferred language**: The user communicates in English, but the current task is to translate the application's UI into Russian. The next agent must continue this translation task.
+
+**what currently exists?**
+A fully functional MVP of a smart link service named MyTrack. The application includes a FastAPI backend, a React frontend, and a MongoDB database. Key features implemented are user authentication (JWT), a dashboard for artists to create and manage their link pages, public-facing pages with platform links, and a basic admin panel. Recent additions include link reordering, dynamic OG meta tags, a QR code generator, and a Scan Source feature that auto-populates platform links and cover art from Spotify/Apple Music URLs. The UI has been refined for mobile responsiveness.
+
+**Last working item**:
+- **Last item agent was working:** The agent began translating the application's UI into Russian, as requested by the user. It started by viewing and applying translation edits to  and was about to proceed with .
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** screenshot tool. After translating each page, the agent should take a screenshot to visually verify that all English text has been replaced with Russian and that the layout remains intact.
+- **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+- **Issue 1 (P0):**
+  - **Description:** Some UI components might still have hardcoded English text that was missed during the initial translation pass.
+  - **Status:** NOT STARTED
+  - **Next debug checklist:** After completing the primary translation task, perform a full visual scan of the application (Landing, Login, Register, Dashboard, Page Builder, Public Page) to find and translate any remaining English text.
+  - **Why fix this issue and what will be achieved with the fix?** To ensure a complete and professional user experience for Russian-speaking users.
+  - **Should Test frontend/backend/both after fix?** Frontend
+
+**In progress Task List**:
+- **Task 1 (P0): Complete the Russian Translation of the UI**
+  - **Description:** Translate all English text strings in the frontend application to Russian.
+  - **Where to resume:** The agent has already started with . The next file to translate is . The agent must then proceed to translate all other components and pages.
+  - **What will be achieved with this?** The application will be fully localized for Russian-speaking users.
+  - **Status:** IN PROGRESS
+  - **Should Test frontend/backend/both after fix?** Frontend
+  - **Blocked on something:** No
+
+**Upcoming and Future Tasks**
+- No upcoming or future tasks have been requested by the user.
+
+**Completed work in this session**
+- **Full MVP Build:** Created the initial full-stack application.
+- **Platform Link Expansion:** Added Yandex Music and VK Music.
+- **URL Structure Change:** Migrated public pages from  to .
+- **Link Reordering:** Implemented functionality to reorder platform links, with the order saved to the database.
+- **SEO/Sharing Enhancement:** Added dynamic Open Graph (OG) meta tags to public pages.
+- **Brand Update:** Renamed the application from BandLink to MyTrack.
+- **Scan Source Feature:** Created a tool to auto-populate links and cover art from Spotify and Apple Music URLs.
+- **QR Code Feature:** Added a QR code generator with persistence to the page builder and public pages.
+- **Responsive UI Fixes:** Improved layout and responsiveness across the application, especially for mobile devices.
+- **Mobile Overflow Fix:** Corrected layout issues on the Dashboard for narrow mobile screens.
+- **Apple Music Cover Art Fix:** Implemented a backend proxy to resolve CORS issues when fetching cover art from the iTunes API.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Backend:** FastAPI, MongoDB (via ), Pydantic models, JWT for authentication.
+- **Frontend:** React, React Router, Tailwind CSS, Shadcn UI components,  for animations, .
+- **Architecture:** Single-server backend () providing a REST API to a React Single-Page Application (SPA).
+- **APIs:** Implemented a server-side proxy to fetch data from the iTunes API to bypass browser CORS restrictions. Uses Spotify's oEmbed API.
+
+**key DB schema**
+- **users:** 
+- **pages:** 
+- **links:** 
+- **clicks:** 
+
+**changes in tech stack**
+- None. The stack has remained FastAPI, React, and MongoDB.
+
+**All files of reference**
+- : Contains the entire backend logic, including API routes, database models, and business logic.
+- : This directory contains all the main page components of the React application. All of these files will need to be edited for the translation task.
+    - , , , , , , 
+- : Defines the application's routes.
+- : Updated to include a custom  breakpoint for better responsiveness on very narrow screens.
+
+**Areas that need refactoring**:
+- The entire backend is in a single  file. For future scalability, this could be broken down into multiple files (e.g., routes, models, services).
+
+**key api endpoints**
+- : User authentication.
+- : CRUD operations for user pages.
+- : CRUD operations for links on a page.
+- : Reorders links for a page.
+- : Public route to view a smart link page (handled by frontend router, data fetched from ).
+- : Tracks a link click and redirects.
+- : Backend proxy to fetch metadata from Apple's iTunes API.
+
+**Critical Info for New Agent**
+- **Russian Translation:** The immediate task is to translate all frontend components into Russian. Proceed file by file through the  directory.
+- **iTunes API Proxy:** The Scan Source feature for Apple Music relies on a backend proxy endpoint () to avoid browser CORS issues. The frontend calls this endpoint, not the iTunes API directly.
+- **Responsive Breakpoint:** A custom  breakpoint was added to  to handle UI on very narrow screens like the iPhone SE.
+
+**documents and test reports created in this job**
+- 
+- 
+- 
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User (Task):** Translate the entire UI to Russian, providing examples.
+2.  **Agent (Action):** Started the translation task.
+3.  **User (Task):** Fix mobile overflow on the dashboard page cards.
+4.  **Agent (Finish):** Fixed the overflow issue by adding padding and responsive classes.
+5.  **User (Task):** Refine UI for responsiveness, update footer copyright, and asked how to deploy to GitHub.
+6.  **Agent (Finish):** Implemented responsive fixes, updated the footer, and provided instructions for GitHub deployment via the support agent.
+7.  **User (Bug):** Apple Music cover art is not visible when scanning a link.
+8.  **Agent (Finish):** Fixed the issue by implementing a backend proxy to bypass CORS.
+9.  **User (Task):** Update the scan source feature to always take the cover art from the inserted link.
+10. **Agent (Finish):** Updated the logic to prioritize the scanned track's cover art.
+
+**Project Health Check:**
+- **Functional:** The application is fully functional with all requested features implemented.
+- **Mocked:** No parts of the application are mocked. The Scan Source feature makes live calls to external APIs.
+
+**3rd Party Integrations**
+- **qrcode.react:** Used for generating QR codes in the frontend.
+- **framer-motion:** Used for UI animations.
+- **lucide-react:** Used for icons.
+- **react-icons:** Used for icons.
+
+**Testing status**
+- **Testing agent used after significant changes:** YES, used after the initial MVP build.
+- **Troubleshoot agent used after agent stuck in loop:** NO
+- **Test files created:** None.
+- **Known regressions:** None.
+
+**Credentials to test flow:**
+- **Admin:**  / 
+- Regular user accounts can be created through the registration form.
+
+**What agent forgot to execute**
+- Nothing was forgotten. The agent is in the middle of executing the current user request to translate the UI to Russian.</analysis>
