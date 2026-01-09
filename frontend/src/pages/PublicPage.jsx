@@ -232,7 +232,7 @@ export default function PublicPage() {
                     <span className="font-medium">{platform.name}</span>
                   </div>
                   <ExternalLink className="w-5 h-5 text-zinc-500 group-hover:text-primary transition-colors" />
-                </motion.button>
+                <motion.button>
               );
             })}
             
@@ -240,6 +240,28 @@ export default function PublicPage() {
               <p className="text-muted-foreground py-8">No links available</p>
             )}
           </div>
+          
+          {/* QR Code - only show if enabled */}
+          {page.qr_enabled !== false && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mt-8 flex flex-col items-center"
+            >
+              <div className="p-3 bg-white rounded-xl shadow-lg">
+                <QRCodeSVG
+                  value={window.location.href}
+                  size={100}
+                  level="M"
+                  includeMargin={false}
+                  bgColor="#ffffff"
+                  fgColor="#18181b"
+                />
+              </div>
+              <p className="text-xs text-zinc-500 mt-2">Scan to share</p>
+            </motion.div>
+          )}
         </div>
         
         {/* Footer */}
