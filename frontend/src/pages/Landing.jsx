@@ -10,20 +10,20 @@ export default function Landing() {
       <div className="fixed inset-0 bg-gradient-to-br from-fuchsia-500/10 via-transparent to-purple-500/5 pointer-events-none" />
       
       {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+      <nav className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <Music className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center">
+            <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <span className="font-display text-2xl tracking-tight">MYTRACK.CC</span>
+          <span className="font-display text-xl sm:text-2xl tracking-tight">MYTRACK</span>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link to="/login">
-            <Button variant="ghost" data-testid="nav-login-btn">Log In</Button>
+            <Button variant="ghost" data-testid="nav-login-btn" className="px-3 sm:px-4">Log In</Button>
           </Link>
           <Link to="/register">
-            <Button data-testid="nav-signup-btn" className="bg-primary hover:bg-primary/90 rounded-full px-6">
+            <Button data-testid="nav-signup-btn" className="bg-primary hover:bg-primary/90 rounded-full px-4 sm:px-6 text-sm sm:text-base">
               Get Started
             </Button>
           </Link>
@@ -31,26 +31,26 @@ export default function Landing() {
       </nav>
       
       {/* Hero Section */}
-      <section className="relative z-10 px-6 pt-20 pb-32 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="relative z-10 px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-32 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-none mb-6">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl tracking-tight leading-none mb-4 sm:mb-6">
               ONE LINK<br />
               <span className="text-primary">ALL YOUR</span><br />
               MUSIC
             </h1>
-            <p className="text-muted-foreground text-lg mb-8 max-w-md">
+            <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8 max-w-md">
               Create stunning smart link pages for your releases. Share one link, reach fans everywhere.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link to="/register">
                 <Button 
                   data-testid="hero-get-started-btn"
-                  className="bg-primary hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-105"
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 rounded-full px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-105"
                 >
                   Create Your Page
                 </Button>
@@ -59,7 +59,7 @@ export default function Landing() {
                 <Button 
                   variant="outline" 
                   data-testid="hero-demo-btn"
-                  className="rounded-full px-8 py-6 text-lg border-white/10 hover:bg-white/5"
+                  className="w-full sm:w-auto rounded-full px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg border-white/10 hover:bg-white/5"
                 >
                   View Demo
                 </Button>
@@ -173,15 +173,15 @@ export default function Landing() {
       </section>
       
       {/* Footer */}
-      <footer className="relative z-10 px-6 py-8 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <footer className="relative z-10 px-4 sm:px-6 py-6 sm:py-8 border-t border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Music className="w-4 h-4 text-white" />
             </div>
-            <span className="font-display text-lg">MYTRACK.CC</span>
+            <span className="font-display text-lg">MYTRACK</span>
           </div>
-          <p className="text-muted-foreground text-sm">© 2024 MyTrack.cc. All rights reserved.</p>
+          <p className="text-muted-foreground text-sm text-center sm:text-left">© 2026 MyTrack. All rights reserved.</p>
         </div>
       </footer>
     </div>
