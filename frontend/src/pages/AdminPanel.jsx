@@ -7,7 +7,8 @@ import {
   Music, Users, FileText, ArrowLeft, Shield, 
   Ban, Check, Eye, ExternalLink, BarChart3, LogOut,
   Globe, MapPin, MousePointer, Share2, QrCode, Cpu, 
-  HardDrive, Activity, TrendingUp, Server, Settings
+  HardDrive, Activity, TrendingUp, Server, Settings,
+  BadgeCheck, X, Award
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
@@ -19,6 +20,7 @@ import {
 export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [pages, setPages] = useState([]);
+  const [verificationRequests, setVerificationRequests] = useState([]);
   const [globalAnalytics, setGlobalAnalytics] = useState(null);
   const [systemMetrics, setSystemMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
