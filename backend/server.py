@@ -187,6 +187,9 @@ async def register(data: UserCreate):
         "role": "user",
         "status": "active",
         "plan": "free",
+        "verified": False,
+        "verification_status": "none",  # none, pending, approved, rejected
+        "show_verification_badge": True,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user)
