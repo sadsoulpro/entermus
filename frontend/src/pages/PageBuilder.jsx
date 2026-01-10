@@ -186,7 +186,25 @@ export default function PageBuilder() {
     setSaving(true);
     
     try {
-      const pageData = { ...formData, qr_enabled: qrEnabled };
+      // Generate random slug if not provided
+      let finalSlug = formData.slug?.trim();
+      if (!finalSlug) {
+        finalSlug = generateRandomSlug();
+      }
+      
+      // Generate title if not provided
+      let finalTitle = formData.title?.trim();
+      if (!finalTitle) {
+        const parts = [formData.artist_name, formData.release_title].filter(Boolean);
+        finalTitle = parts.length > 0 ? parts.join(" - ") : "Новая страница";
+      }
+      
+      const pageData = { 
+        ...formData, 
+        slug: finalSlug,
+        title: finalTitle,
+        qr_enabled: qrEnabled 
+      };
       
       if (isEditing) {
         await api.put(`/pages/${pageId}`, pageData);
