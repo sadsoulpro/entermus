@@ -65,7 +65,7 @@ export default function Landing() {
               Стильные страницы для ваших релизов. Одна ссылка — все платформы.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Link to="/register">
+              <Link to={isAuthenticated ? "/page/new" : "/register"}>
                 <Button 
                   data-testid="hero-get-started-btn"
                   className="w-full sm:w-auto bg-primary hover:bg-primary/90 rounded-full px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-105"
