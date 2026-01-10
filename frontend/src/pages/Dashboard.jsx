@@ -144,7 +144,38 @@ export default function Dashboard() {
         
         {/* Pages List */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Ваши страницы</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Ваши страницы</h2>
+            
+            {/* Site Mode Switch */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-white/5">
+                <Globe className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">Сайт</span>
+                <Switch
+                  checked={siteMode}
+                  onCheckedChange={toggleSiteMode}
+                  disabled={siteModeLoading || pages.length < 2}
+                  data-testid="site-mode-switch"
+                />
+              </div>
+              {pages.length < 2 && (
+                <span className="text-xs text-muted-foreground hidden sm:block">
+                  Нужно минимум 2 страницы
+                </span>
+              )}
+            </div>
+          </div>
+          
+          {siteMode && pages.length >= 2 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mb-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm text-muted-foreground"
+            >
+              <span className="text-primary font-medium">Режим сайта включён.</span> На ваших публичных страницах появятся стрелки для навигации между релизами.
+            </motion.div>
+          )}
           
           {loading ? (
             <div className="flex items-center justify-center py-20">
