@@ -719,7 +719,7 @@ export default function PageBuilder() {
                     key={link.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-white/5"
+                    className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl bg-zinc-900/50 border border-white/5"
                     data-testid={`link-item-${link.id}`}
                   >
                     {/* Move Up/Down Buttons */}
@@ -727,35 +727,35 @@ export default function PageBuilder() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                        className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
                         onClick={() => moveLink(i, -1)}
                         disabled={i === 0}
                         data-testid={`move-up-${link.id}`}
                       >
-                        <ChevronUp className="w-4 h-4" />
+                        <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                        className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
                         onClick={() => moveLink(i, 1)}
                         disabled={i === links.length - 1}
                         data-testid={`move-down-${link.id}`}
                       >
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                     <div 
-                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: platform.color }}
                     >
-                      <Icon className="w-5 h-5 text-white" />
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{platform.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{link.url}</p>
+                      <p className="font-medium text-xs sm:text-sm">{platform.name}</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{link.url}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       <Switch
                         checked={link.active}
                         onCheckedChange={() => toggleLink(link.id, link.active)}
@@ -765,10 +765,10 @@ export default function PageBuilder() {
                         variant="ghost" 
                         size="icon"
                         onClick={() => deleteLink(link.id)}
-                        className="text-muted-foreground hover:text-red-400"
+                        className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-red-400"
                         data-testid={`delete-link-${link.id}`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </motion.div>
