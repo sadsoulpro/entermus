@@ -324,9 +324,6 @@ export default function PublicPage() {
           </>
         )}
       </AnimatePresence>
-          </div>
-        </div>
-      </motion.button>
       
       {/* Content */}
       <motion.div 
