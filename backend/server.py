@@ -204,6 +204,9 @@ async def register(data: UserCreate):
             "role": user["role"],
             "status": user["status"],
             "plan": user["plan"],
+            "verified": user["verified"],
+            "verification_status": user["verification_status"],
+            "show_verification_badge": user["show_verification_badge"],
             "created_at": user["created_at"]
         }
     }
