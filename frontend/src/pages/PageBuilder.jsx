@@ -81,6 +81,16 @@ export default function PageBuilder() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   
+  // Generate random 5-character slug
+  const generateRandomSlug = () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+  
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
