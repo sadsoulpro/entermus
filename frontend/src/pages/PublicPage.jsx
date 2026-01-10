@@ -202,7 +202,7 @@ export default function PublicPage() {
   const coverUrl = getCoverUrl(page.cover_image);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-zinc-950" data-testid="public-page">
+    <div className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden bg-zinc-950" data-testid="public-page">
       {/* Blurred Background */}
       {coverUrl && (
         <div 
@@ -227,13 +227,13 @@ export default function PublicPage() {
         className="relative z-10 w-full max-w-md"
       >
         {/* Glass Card */}
-        <div className="glass rounded-3xl p-8 text-center">
+        <div className="glass rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-center">
           {/* Cover Image */}
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl mx-auto mb-6 overflow-hidden shadow-2xl neon-glow"
+            className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-xl sm:rounded-2xl mx-auto mb-4 sm:mb-6 overflow-hidden shadow-2xl neon-glow"
           >
             {coverUrl ? (
               <img 
@@ -244,7 +244,7 @@ export default function PublicPage() {
               />
             ) : (
               <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                <Music className="w-16 h-16 text-muted-foreground" />
+                <Music className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground" />
               </div>
             )}
           </motion.div>
@@ -255,29 +255,29 @@ export default function PublicPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <h1 className="font-display text-2xl sm:text-3xl uppercase tracking-tight mb-1 flex items-center justify-center gap-2" data-testid="artist-name">
+            <h1 className="font-display text-xl sm:text-2xl md:text-3xl uppercase tracking-tight mb-1 flex items-center justify-center gap-1 sm:gap-2" data-testid="artist-name">
               {page.artist_name}
               {page.user_verified && (
                 <span className="relative group">
-                  <BadgeCheck className="w-6 h-6 text-primary" />
+                  <BadgeCheck className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-800 text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     Артист подтвержден
                   </span>
                 </span>
               )}
             </h1>
-            <p className="text-lg text-zinc-400 mb-2" data-testid="release-title">
+            <p className="text-base sm:text-lg text-zinc-400 mb-1 sm:mb-2" data-testid="release-title">
               {page.release_title}
             </p>
             {page.description && (
-              <p className="text-sm text-zinc-500 mb-6 max-w-xs mx-auto" data-testid="description">
+              <p className="text-xs sm:text-sm text-zinc-500 mb-4 sm:mb-6 max-w-xs mx-auto" data-testid="description">
                 {page.description}
               </p>
             )}
           </motion.div>
           
           {/* Links */}
-          <div className="space-y-3 mt-8">
+          <div className="space-y-2 sm:space-y-3 mt-6 sm:mt-8">
             {page.links?.map((link, i) => {
               const platform = getPlatformInfo(link.platform);
               const Icon = platform.icon;
@@ -289,19 +289,19 @@ export default function PublicPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + i * 0.1 }}
                   onClick={() => handleClick(link)}
-                  className="w-full flex items-center justify-between bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 hover:border-primary/50 text-white p-4 rounded-xl transition-all group link-hover"
+                  className="w-full flex items-center justify-between bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 hover:border-primary/50 text-white p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all group link-hover"
                   data-testid={`link-${link.platform}`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div 
-                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
                       style={{ backgroundColor: platform.color }}
                     >
-                      <Icon className="w-5 h-5 text-white" />
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <span className="font-medium">{platform.name}</span>
+                    <span className="font-medium text-sm sm:text-base">{platform.name}</span>
                   </div>
-                  <span className="text-sm text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <span className="text-xs sm:text-sm text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     Слушать
                   </span>
                 </motion.button>
