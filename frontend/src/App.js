@@ -108,55 +108,121 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 };
 
 function App() {
-  const [user, setUser] = useState(null);
+  // Initialize user from localStorage for instant UI (no flash)
+  const [user, setUser] = useState(() => getStoredUser());
   const [loading, setLoading] = useState(true);
 
+  // On mount: verify token with backend and update user data
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
+    const initAuth = async () => {
+      const token = getStoredToken();
+      const storedUser = getStoredUser();
+      
+      if (token && storedUser) {
+        // User data exists in localStorage - show UI immediately
+        setUser(storedUser);
+        
+        // Verify token and refresh user data in background
         try {
           const response = await api.get("/auth/me");
+          const freshUser = response.data;
+          // Update localStorage and state with fresh data
+          localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+          setUser(freshUser);
+        } catch (error) {
+          // Token invalid/expired - clear everything
+          console.warn("Token validation failed:", error.message);
+          clearAuthData();
+          setUser(null);
+        }
+      } else if (token) {
+        // Token exists but no user data - fetch user
+        try {
+          const response = await api.get("/auth/me");
+          saveAuthData(token, response.data);
           setUser(response.data);
         } catch (error) {
-          localStorage.removeItem("token");
+          clearAuthData();
+          setUser(null);
         }
+      } else {
+        // No token - ensure clean state
+        clearAuthData();
+        setUser(null);
       }
+      
       setLoading(false);
     };
-    checkAuth();
+    
+    initAuth();
   }, []);
 
+  // Login function - saves both token and user to localStorage
   const login = async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
-    localStorage.setItem("token", response.data.token);
-    setUser(response.data.user);
+    const { token, user: userData } = response.data;
+    
+    // Save to localStorage
+    saveAuthData(token, userData);
+    
+    // Update state
+    setUser(userData);
+    
     return response.data;
   };
 
+  // Register function - saves both token and user to localStorage
   const register = async (email, username, password) => {
     const response = await api.post("/auth/register", { email, username, password });
-    localStorage.setItem("token", response.data.token);
-    setUser(response.data.user);
+    const { token, user: userData } = response.data;
+    
+    // Save to localStorage
+    saveAuthData(token, userData);
+    
+    // Update state
+    setUser(userData);
+    
     return response.data;
   };
 
+  // Logout function - clears localStorage and state
   const logout = () => {
-    localStorage.removeItem("token");
+    clearAuthData();
     setUser(null);
   };
 
+  // Refresh user data from backend
   const refreshUser = async () => {
     try {
       const response = await api.get("/auth/me");
-      setUser(response.data);
+      const freshUser = response.data;
+      
+      // Update localStorage
+      localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+      
+      // Update state
+      setUser(freshUser);
+      
+      return freshUser;
     } catch (error) {
-      console.error("Failed to refresh user");
+      console.error("Failed to refresh user:", error.message);
+      throw error;
     }
   };
 
+  // Check if user is authenticated
+  const isAuthenticated = !!user && !!getStoredToken();
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, refreshUser }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      register, 
+      logout, 
+      loading, 
+      refreshUser,
+      isAuthenticated 
+    }}>
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
