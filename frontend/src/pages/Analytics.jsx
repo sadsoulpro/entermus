@@ -57,7 +57,7 @@ export default function Analytics() {
   if (!analytics) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Analytics not found</p>
+        <p className="text-muted-foreground">Аналитика не найдена</p>
       </div>
     );
   }
@@ -72,7 +72,7 @@ export default function Analytics() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <h1 className="font-semibold">Page Analytics</h1>
+          <h1 className="font-semibold">Статистика страницы</h1>
         </div>
       </header>
       
@@ -88,7 +88,7 @@ export default function Analytics() {
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Eye className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-muted-foreground">Page Views</span>
+              <span className="text-muted-foreground">Просмотры страниц</span>
             </div>
             <p className="text-4xl font-semibold" data-testid="page-views">
               {analytics.views.toLocaleString()}
@@ -105,7 +105,7 @@ export default function Analytics() {
               <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
                 <MousePointer className="w-5 h-5 text-green-500" />
               </div>
-              <span className="text-muted-foreground">Total Clicks</span>
+              <span className="text-muted-foreground">Всего кликов</span>
             </div>
             <p className="text-4xl font-semibold" data-testid="total-clicks">
               {analytics.total_clicks.toLocaleString()}
@@ -122,7 +122,7 @@ export default function Analytics() {
               <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-blue-500" />
               </div>
-              <span className="text-muted-foreground">Click Rate</span>
+              <span className="text-muted-foreground">Коэффициент кликов</span>
             </div>
             <p className="text-4xl font-semibold" data-testid="click-rate">
               {ctr}%
