@@ -7,7 +7,7 @@ import {
   Music, Users, FileText, ArrowLeft, Shield, 
   Ban, Check, Eye, ExternalLink, BarChart3, LogOut,
   Globe, MapPin, MousePointer, Share2, QrCode, Cpu, 
-  HardDrive, Activity, TrendingUp, Server
+  HardDrive, Activity, TrendingUp, Server, Settings
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
