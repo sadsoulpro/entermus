@@ -5,19 +5,33 @@ import { api, useAuth } from "@/App";
 import { toast } from "sonner";
 import { 
   Music, Users, FileText, ArrowLeft, Shield, 
-  Ban, Check, Eye, ExternalLink, BarChart3, LogOut
+  Ban, Check, Eye, ExternalLink, BarChart3, LogOut,
+  Globe, MapPin, MousePointer, Share2, QrCode, Cpu, 
+  HardDrive, Activity, TrendingUp, Server
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
+  ResponsiveContainer, AreaChart, Area
+} from "recharts";
 
 export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [pages, setPages] = useState([]);
+  const [globalAnalytics, setGlobalAnalytics] = useState(null);
+  const [systemMetrics, setSystemMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const { logout } = useAuth();
 
   useEffect(() => {
     fetchData();
+    fetchGlobalAnalytics();
+    fetchSystemMetrics();
+    
+    // Refresh system metrics every 30 seconds
+    const metricsInterval = setInterval(fetchSystemMetrics, 30000);
+    return () => clearInterval(metricsInterval);
   }, []);
 
   const fetchData = async () => {
@@ -32,6 +46,24 @@ export default function AdminPanel() {
       toast.error("Не удалось загрузить данные");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchGlobalAnalytics = async () => {
+    try {
+      const response = await api.get("/admin/analytics/global");
+      setGlobalAnalytics(response.data);
+    } catch (error) {
+      console.error("Failed to fetch global analytics");
+    }
+  };
+
+  const fetchSystemMetrics = async () => {
+    try {
+      const response = await api.get("/admin/system/metrics");
+      setSystemMetrics(response.data);
+    } catch (error) {
+      console.error("Failed to fetch system metrics");
     }
   };
 
@@ -53,6 +85,30 @@ export default function AdminPanel() {
     } catch (error) {
       toast.error("Не удалось обновить страницу");
     }
+  };
+
+  // Helper functions
+  const getCountryFlag = (code) => {
+    const flags = {
+      "RU": "🇷🇺", "US": "🇺🇸", "UA": "🇺🇦", "BY": "🇧🇾", "KZ": "🇰🇿",
+      "DE": "🇩🇪", "GB": "🇬🇧", "FR": "🇫🇷", "Unknown": "🌍"
+    };
+    return flags[code] || "🌍";
+  };
+
+  const getCountryName = (code) => {
+    const names = {
+      "RU": "Россия", "US": "США", "UA": "Украина", "BY": "Беларусь",
+      "KZ": "Казахстан", "DE": "Германия", "GB": "Великобритания",
+      "FR": "Франция", "Unknown": "Неизвестно"
+    };
+    return names[code] || code;
+  };
+
+  const getProgressColor = (percent) => {
+    if (percent >= 90) return "bg-red-500";
+    if (percent >= 70) return "bg-yellow-500";
+    return "bg-green-500";
   };
 
   if (loading) {
@@ -82,6 +138,14 @@ export default function AdminPanel() {
           >
             <BarChart3 className="w-5 h-5" />
             Панель
+          </Link>
+          
+          <Link 
+            to="/analytics" 
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Eye className="w-5 h-5" />
+            Аналитика
           </Link>
           
           <Link 
@@ -122,35 +186,20 @@ export default function AdminPanel() {
         {/* Header */}
         <div className="hidden lg:block mb-10">
           <h1 className="text-2xl font-semibold mb-1">Админ-панель</h1>
-          <p className="text-muted-foreground">Управление пользователями и страницами</p>
-        </div>
-        
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <Users className="w-5 h-5 text-blue-500" />
-              </div>
-              <span className="text-muted-foreground">Всего пользователей</span>
-            </div>
-            <p className="text-3xl font-semibold" data-testid="total-users">{users.length}</p>
-          </div>
-          
-          <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-purple-500" />
-              </div>
-              <span className="text-muted-foreground">Всего страниц</span>
-            </div>
-            <p className="text-3xl font-semibold" data-testid="total-pages">{pages.length}</p>
-          </div>
+          <p className="text-muted-foreground">Управление пользователями, страницами и мониторинг системы</p>
         </div>
         
         {/* Tabs */}
-        <Tabs defaultValue="users" className="w-full">
+        <Tabs defaultValue="analytics" className="w-full">
           <TabsList className="bg-zinc-900 border border-white/5 mb-6">
+            <TabsTrigger value="analytics" data-testid="tab-analytics">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Глобальная аналитика
+            </TabsTrigger>
+            <TabsTrigger value="system" data-testid="tab-system">
+              <Server className="w-4 h-4 mr-2" />
+              Мониторинг VPS
+            </TabsTrigger>
             <TabsTrigger value="users" data-testid="tab-users">
               <Users className="w-4 h-4 mr-2" />
               Пользователи
@@ -160,6 +209,372 @@ export default function AdminPanel() {
               Страницы
             </TabsTrigger>
           </TabsList>
+          
+          {/* Global Analytics Tab */}
+          <TabsContent value="analytics">
+            {globalAnalytics ? (
+              <div className="space-y-6">
+                {/* Stats Overview */}
+                <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="w-4 h-4 text-blue-500" />
+                      <span className="text-xs text-muted-foreground">Пользователей</span>
+                    </div>
+                    <p className="text-2xl font-bold">{globalAnalytics.total_users}</p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <FileText className="w-4 h-4 text-purple-500" />
+                      <span className="text-xs text-muted-foreground">Страниц</span>
+                    </div>
+                    <p className="text-2xl font-bold">{globalAnalytics.total_pages}</p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Eye className="w-4 h-4 text-primary" />
+                      <span className="text-xs text-muted-foreground">Просмотров</span>
+                    </div>
+                    <p className="text-2xl font-bold">{globalAnalytics.total_views.toLocaleString()}</p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <MousePointer className="w-4 h-4 text-green-500" />
+                      <span className="text-xs text-muted-foreground">Кликов</span>
+                    </div>
+                    <p className="text-2xl font-bold">{globalAnalytics.total_clicks.toLocaleString()}</p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Share2 className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs text-muted-foreground">Репостов</span>
+                    </div>
+                    <p className="text-2xl font-bold">{globalAnalytics.total_shares.toLocaleString()}</p>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <QrCode className="w-4 h-4 text-violet-500" />
+                      <span className="text-xs text-muted-foreground">QR сканов</span>
+                    </div>
+                    <p className="text-2xl font-bold">{globalAnalytics.total_qr_scans.toLocaleString()}</p>
+                  </motion.div>
+                </div>
+                
+                {/* Charts Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Timeline */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <h3 className="text-lg font-semibold mb-4">Динамика за 30 дней</h3>
+                    {globalAnalytics.timeline && globalAnalytics.timeline.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={200}>
+                        <AreaChart data={globalAnalytics.timeline}>
+                          <defs>
+                            <linearGradient id="adminColorClicks" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#d946ef" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#d946ef" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                          <XAxis dataKey="date" stroke="#71717a" fontSize={10} tickFormatter={(v) => v.slice(5)} />
+                          <YAxis stroke="#71717a" fontSize={10} />
+                          <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }} />
+                          <Area type="monotone" dataKey="clicks" stroke="#d946ef" fillOpacity={1} fill="url(#adminColorClicks)" name="Клики" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                        Нет данных
+                      </div>
+                    )}
+                  </motion.div>
+                  
+                  {/* Geography */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <Globe className="w-5 h-5 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold">По странам</h3>
+                    </div>
+                    {globalAnalytics.by_country && globalAnalytics.by_country.length > 0 ? (
+                      <div className="space-y-3">
+                        {globalAnalytics.by_country.slice(0, 5).map((item, i) => {
+                          const maxClicks = globalAnalytics.by_country[0]?.clicks || 1;
+                          const percentage = ((item.clicks / maxClicks) * 100).toFixed(0);
+                          return (
+                            <div key={i} className="flex items-center gap-3">
+                              <span className="text-lg">{getCountryFlag(item.country)}</span>
+                              <div className="flex-1">
+                                <div className="flex justify-between text-sm mb-1">
+                                  <span>{getCountryName(item.country)}</span>
+                                  <span className="text-muted-foreground">{item.clicks}</span>
+                                </div>
+                                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                  <div className="h-full bg-primary rounded-full" style={{ width: `${percentage}%` }} />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="h-[150px] flex items-center justify-center text-muted-foreground">
+                        <Globe className="w-8 h-8 opacity-50" />
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
+                
+                {/* Top Pages */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                >
+                  <h3 className="text-lg font-semibold mb-4">Топ страниц по просмотрам</h3>
+                  {globalAnalytics.top_pages && globalAnalytics.top_pages.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-white/5">
+                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Страница</th>
+                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Автор</th>
+                            <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">Просмотры</th>
+                            <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">Клики</th>
+                            <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">Репосты</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {globalAnalytics.top_pages.map((page, i) => (
+                            <tr key={page.id} className="border-b border-white/5">
+                              <td className="py-2 px-3">
+                                <a href={`/${page.slug}`} target="_blank" rel="noopener" className="hover:text-primary">
+                                  {page.title}
+                                </a>
+                              </td>
+                              <td className="py-2 px-3 text-muted-foreground">{page.username}</td>
+                              <td className="text-right py-2 px-3 font-medium">{page.views.toLocaleString()}</td>
+                              <td className="text-right py-2 px-3">{page.clicks.toLocaleString()}</td>
+                              <td className="text-right py-2 px-3">{page.shares}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">Нет данных</p>
+                  )}
+                </motion.div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* System Monitoring Tab */}
+          <TabsContent value="system">
+            {systemMetrics ? (
+              <div className="space-y-6">
+                {/* Resource Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* CPU */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                          <Cpu className="w-6 h-6 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CPU</p>
+                          <p className="text-2xl font-bold">{systemMetrics.cpu.percent}%</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-2">
+                      <div 
+                        className={`h-full rounded-full transition-all ${getProgressColor(systemMetrics.cpu.percent)}`}
+                        style={{ width: `${systemMetrics.cpu.percent}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{systemMetrics.cpu.count} ядер</span>
+                      <span>Load: {systemMetrics.cpu.load_1m}</span>
+                    </div>
+                  </motion.div>
+                  
+                  {/* Memory */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                          <Activity className="w-6 h-6 text-purple-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">RAM</p>
+                          <p className="text-2xl font-bold">{systemMetrics.memory.percent}%</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-2">
+                      <div 
+                        className={`h-full rounded-full transition-all ${getProgressColor(systemMetrics.memory.percent)}`}
+                        style={{ width: `${systemMetrics.memory.percent}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{systemMetrics.memory.used_gb} GB</span>
+                      <span>из {systemMetrics.memory.total_gb} GB</span>
+                    </div>
+                  </motion.div>
+                  
+                  {/* Disk */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
+                          <HardDrive className="w-6 h-6 text-green-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Диск</p>
+                          <p className="text-2xl font-bold">{systemMetrics.disk.percent}%</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-2">
+                      <div 
+                        className={`h-full rounded-full transition-all ${getProgressColor(systemMetrics.disk.percent)}`}
+                        style={{ width: `${systemMetrics.disk.percent}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{systemMetrics.disk.used_gb} GB</span>
+                      <span>из {systemMetrics.disk.total_gb} GB</span>
+                    </div>
+                  </motion.div>
+                  
+                  {/* Network & Uptime */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                          <Server className="w-6 h-6 text-orange-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Аптайм</p>
+                          <p className="text-xl font-bold">{systemMetrics.uptime}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="p-2 bg-zinc-800 rounded-lg">
+                        <p className="text-muted-foreground">↑ Отправлено</p>
+                        <p className="font-medium">{systemMetrics.network.sent_mb} MB</p>
+                      </div>
+                      <div className="p-2 bg-zinc-800 rounded-lg">
+                        <p className="text-muted-foreground">↓ Получено</p>
+                        <p className="font-medium">{systemMetrics.network.recv_mb} MB</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+                
+                {/* Load Average Chart */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+                >
+                  <h3 className="text-lg font-semibold mb-4">Средняя нагрузка системы</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-zinc-800 rounded-xl">
+                      <p className="text-3xl font-bold text-blue-400">{systemMetrics.cpu.load_1m}</p>
+                      <p className="text-xs text-muted-foreground mt-1">1 минута</p>
+                    </div>
+                    <div className="text-center p-4 bg-zinc-800 rounded-xl">
+                      <p className="text-3xl font-bold text-purple-400">{systemMetrics.cpu.load_5m}</p>
+                      <p className="text-xs text-muted-foreground mt-1">5 минут</p>
+                    </div>
+                    <div className="text-center p-4 bg-zinc-800 rounded-xl">
+                      <p className="text-3xl font-bold text-green-400">{systemMetrics.cpu.load_15m}</p>
+                      <p className="text-xs text-muted-foreground mt-1">15 минут</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4 text-center">
+                    Последнее обновление: {new Date(systemMetrics.timestamp).toLocaleString('ru-RU')}
+                  </p>
+                </motion.div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+              </div>
+            )}
+          </TabsContent>
           
           {/* Users Tab */}
           <TabsContent value="users">
