@@ -13,7 +13,7 @@ import {
   QrCode, Download, Search, Loader2
 } from "lucide-react";
 import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink, FaYandex, FaVk, FaAmazon, FaItunes } from "react-icons/fa";
-import { SiTidal, SiDeezer } from "react-icons/si";
+import { SiTidal } from "react-icons/si";
 import { motion } from "framer-motion";
 import { QRCodeSVG } from "qrcode.react";
 
