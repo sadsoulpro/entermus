@@ -642,16 +642,15 @@ export default function PageBuilder() {
                   <Input
                     id="slug"
                     name="slug"
-                    placeholder="my-track"
+                    placeholder="оставьте пустым для автогенерации"
                     value={formData.slug}
                     onChange={handleChange}
-                    required
                     data-testid="page-slug-input"
                     className="h-10 sm:h-12 bg-zinc-900 border-zinc-800"
                   />
                 </div>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">
-                  Генерируется автоматически из названия
+                  Генерируется автоматически, если не указан
                 </p>
               </div>
               
