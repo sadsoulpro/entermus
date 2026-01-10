@@ -262,6 +262,15 @@ export default function AdminPanel() {
               <Server className="w-4 h-4 mr-2" />
               Мониторинг VPS
             </TabsTrigger>
+            <TabsTrigger value="verification" data-testid="tab-verification">
+              <BadgeCheck className="w-4 h-4 mr-2" />
+              Верификация
+              {verificationRequests.filter(r => r.status === 'pending').length > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary text-xs">
+                  {verificationRequests.filter(r => r.status === 'pending').length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="users" data-testid="tab-users">
               <Users className="w-4 h-4 mr-2" />
               Пользователи
