@@ -604,10 +604,10 @@ export default function PageBuilder() {
           
           {/* Cover Image */}
           <section>
-            <h2 className="text-lg font-semibold mb-4">Обложка</h2>
-            <div className="space-y-4">
+            <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Обложка</h2>
+            <div className="space-y-3 sm:space-y-4">
               <div 
-                className="relative w-40 h-40 rounded-2xl bg-zinc-800 overflow-hidden border-2 border-dashed border-zinc-700 hover:border-primary/50 transition-colors cursor-pointer group"
+                className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-zinc-800 overflow-hidden border-2 border-dashed border-zinc-700 hover:border-primary/50 transition-colors cursor-pointer group"
                 onClick={() => document.getElementById('cover-upload').click()}
               >
                 {formData.cover_image ? (
