@@ -437,6 +437,110 @@ async def delete_account(user: dict = Depends(get_current_user)):
     
     return {"message": "Аккаунт и все связанные данные удалены"}
 
+# ===================== VERIFICATION ROUTES =====================
+
+class VerificationRequest(BaseModel):
+    artist_name: str
+    social_links: str  # Links to social media profiles
+    description: str  # Why they should be verified
+
+@api_router.get("/verification/status")
+async def get_verification_status(user: dict = Depends(get_current_user)):
+    """Get current verification status"""
+    # Get pending request if any
+    request = await db.verification_requests.find_one(
+        {"user_id": user["id"], "status": "pending"},
+        {"_id": 0}
+    )
+    
+    return {
+        "verified": user.get("verified", False),
+        "verification_status": user.get("verification_status", "none"),
+        "show_badge": user.get("show_verification_badge", True),
+        "pending_request": request
+    }
+
+@api_router.post("/verification/request")
+async def submit_verification_request(data: VerificationRequest, user: dict = Depends(get_current_user)):
+    """Submit verification request"""
+    
+    # Check if already verified
+    if user.get("verified"):
+        raise HTTPException(status_code=400, detail="Вы уже верифицированы")
+    
+    # Check if already has pending request
+    existing = await db.verification_requests.find_one({
+        "user_id": user["id"],
+        "status": "pending"
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="У вас уже есть ожидающая заявка")
+    
+    request = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "username": user["username"],
+        "email": user["email"],
+        "artist_name": data.artist_name,
+        "social_links": data.social_links,
+        "description": data.description,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.verification_requests.insert_one(request)
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"verification_status": "pending"}}
+    )
+    
+    return {"message": "Заявка на верификацию отправлена", "request_id": request["id"]}
+
+@api_router.put("/settings/verification-badge")
+async def toggle_verification_badge(user: dict = Depends(get_current_user)):
+    """Toggle verification badge visibility"""
+    current = user.get("show_verification_badge", True)
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"show_verification_badge": not current}}
+    )
+    return {"show_badge": not current}
+
+# ===================== NOTIFICATIONS ROUTES =====================
+
+@api_router.get("/notifications")
+async def get_notifications(user: dict = Depends(get_current_user)):
+    """Get user notifications"""
+    notifications = await db.notifications.find(
+        {"user_id": user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(50).to_list(50)
+    
+    unread_count = await db.notifications.count_documents({
+        "user_id": user["id"],
+        "read": False
+    })
+    
+    return {"notifications": notifications, "unread_count": unread_count}
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str, user: dict = Depends(get_current_user)):
+    """Mark notification as read"""
+    await db.notifications.update_one(
+        {"id": notification_id, "user_id": user["id"]},
+        {"$set": {"read": True}}
+    )
+    return {"success": True}
+
+@api_router.put("/notifications/read-all")
+async def mark_all_notifications_read(user: dict = Depends(get_current_user)):
+    """Mark all notifications as read"""
+    await db.notifications.update_many(
+        {"user_id": user["id"]},
+        {"$set": {"read": True}}
+    )
+    return {"success": True}
+
 # ===================== PAGE ROUTES =====================
 
 @api_router.get("/pages")
