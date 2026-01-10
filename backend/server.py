@@ -1035,6 +1035,158 @@ async def admin_disable_page(page_id: str, admin_user: dict = Depends(get_admin_
     
     return {"message": f"Page {new_status}", "status": new_status}
 
+# Admin verification management
+@api_router.get("/admin/verification/requests")
+async def admin_get_verification_requests(admin_user: dict = Depends(get_admin_user)):
+    """Get all verification requests"""
+    requests = await db.verification_requests.find(
+        {},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return requests
+
+@api_router.put("/admin/verification/{user_id}/approve")
+async def admin_approve_verification(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Approve verification request"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update user
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {
+            "verified": True,
+            "verification_status": "approved"
+        }}
+    )
+    
+    # Update request
+    await db.verification_requests.update_one(
+        {"user_id": user_id, "status": "pending"},
+        {"$set": {
+            "status": "approved",
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "reviewed_by": admin_user["id"]
+        }}
+    )
+    
+    # Create notification
+    notification = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "type": "verification_approved",
+        "title": "Верификация одобрена",
+        "message": "Поздравляем! Ваша заявка на верификацию одобрена. Теперь рядом с вашим именем будет отображаться галочка.",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    return {"message": "Верификация одобрена"}
+
+@api_router.put("/admin/verification/{user_id}/reject")
+async def admin_reject_verification(user_id: str, reason: str = "", admin_user: dict = Depends(get_admin_user)):
+    """Reject verification request"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update user
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"verification_status": "rejected"}}
+    )
+    
+    # Update request
+    await db.verification_requests.update_one(
+        {"user_id": user_id, "status": "pending"},
+        {"$set": {
+            "status": "rejected",
+            "rejection_reason": reason,
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "reviewed_by": admin_user["id"]
+        }}
+    )
+    
+    # Create notification
+    notification = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "type": "verification_rejected",
+        "title": "Верификация отклонена",
+        "message": f"К сожалению, ваша заявка на верификацию отклонена.{' Причина: ' + reason if reason else ''} Вы можете подать новую заявку.",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    return {"message": "Верификация отклонена"}
+
+@api_router.put("/admin/verification/{user_id}/grant")
+async def admin_grant_verification(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Grant verification directly to user"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.get("verified"):
+        raise HTTPException(status_code=400, detail="User already verified")
+    
+    # Update user
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {
+            "verified": True,
+            "verification_status": "approved"
+        }}
+    )
+    
+    # Create notification
+    notification = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "type": "verification_granted",
+        "title": "Верификация получена",
+        "message": "Администратор выдал вам верификацию. Теперь рядом с вашим именем будет отображаться галочка.",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    return {"message": "Верификация выдана"}
+
+@api_router.put("/admin/verification/{user_id}/revoke")
+async def admin_revoke_verification(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Revoke verification from user"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update user
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {
+            "verified": False,
+            "verification_status": "none"
+        }}
+    )
+    
+    # Create notification
+    notification = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "type": "verification_revoked",
+        "title": "Верификация отозвана",
+        "message": "Ваша верификация была отозвана администратором.",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    return {"message": "Верификация отозвана"}
+
 # Admin global analytics - all users
 @api_router.get("/admin/analytics/global")
 async def admin_global_analytics(admin_user: dict = Depends(get_admin_user)):
