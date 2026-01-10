@@ -27,7 +27,7 @@ export default function Login() {
       if (data.user.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/dashboard");
+        navigate("/multilinks");
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || "Неверные учётные данные");
