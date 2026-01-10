@@ -146,6 +146,18 @@ export default function PublicPage() {
     
     if (type === "link") {
       navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else if (type === "social" && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${page.artist_name} - ${page.release_title}`,
+          text: `Послушай ${page.release_title} от ${page.artist_name}`,
+          url: url
+        });
+      } catch (e) {
+        // User cancelled or error
+      }
     }
   };
 
