@@ -255,8 +255,16 @@ export default function PublicPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <h1 className="font-display text-2xl sm:text-3xl uppercase tracking-tight mb-1" data-testid="artist-name">
+            <h1 className="font-display text-2xl sm:text-3xl uppercase tracking-tight mb-1 flex items-center justify-center gap-2" data-testid="artist-name">
               {page.artist_name}
+              {page.user_verified && (
+                <span className="relative group">
+                  <BadgeCheck className="w-6 h-6 text-primary" />
+                  <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-zinc-800 text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Артист подтвержден
+                  </span>
+                </span>
+              )}
             </h1>
             <p className="text-lg text-zinc-400 mb-2" data-testid="release-title">
               {page.release_title}
