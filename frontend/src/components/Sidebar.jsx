@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/App";
 import { 
   Music, BarChart3, Eye, Shield, Settings, LogOut, 
-  BadgeCheck, Menu, X
+  BadgeCheck, Menu, X, HelpCircle
 } from "lucide-react";
 import {
   Sheet,
@@ -18,6 +18,7 @@ const navItems = [
   { path: "/analytics", label: "Аналитика", icon: Eye },
   { path: "/settings", label: "Настройки", icon: Settings },
   { path: "/verification", label: "Верификация", icon: BadgeCheck },
+  { path: "/faq", label: "FAQ", icon: HelpCircle },
 ];
 
 const adminItems = [
