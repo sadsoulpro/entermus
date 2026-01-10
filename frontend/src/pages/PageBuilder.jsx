@@ -225,157 +225,96 @@ export default function PageBuilder() {
     }
   };
 
-  // Scan source to auto-detect platform links
+  // Scan source to auto-detect platform links via Odesli API
   const scanSource = async () => {
     if (!scanInput.trim()) {
-      toast.error("Введите ссылку Apple Music, Spotify или код UPC/ISRC");
+      toast.error("Введите ссылку Apple Music, Spotify, YouTube, Deezer, Tidal или SoundCloud");
       return;
     }
 
     setScanningSource(true);
     
     try {
-      // Detect input type
-      const isAppleMusicLink = scanInput.includes("music.apple.com") || scanInput.includes("itunes.apple.com");
-      const isSpotifyLink = scanInput.includes("open.spotify.com") || scanInput.includes("spotify.com");
-      const isUpcIsrc = /^[A-Z0-9]{12,14}$/i.test(scanInput.trim());
-
-      if (!isAppleMusicLink && !isSpotifyLink && !isUpcIsrc) {
-        toast.error("Введите корректную ссылку Apple Music, Spotify или код UPC/ISRC");
+      const sourceUrl = scanInput.trim();
+      
+      // Detect input type - Odesli supports many platforms
+      const supportedPatterns = [
+        "music.apple.com", "itunes.apple.com",
+        "open.spotify.com", "spotify.com",
+        "youtube.com", "youtu.be", "music.youtube.com",
+        "deezer.com", "deezer.page.link",
+        "tidal.com", "listen.tidal.com",
+        "soundcloud.com",
+        "song.link", "album.link", "odesli.co"
+      ];
+      
+      const isValidUrl = supportedPatterns.some(pattern => sourceUrl.includes(pattern));
+      
+      if (!isValidUrl) {
+        toast.error("Введите ссылку из Spotify, Apple Music, YouTube, Deezer, Tidal или SoundCloud");
         setScanningSource(false);
         return;
       }
 
-      // Extract track/album info
-      let searchQuery = "";
-      let coverArtUrl = "";
-      let sourceUrl = scanInput.trim();
-
-      if (isSpotifyLink) {
-        // Use backend proxy for Spotify oEmbed
-        try {
-          const response = await api.get(`/lookup/spotify?url=${encodeURIComponent(scanInput)}`);
-          if (response.data.title) {
-            searchQuery = response.data.title;
-          }
-          if (response.data.artwork) {
-            coverArtUrl = response.data.artwork;
-          }
-        } catch (e) {
-          console.log("Could not fetch Spotify metadata");
-        }
-        
-        // Fallback: extract from URL path
-        if (!searchQuery) {
-          const urlParts = scanInput.split("/");
-          const trackIndex = urlParts.findIndex(p => p === "track" || p === "album");
-          if (trackIndex > -1 && urlParts[trackIndex + 1]) {
-            searchQuery = urlParts[trackIndex + 1].split("?")[0].replace(/-/g, " ");
-          }
-        }
-      } else if (isAppleMusicLink) {
-        // Parse Apple Music URL
-        // Format: https://music.apple.com/us/album/album-name/ALBUMID?i=TRACKID
-        const urlParts = scanInput.split("/");
-        const albumIndex = urlParts.findIndex(p => p === "album");
-        
-        if (albumIndex > -1 && urlParts[albumIndex + 1]) {
-          searchQuery = urlParts[albumIndex + 1].replace(/-/g, " ");
-        }
-        
-        // Extract album ID from URL (the number after album name)
-        const albumIdMatch = scanInput.match(/\/album\/[^/]+\/(\d+)/);
-        const albumId = albumIdMatch ? albumIdMatch[1] : null;
-        
-        // Use backend proxy for iTunes API to avoid CORS
-        try {
-          let response;
-          if (albumId) {
-            response = await api.get(`/lookup/itunes?id=${albumId}`);
-          } else {
-            response = await api.get(`/lookup/itunes?term=${encodeURIComponent(searchQuery)}`);
-          }
-          
-          if (response.data.artwork) {
-            coverArtUrl = response.data.artwork;
-          }
-          if (response.data.trackName) {
-            searchQuery = `${response.data.artistName} ${response.data.trackName}`;
-          } else if (response.data.collectionName) {
-            searchQuery = `${response.data.artistName} ${response.data.collectionName}`;
-          }
-        } catch (e) {
-          console.log("Could not fetch iTunes cover art:", e);
-        }
-      } else {
-        // UPC/ISRC code - search via backend proxy
-        try {
-          const response = await api.get(`/lookup/itunes?term=${encodeURIComponent(scanInput.trim())}`);
-          if (response.data.artwork) {
-            coverArtUrl = response.data.artwork;
-          }
-          if (response.data.trackName) {
-            searchQuery = `${response.data.artistName} ${response.data.trackName}`;
-          }
-        } catch (e) {
-          console.log("Could not search iTunes");
-        }
-        if (!searchQuery) searchQuery = scanInput.trim();
+      // Call Odesli API via backend proxy
+      toast.info("Поиск ссылок на всех платформах...");
+      
+      const odesliResponse = await api.get(`/lookup/odesli?url=${encodeURIComponent(sourceUrl)}`);
+      const odesliData = odesliResponse.data;
+      
+      if (odesliData.error && Object.keys(odesliData.links || {}).length === 0) {
+        toast.error("Не удалось найти трек. Попробуйте другую ссылку.");
+        setScanningSource(false);
+        return;
       }
 
-      if (!searchQuery) {
-        searchQuery = "music release";
-      }
-
-      // Always update cover image from the scanned track
-      if (coverArtUrl) {
-        setFormData(prev => ({ ...prev, cover_image: coverArtUrl }));
-        toast.success("Обложка трека применена!");
-      }
-
-      // Generate platform links based on the source
+      const platformLinks = odesliData.links || {};
       const detectedLinks = [];
-      
-      // Add source platform link
-      if (isAppleMusicLink) {
-        const existingApple = links.find(l => l.platform === "apple");
-        if (!existingApple) {
-          detectedLinks.push({ platform: "apple", url: sourceUrl });
-        }
-      } else if (isSpotifyLink) {
-        const existingSpotify = links.find(l => l.platform === "spotify");
-        if (!existingSpotify) {
-          detectedLinks.push({ platform: "spotify", url: sourceUrl });
-        }
+      let linksAdded = 0;
+
+      // Update cover image if available
+      if (odesliData.thumbnailUrl) {
+        setFormData(prev => ({ ...prev, cover_image: odesliData.thumbnailUrl }));
       }
 
-      // Generate suggested links for other platforms
-      const platformUrls = {};
-      
-      if (!isSpotifyLink) {
-        platformUrls.spotify = `https://open.spotify.com/search/${encodeURIComponent(searchQuery)}`;
+      // Update artist and release title if available and empty
+      if (odesliData.artistName && !formData.artist_name) {
+        setFormData(prev => ({ ...prev, artist_name: odesliData.artistName }));
       }
-      if (!isAppleMusicLink) {
-        platformUrls.apple = `https://music.apple.com/search?term=${encodeURIComponent(searchQuery)}`;
+      if (odesliData.title && !formData.release_title) {
+        setFormData(prev => ({ ...prev, release_title: odesliData.title }));
       }
-      
-      platformUrls.youtube = `https://music.youtube.com/search?q=${encodeURIComponent(searchQuery)}`;
-      platformUrls.deezer = `https://www.deezer.com/search/${encodeURIComponent(searchQuery)}`;
-      platformUrls.tidal = `https://listen.tidal.com/search?q=${encodeURIComponent(searchQuery)}`;
-      platformUrls.soundcloud = `https://soundcloud.com/search?q=${encodeURIComponent(searchQuery)}`;
-      platformUrls.yandex = `https://music.yandex.com/search?text=${encodeURIComponent(searchQuery)}`;
-      platformUrls.vk = `https://vk.com/audio?q=${encodeURIComponent(searchQuery)}`;
 
-      // Add links for platforms that don't exist yet
-      for (const [platform, url] of Object.entries(platformUrls)) {
+      // Add all platform links from Odesli
+      for (const [platform, url] of Object.entries(platformLinks)) {
         const existing = links.find(l => l.platform === platform);
-        if (!existing) {
+        if (!existing && url) {
           detectedLinks.push({ platform, url });
         }
       }
 
+      // Also add the source URL if it matches a platform we support
+      const sourcePlatformMap = {
+        "spotify": sourceUrl.includes("spotify.com"),
+        "apple": sourceUrl.includes("music.apple.com") || sourceUrl.includes("itunes.apple.com"),
+        "youtube": sourceUrl.includes("youtube.com") || sourceUrl.includes("youtu.be"),
+        "soundcloud": sourceUrl.includes("soundcloud.com"),
+        "tidal": sourceUrl.includes("tidal.com"),
+        "deezer": sourceUrl.includes("deezer.com") || sourceUrl.includes("deezer.page.link"),
+      };
+
+      for (const [platform, matches] of Object.entries(sourcePlatformMap)) {
+        if (matches) {
+          const existing = links.find(l => l.platform === platform);
+          const alreadyAdded = detectedLinks.find(l => l.platform === platform);
+          if (!existing && !alreadyAdded) {
+            detectedLinks.push({ platform, url: sourceUrl });
+          }
+        }
+      }
+
       if (detectedLinks.length === 0) {
-        toast.info("Все платформы уже имеют ссылки");
+        toast.info("Все доступные ссылки уже добавлены");
         setScanningSource(false);
         return;
       }
@@ -390,6 +329,7 @@ export default function PageBuilder() {
               active: true
             });
             setLinks(prev => [...prev, response.data]);
+            linksAdded++;
           } catch (error) {
             console.error(`Failed to add ${linkData.platform} link`);
           }
@@ -401,13 +341,19 @@ export default function PageBuilder() {
             active: true,
             clicks: 0
           }]);
+          linksAdded++;
         }
       }
 
-      toast.success(`Добавлено ${detectedLinks.length} ссылок`);
+      const platformNames = detectedLinks.map(l => 
+        PLATFORMS.find(p => p.id === l.platform)?.name || l.platform
+      ).join(", ");
+      
+      toast.success(`Добавлено ${linksAdded} ссылок: ${platformNames}`);
       setScanInput("");
     } catch (error) {
-      toast.error("Не удалось сканировать источник");
+      console.error("Scan error:", error);
+      toast.error("Не удалось получить ссылки. Проверьте URL и попробуйте снова.");
     } finally {
       setScanningSource(false);
     }
