@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { 
   Music, Plus, Eye, MousePointer, ExternalLink, 
   MoreVertical, Trash2, Edit, BarChart3, LogOut,
-  Settings, Copy
+  Settings, Copy, Shield
 } from "lucide-react";
 import {
   DropdownMenu,
