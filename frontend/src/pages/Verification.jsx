@@ -70,6 +70,22 @@ export default function Verification() {
     }
   };
 
+  const toggleBadge = async () => {
+    setBadgeLoading(true);
+    try {
+      const response = await api.put("/settings/verification-badge");
+      toast.success(response.data.show_badge ? "Галочка включена" : "Галочка отключена");
+      fetchStatus();
+      if (refreshUser) {
+        await refreshUser();
+      }
+    } catch (error) {
+      toast.error("Не удалось изменить настройку");
+    } finally {
+      setBadgeLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     window.location.href = "/";
