@@ -318,20 +318,20 @@ export default function PublicPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="flex gap-3 mt-6 justify-center"
+            className="flex gap-2 sm:gap-3 mt-5 sm:mt-6 justify-center"
           >
             <button
               onClick={() => handleShare("link")}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-800/80 hover:bg-zinc-700 border border-white/10 rounded-lg text-sm transition-all"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-zinc-800/80 hover:bg-zinc-700 border border-white/10 rounded-lg text-xs sm:text-sm transition-all"
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-green-500" />
+                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
                   <span className="text-green-500">Скопировано!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Скопировать</span>
                 </>
               )}
@@ -340,9 +340,9 @@ export default function PublicPage() {
             {typeof navigator !== 'undefined' && navigator.share && (
               <button
                 onClick={() => handleShare("social")}
-                className="flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-lg text-sm transition-all"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-lg text-xs sm:text-sm transition-all"
               >
-                <Share2 className="w-4 h-4 text-primary" />
+                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 <span>Поделиться</span>
               </button>
             )}
@@ -354,10 +354,19 @@ export default function PublicPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mt-8 flex flex-col items-center"
+              className="mt-6 sm:mt-8 flex flex-col items-center"
               onClick={handleQRShare}
             >
-              <div className="p-3 bg-white rounded-xl shadow-lg cursor-pointer hover:scale-105 transition-transform">
+              <div className="p-2 sm:p-3 bg-white rounded-lg sm:rounded-xl shadow-lg cursor-pointer hover:scale-105 transition-transform">
+                <QRCodeSVG
+                  value={`${process.env.REACT_APP_BACKEND_URL}/api/qr/${page.id}`}
+                  size={80}
+                  level="M"
+                  includeMargin={false}
+                  bgColor="#ffffff"
+                  fgColor="#18181b"
+                  className="sm:hidden"
+                />
                 <QRCodeSVG
                   value={`${process.env.REACT_APP_BACKEND_URL}/api/qr/${page.id}`}
                   size={100}
@@ -365,9 +374,10 @@ export default function PublicPage() {
                   includeMargin={false}
                   bgColor="#ffffff"
                   fgColor="#18181b"
+                  className="hidden sm:block"
                 />
               </div>
-              <p className="text-xs text-zinc-500 mt-2">Сканируйте, чтобы поделиться</p>
+              <p className="text-[10px] sm:text-xs text-zinc-500 mt-2">Сканируйте, чтобы поделиться</p>
             </motion.div>
           )}
         </div>
