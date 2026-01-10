@@ -113,6 +113,9 @@ function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute><Dashboard /></ProtectedRoute>
           } />
+          <Route path="/analytics" element={
+            <ProtectedRoute><GlobalAnalytics /></ProtectedRoute>
+          } />
           <Route path="/page/new" element={
             <ProtectedRoute><PageBuilder /></ProtectedRoute>
           } />
