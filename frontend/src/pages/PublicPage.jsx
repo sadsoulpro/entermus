@@ -95,15 +95,6 @@ export default function PublicPage() {
     navigate(`/${nextPage.slug}`);
   };
 
-  const goBack = () => {
-    // Вернуться на предыдущую страницу в истории или на главную
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  };
-
   const showNavigation = page?.site_navigation_enabled && userPages.length >= 2;
 
   // Update OG meta tags when page data loads
