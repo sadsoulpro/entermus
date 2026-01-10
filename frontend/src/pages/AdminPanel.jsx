@@ -132,12 +132,12 @@ export default function AdminPanel() {
         
         <nav className="flex-1 space-y-2">
           <Link 
-            to="/dashboard" 
+            to="/multilinks" 
             className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
-            data-testid="nav-dashboard"
+            data-testid="nav-multilinks"
           >
             <BarChart3 className="w-5 h-5" />
-            Панель
+            Мультиссылки
           </Link>
           
           <Link 
