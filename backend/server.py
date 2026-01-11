@@ -980,6 +980,28 @@ async def get_page_analytics(page_id: str, user: dict = Depends(get_current_user
     total_clicks = sum(link.get("clicks", 0) for link in links)
     clicks_by_platform = {link["platform"]: link.get("clicks", 0) for link in links}
     
+    # Get clicks by country for this page
+    by_country = []
+    clicks_cursor = db.clicks.aggregate([
+        {"$match": {"page_id": page_id}},
+        {"$group": {"_id": "$country", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
+    ])
+    async for doc in clicks_cursor:
+        by_country.append({"country": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
+    
+    # Get clicks by city for this page
+    by_city = []
+    city_cursor = db.clicks.aggregate([
+        {"$match": {"page_id": page_id}},
+        {"$group": {"_id": "$city", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
+    ])
+    async for doc in city_cursor:
+        by_city.append({"city": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
+    
     return {
         "page_id": page_id,
         "views": page.get("views", 0),
@@ -987,7 +1009,9 @@ async def get_page_analytics(page_id: str, user: dict = Depends(get_current_user
         "clicks_by_platform": clicks_by_platform,
         "links": links,
         "shares": page.get("shares", 0),
-        "qr_scans": page.get("qr_scans", 0)
+        "qr_scans": page.get("qr_scans", 0),
+        "by_country": by_country,
+        "by_city": by_city
     }
 
 # Global analytics for all user pages
