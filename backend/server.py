@@ -1673,6 +1673,30 @@ async def startup_event():
     await db.pages.create_index("user_id")
     await db.links.create_index("page_id")
     await db.clicks.create_index("link_id")
+    
+    # Migrate old "Unknown" entries to "Неизвестно" for consistency
+    migration_result = await db.clicks.update_many(
+        {"$or": [{"country": "Unknown"}, {"city": "Unknown"}]},
+        {"$set": {"country": "Неизвестно", "city": "Неизвестно"}}
+    )
+    if migration_result.modified_count > 0:
+        logging.info(f"Migrated {migration_result.modified_count} click records with Unknown values")
+    
+    # Same for views
+    views_result = await db.views.update_many(
+        {"$or": [{"country": "Unknown"}, {"city": "Unknown"}]},
+        {"$set": {"country": "Неизвестно", "city": "Неизвестно"}}
+    )
+    if views_result.modified_count > 0:
+        logging.info(f"Migrated {views_result.modified_count} view records with Unknown values")
+    
+    # Same for shares
+    shares_result = await db.shares.update_many(
+        {"$or": [{"country": "Unknown"}, {"city": "Unknown"}]},
+        {"$set": {"country": "Неизвестно", "city": "Неизвестно"}}
+    )
+    if shares_result.modified_count > 0:
+        logging.info(f"Migrated {shares_result.modified_count} share records with Unknown values")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
