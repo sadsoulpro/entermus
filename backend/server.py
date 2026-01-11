@@ -47,6 +47,58 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 UPLOAD_DIR = ROOT_DIR / 'uploads'
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+# Geo cache to avoid too many API calls
+_geo_cache = {}
+
+async def get_geo_from_ip(ip: str) -> dict:
+    """Get country and city from IP address using ip-api.com (free, no key needed)"""
+    # Return cached result if exists
+    if ip in _geo_cache:
+        return _geo_cache[ip]
+    
+    # Default values
+    result = {"country": "Неизвестно", "city": "Неизвестно"}
+    
+    # Skip local/private IPs
+    if not ip or ip in ["127.0.0.1", "localhost", "::1"] or ip.startswith("10.") or ip.startswith("192.168.") or ip.startswith("172."):
+        return result
+    
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.get(f"http://ip-api.com/json/{ip}?fields=status,country,city&lang=ru")
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("status") == "success":
+                    result = {
+                        "country": data.get("country", "Неизвестно"),
+                        "city": data.get("city", "Неизвестно")
+                    }
+                    # Cache the result
+                    _geo_cache[ip] = result
+    except Exception as e:
+        logging.warning(f"Geo lookup failed for IP {ip}: {e}")
+    
+    return result
+
+def get_client_ip(request: Request) -> str:
+    """Get the real client IP from request, handling proxies"""
+    # Check X-Forwarded-For header (set by proxies/load balancers)
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # Take the first IP (original client)
+        return forwarded_for.split(",")[0].strip()
+    
+    # Check X-Real-IP header
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+    
+    # Fall back to direct client IP
+    if request.client:
+        return request.client.host
+    
+    return ""
+
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
