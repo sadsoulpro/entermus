@@ -457,6 +457,248 @@ class BandLinkAPITester:
         print(f"   ✅ Found {len(found_platforms)} platform links")
         return True
 
+    def test_ip_geolocation_us_ip(self):
+        """Test IP geolocation with US IP (8.8.8.8 - Google DNS)"""
+        if not self.test_link_id:
+            print("❌ No test link ID available")
+            return False
+            
+        # Simulate click with US IP
+        headers = {'X-Forwarded-For': '8.8.8.8'}
+        
+        success, response = self.run_test(
+            "Click Link with US IP",
+            "GET",
+            f"click/{self.test_link_id}",
+            302,  # Redirect response
+            headers=headers
+        )
+        
+        if not success:
+            return False
+            
+        # Wait a moment for the click to be processed
+        time.sleep(1)
+        
+        # Check analytics to see if geolocation worked
+        success, analytics = self.run_test(
+            "Get Global Analytics for Geo Check",
+            "GET",
+            "analytics/global/summary",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Check if we have country/city data
+        by_country = analytics.get('by_country', [])
+        by_city = analytics.get('by_city', [])
+        
+        print(f"   📍 Countries found: {[c.get('country') for c in by_country]}")
+        print(f"   🏙️ Cities found: {[c.get('city') for c in by_city]}")
+        
+        # Look for US-related entries (should not be "Неизвестно")
+        has_real_country = any(
+            country.get('country') not in ['Неизвестно', 'Unknown', ''] 
+            for country in by_country
+        )
+        
+        has_real_city = any(
+            city.get('city') not in ['Неизвестно', 'Unknown', ''] 
+            for city in by_city
+        )
+        
+        if not has_real_country:
+            print("❌ No real country data found - geolocation may not be working")
+            return False
+            
+        if not has_real_city:
+            print("❌ No real city data found - geolocation may not be working")
+            return False
+            
+        print("   ✅ Real geolocation data found")
+        return True
+
+    def test_ip_geolocation_russia_ip(self):
+        """Test IP geolocation with Russian IP (77.88.8.8 - Yandex DNS)"""
+        if not self.test_link_id:
+            print("❌ No test link ID available")
+            return False
+            
+        # Simulate click with Russian IP
+        headers = {'X-Forwarded-For': '77.88.8.8'}
+        
+        success, response = self.run_test(
+            "Click Link with Russian IP",
+            "GET",
+            f"click/{self.test_link_id}",
+            302,  # Redirect response
+            headers=headers
+        )
+        
+        if not success:
+            return False
+            
+        # Wait a moment for the click to be processed
+        time.sleep(1)
+        
+        # Check analytics to see if geolocation worked
+        success, analytics = self.run_test(
+            "Get Global Analytics for Russian Geo Check",
+            "GET",
+            "analytics/global/summary",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Check if we have Russian data
+        by_country = analytics.get('by_country', [])
+        by_city = analytics.get('by_city', [])
+        
+        print(f"   📍 Countries found: {[c.get('country') for c in by_country]}")
+        print(f"   🏙️ Cities found: {[c.get('city') for c in by_city]}")
+        
+        # Look for Russia-related entries
+        has_russia = any(
+            'Россия' in country.get('country', '') or 'Russia' in country.get('country', '')
+            for country in by_country
+        )
+        
+        has_russian_city = any(
+            city.get('city') not in ['Неизвестно', 'Unknown', ''] 
+            for city in by_city
+        )
+        
+        if not has_russia and not any(country.get('country') not in ['Неизвестно', 'Unknown', ''] for country in by_country):
+            print("❌ No Russian or real country data found")
+            return False
+            
+        print("   ✅ Russian geolocation data found")
+        return True
+
+    def test_ip_geolocation_localhost(self):
+        """Test IP geolocation with localhost IP (should return 'Неизвестно')"""
+        if not self.test_link_id:
+            print("❌ No test link ID available")
+            return False
+            
+        # Simulate click with localhost IP
+        headers = {'X-Forwarded-For': '127.0.0.1'}
+        
+        success, response = self.run_test(
+            "Click Link with Localhost IP",
+            "GET",
+            f"click/{self.test_link_id}",
+            302,  # Redirect response
+            headers=headers
+        )
+        
+        if not success:
+            return False
+            
+        # Wait a moment for the click to be processed
+        time.sleep(1)
+        
+        # Check analytics to see if localhost is handled correctly
+        success, analytics = self.run_test(
+            "Get Global Analytics for Localhost Check",
+            "GET",
+            "analytics/global/summary",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Check if we have "Неизвестно" entries for localhost
+        by_country = analytics.get('by_country', [])
+        by_city = analytics.get('by_city', [])
+        
+        print(f"   📍 Countries found: {[c.get('country') for c in by_country]}")
+        print(f"   🏙️ Cities found: {[c.get('city') for c in by_city]}")
+        
+        # Should have "Неизвестно" entries for localhost
+        has_unknown_country = any(
+            country.get('country') == 'Неизвестно'
+            for country in by_country
+        )
+        
+        has_unknown_city = any(
+            city.get('city') == 'Неизвестно'
+            for city in by_city
+        )
+        
+        if not has_unknown_country:
+            print("❌ Expected 'Неизвестно' country for localhost IP")
+            return False
+            
+        if not has_unknown_city:
+            print("❌ Expected 'Неизвестно' city for localhost IP")
+            return False
+            
+        print("   ✅ Localhost correctly returns 'Неизвестно'")
+        return True
+
+    def test_track_page_view_geolocation(self):
+        """Test page view tracking with geolocation"""
+        if not self.test_page_id:
+            print("❌ No test page ID available")
+            return False
+            
+        # Test page view with German IP
+        headers = {'X-Forwarded-For': '8.8.4.4'}  # Another Google DNS
+        
+        success, response = self.run_test(
+            "Track Page View with Geolocation",
+            "POST",
+            f"track/view/{self.test_page_id}",
+            200,
+            headers=headers
+        )
+        
+        return success and response.get('success') == True
+
+    def test_track_share_geolocation(self):
+        """Test share tracking with geolocation"""
+        if not self.test_page_id:
+            print("❌ No test page ID available")
+            return False
+            
+        # Test share with UK IP
+        headers = {'X-Forwarded-For': '1.1.1.1'}  # Cloudflare DNS
+        
+        success, response = self.run_test(
+            "Track Share with Geolocation",
+            "POST",
+            f"track/share/{self.test_page_id}?share_type=link",
+            200,
+            headers=headers
+        )
+        
+        return success and response.get('success') == True
+
+    def test_qr_scan_geolocation(self):
+        """Test QR scan tracking with geolocation"""
+        if not self.test_page_id:
+            print("❌ No test page ID available")
+            return False
+            
+        # Test QR scan with Canadian IP
+        headers = {'X-Forwarded-For': '1.0.0.1'}  # Cloudflare DNS
+        
+        success, response = self.run_test(
+            "Track QR Scan with Geolocation",
+            "GET",
+            f"qr/{self.test_page_id}",
+            302,  # Redirect response
+            headers=headers
+        )
+        
+        return success
+
 def main():
     print("🚀 Starting BandLink API Tests...")
     print(f"Testing against: https://git-analyzer-8.preview.emergentagent.com/api")
