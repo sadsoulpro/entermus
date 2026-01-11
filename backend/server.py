@@ -167,6 +167,12 @@ class UserResponse(BaseModel):
     role: str
     status: str
     plan: str
+    is_verified: Optional[bool] = False
+    is_banned: Optional[bool] = False
+    verified: Optional[bool] = False
+    verification_status: Optional[str] = "none"
+    show_verification_badge: Optional[bool] = True
+    site_navigation_enabled: Optional[bool] = False
     created_at: str
 
 class PageCreate(BaseModel):
