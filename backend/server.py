@@ -1331,7 +1331,7 @@ async def admin_global_analytics(admin_user: dict = Depends(get_admin_user)):
             {"$limit": 10}
         ])
         async for doc in clicks_cursor:
-            by_country.append({"country": doc["_id"] or "Unknown", "clicks": doc["count"]})
+            by_country.append({"country": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
     
     # Get clicks by city
     by_city = []
@@ -1342,7 +1342,7 @@ async def admin_global_analytics(admin_user: dict = Depends(get_admin_user)):
             {"$limit": 10}
         ])
         async for doc in city_cursor:
-            by_city.append({"city": doc["_id"] or "Unknown", "clicks": doc["count"]})
+            by_city.append({"city": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
     
     # Timeline (last 30 days)
     timeline = []
