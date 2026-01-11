@@ -7,7 +7,8 @@ import {
   Users, FileText, Shield, Ban, Check, Eye, ExternalLink,
   Globe, MapPin, MousePointer, Share2, QrCode, Cpu, 
   HardDrive, Activity, TrendingUp, Server, Music,
-  BadgeCheck, X, Award
+  BadgeCheck, X, Award, Settings, Crown, ChevronDown,
+  UserCog, Sliders, Save
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
@@ -16,22 +17,41 @@ import {
 } from "recharts";
 import Sidebar from "@/components/Sidebar";
 
+// Role badges configuration
+const ROLE_CONFIG = {
+  owner: { label: "Владелец", color: "bg-yellow-500/20 text-yellow-400", icon: Crown },
+  admin: { label: "Админ", color: "bg-purple-500/20 text-purple-400", icon: Shield },
+  moderator: { label: "Модератор", color: "bg-blue-500/20 text-blue-400", icon: UserCog },
+  user: { label: "Пользователь", color: "bg-zinc-500/20 text-zinc-400", icon: Users }
+};
+
+const PLAN_CONFIG = {
+  free: { label: "Free", color: "bg-zinc-500/20 text-zinc-400" },
+  pro: { label: "Pro", color: "bg-blue-500/20 text-blue-400" },
+  ultimate: { label: "Ultimate", color: "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400" }
+};
+
 export default function AdminPanel() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [pages, setPages] = useState([]);
   const [verificationRequests, setVerificationRequests] = useState([]);
   const [globalAnalytics, setGlobalAnalytics] = useState(null);
   const [systemMetrics, setSystemMetrics] = useState(null);
+  const [planConfigs, setPlanConfigs] = useState([]);
   const [loading, setLoading] = useState(true);
-  useAuth();
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [editingPlan, setEditingPlan] = useState(null);
+
+  const isOwner = currentUser?.role === "owner";
 
   useEffect(() => {
     fetchData();
     fetchGlobalAnalytics();
     fetchSystemMetrics();
     fetchVerificationRequests();
+    fetchPlanConfigs();
     
-    // Refresh system metrics every 30 seconds
     const metricsInterval = setInterval(fetchSystemMetrics, 30000);
     return () => clearInterval(metricsInterval);
   }, []);
@@ -78,16 +98,71 @@ export default function AdminPanel() {
     }
   };
 
-  const toggleUserBlock = async (userId) => {
+  const fetchPlanConfigs = async () => {
     try {
-      const response = await api.put(`/admin/users/${userId}/block`);
-      toast.success(response.data.message);
-      fetchData();
+      const response = await api.get("/admin/plan-configs");
+      setPlanConfigs(response.data);
     } catch (error) {
-      toast.error("Не удалось обновить пользователя");
+      console.error("Failed to fetch plan configs");
     }
   };
 
+  // User Management Functions
+  const toggleUserBan = async (userId, currentBanned) => {
+    try {
+      await api.put(`/admin/users/${userId}/ban`, { is_banned: !currentBanned });
+      toast.success(currentBanned ? "Пользователь разбанен" : "Пользователь забанен");
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Не удалось обновить пользователя");
+    }
+  };
+
+  const updateUserRole = async (userId, newRole) => {
+    try {
+      await api.put(`/admin/users/${userId}/role`, { role: newRole });
+      toast.success(`Роль изменена на ${ROLE_CONFIG[newRole].label}`);
+      fetchData();
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Не удалось изменить роль");
+    }
+  };
+
+  const updateUserPlan = async (userId, newPlan) => {
+    try {
+      await api.put(`/admin/users/${userId}/plan`, { plan: newPlan });
+      toast.success(`План изменён на ${PLAN_CONFIG[newPlan].label}`);
+      fetchData();
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Не удалось изменить план");
+    }
+  };
+
+  const toggleUserVerify = async (userId, currentVerified) => {
+    try {
+      await api.put(`/admin/users/${userId}/verify`, { is_verified: !currentVerified });
+      toast.success(currentVerified ? "Верификация снята" : "Пользователь верифицирован");
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Не удалось обновить верификацию");
+    }
+  };
+
+  // Plan Config Management
+  const updatePlanConfig = async (planName, updates) => {
+    try {
+      await api.put(`/admin/plan-configs/${planName}`, updates);
+      toast.success(`Настройки плана ${planName} обновлены`);
+      fetchPlanConfigs();
+      setEditingPlan(null);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Не удалось обновить настройки плана");
+    }
+  };
+
+  // Legacy functions for verification requests
   const approveVerification = async (userId) => {
     try {
       await api.put(`/admin/verification/${userId}/approve`);
@@ -110,26 +185,6 @@ export default function AdminPanel() {
     }
   };
 
-  const grantVerification = async (userId) => {
-    try {
-      await api.put(`/admin/verification/${userId}/grant`);
-      toast.success("Верификация выдана");
-      fetchData();
-    } catch (error) {
-      toast.error(error.response?.data?.detail || "Не удалось выдать верификацию");
-    }
-  };
-
-  const revokeVerification = async (userId) => {
-    try {
-      await api.put(`/admin/verification/${userId}/revoke`);
-      toast.success("Верификация отозвана");
-      fetchData();
-    } catch (error) {
-      toast.error("Не удалось отозвать верификацию");
-    }
-  };
-
   const togglePageStatus = async (pageId) => {
     try {
       const response = await api.put(`/admin/pages/${pageId}/disable`);
@@ -140,79 +195,21 @@ export default function AdminPanel() {
     }
   };
 
-  // Helper functions - Маппинг русских названий стран к флагам
+  // Country flags mapping
   const COUNTRY_FLAGS = {
-    // Русские названия (от ip-api.com с lang=ru)
-    "Россия": "🇷🇺",
-    "США": "🇺🇸",
-    "Украина": "🇺🇦",
-    "Беларусь": "🇧🇾",
-    "Казахстан": "🇰🇿",
-    "Германия": "🇩🇪",
-    "ФРГ": "🇩🇪",
-    "Великобритания": "🇬🇧",
-    "Франция": "🇫🇷",
-    "Италия": "🇮🇹",
-    "Испания": "🇪🇸",
-    "Нидерланды": "🇳🇱",
-    "Польша": "🇵🇱",
-    "Канада": "🇨🇦",
-    "Австралия": "🇦🇺",
-    "Китай": "🇨🇳",
-    "Япония": "🇯🇵",
-    "Южная Корея": "🇰🇷",
-    "Индия": "🇮🇳",
-    "Бразилия": "🇧🇷",
-    "Турция": "🇹🇷",
-    "Швеция": "🇸🇪",
-    "Норвегия": "🇳🇴",
-    "Финляндия": "🇫🇮",
-    "Дания": "🇩🇰",
-    "Швейцария": "🇨🇭",
-    "Австрия": "🇦🇹",
-    "Израиль": "🇮🇱",
-    "ОАЭ": "🇦🇪",
-    "Сингапур": "🇸🇬",
-    "Гонконг": "🇭🇰",
-    "Таиланд": "🇹🇭",
-    "Латвия": "🇱🇻",
-    "Литва": "🇱🇹",
-    "Эстония": "🇪🇪",
-    "Грузия": "🇬🇪",
-    "Армения": "🇦🇲",
-    "Азербайджан": "🇦🇿",
-    "Узбекистан": "🇺🇿",
-    "Молдова": "🇲🇩",
-    "Сербия": "🇷🇸",
-    // Английские названия (fallback)
-    "Russia": "🇷🇺",
-    "United States": "🇺🇸",
-    "Germany": "🇩🇪",
-    "Hong Kong": "🇭🇰",
-    // Коды стран
-    "RU": "🇷🇺",
-    "US": "🇺🇸",
-    "UA": "🇺🇦",
-    "BY": "🇧🇾",
-    "KZ": "🇰🇿",
-    "DE": "🇩🇪",
-    "GB": "🇬🇧",
-    "FR": "🇫🇷",
-    // Неизвестно
-    "Неизвестно": "🌍",
-    "Unknown": "🌍",
+    "Россия": "🇷🇺", "США": "🇺🇸", "Украина": "🇺🇦", "Беларусь": "🇧🇾",
+    "Казахстан": "🇰🇿", "Германия": "🇩🇪", "ФРГ": "🇩🇪", "Великобритания": "🇬🇧",
+    "Франция": "🇫🇷", "Италия": "🇮🇹", "Испания": "🇪🇸", "Польша": "🇵🇱",
+    "Нидерланды": "🇳🇱", "Канада": "🇨🇦", "Австралия": "🇦🇺", "Китай": "🇨🇳",
+    "Япония": "🇯🇵", "Индия": "🇮🇳", "Бразилия": "🇧🇷", "Турция": "🇹🇷",
+    "Гонконг": "🇭🇰", "Сингапур": "🇸🇬", "Латвия": "🇱🇻", "Литва": "🇱🇹",
+    "Эстония": "🇪🇪", "Грузия": "🇬🇪", "Армения": "🇦🇲", "Азербайджан": "🇦🇿",
+    "Узбекистан": "🇺🇿", "Молдова": "🇲🇩", "Сербия": "🇷🇸",
+    "Неизвестно": "🌍", "Unknown": "🌍",
   };
 
-  const getCountryFlag = (country) => {
-    return COUNTRY_FLAGS[country] || "🌍";
-  };
-
-  const getCountryName = (country) => {
-    if (country && country !== "Unknown" && country !== "Неизвестно") {
-      return country;
-    }
-    return "Неизвестно";
-  };
+  const getCountryFlag = (country) => COUNTRY_FLAGS[country] || "🌍";
+  const getCountryName = (country) => (country && country !== "Unknown" && country !== "Неизвестно") ? country : "Неизвестно";
 
   const getProgressColor = (percent) => {
     if (percent >= 90) return "bg-red-500";
@@ -235,34 +232,47 @@ export default function AdminPanel() {
       <div className="p-4 sm:p-6 lg:p-10">
         {/* Header */}
         <div className="mb-6 sm:mb-10">
-          <h1 className="text-xl sm:text-2xl font-semibold mb-1">Админ-панель</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Управление пользователями, страницами и мониторинг</p>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-xl sm:text-2xl font-semibold">Админ-панель</h1>
+            {currentUser?.role && (
+              <span className={`px-2 py-1 rounded-full text-xs ${ROLE_CONFIG[currentUser.role]?.color}`}>
+                {ROLE_CONFIG[currentUser.role]?.label}
+              </span>
+            )}
+          </div>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Управление пользователями, планами и мониторинг
+          </p>
         </div>
         
         {/* Tabs */}
-        <Tabs defaultValue="analytics" className="w-full">
+        <Tabs defaultValue="users" className="w-full">
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mb-4 sm:mb-6">
             <TabsList className="bg-zinc-900 border border-white/5 inline-flex min-w-max">
+              <TabsTrigger value="users" data-testid="tab-users" className="text-xs sm:text-sm">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Пользователи
+              </TabsTrigger>
+              <TabsTrigger value="plans" data-testid="tab-plans" className="text-xs sm:text-sm">
+                <Sliders className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Планы
+              </TabsTrigger>
               <TabsTrigger value="analytics" data-testid="tab-analytics" className="text-xs sm:text-sm">
                 <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">Глобальная </span>Аналитика
+                Аналитика
               </TabsTrigger>
               <TabsTrigger value="system" data-testid="tab-system" className="text-xs sm:text-sm">
                 <Server className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">Мониторинг </span>VPS
+                VPS
               </TabsTrigger>
               <TabsTrigger value="verification" data-testid="tab-verification" className="text-xs sm:text-sm">
                 <BadgeCheck className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Верификация
+                Заявки
                 {verificationRequests.filter(r => r.status === 'pending').length > 0 && (
                   <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary text-[10px] sm:text-xs">
                     {verificationRequests.filter(r => r.status === 'pending').length}
                   </span>
                 )}
-              </TabsTrigger>
-              <TabsTrigger value="users" data-testid="tab-users" className="text-xs sm:text-sm">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Пользователи
               </TabsTrigger>
               <TabsTrigger value="pages" data-testid="tab-pages" className="text-xs sm:text-sm">
                 <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -270,89 +280,290 @@ export default function AdminPanel() {
               </TabsTrigger>
             </TabsList>
           </div>
-          
+
+          {/* Users Tab - Enhanced */}
+          <TabsContent value="users">
+            <div className="space-y-4">
+              {/* Stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div className="p-3 rounded-xl bg-zinc-900/50 border border-white/5">
+                  <p className="text-xs text-muted-foreground mb-1">Всего</p>
+                  <p className="text-xl font-bold">{users.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-900/50 border border-white/5">
+                  <p className="text-xs text-muted-foreground mb-1">Активных</p>
+                  <p className="text-xl font-bold text-green-400">{users.filter(u => !u.is_banned && u.status === 'active').length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-900/50 border border-white/5">
+                  <p className="text-xs text-muted-foreground mb-1">Забанено</p>
+                  <p className="text-xl font-bold text-red-400">{users.filter(u => u.is_banned).length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-900/50 border border-white/5">
+                  <p className="text-xs text-muted-foreground mb-1">Верифицировано</p>
+                  <p className="text-xl font-bold text-primary">{users.filter(u => u.is_verified || u.verified).length}</p>
+                </div>
+              </div>
+
+              {/* Users List */}
+              <div className="space-y-3">
+                {users.map((user, i) => {
+                  const RoleIcon = ROLE_CONFIG[user.role]?.icon || Users;
+                  const isBanned = user.is_banned || user.status === 'blocked';
+                  const isVerified = user.is_verified || user.verified;
+                  
+                  return (
+                    <motion.div
+                      key={user.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.02 }}
+                      className={`p-4 rounded-xl border ${isBanned ? 'bg-red-950/20 border-red-500/20' : 'bg-zinc-900/50 border-white/5'}`}
+                      data-testid={`user-row-${user.id}`}
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        {/* User Info */}
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            user.role === 'owner' ? 'bg-yellow-500/20' :
+                            user.role === 'admin' ? 'bg-purple-500/20' : 'bg-primary/20'
+                          }`}>
+                            <RoleIcon className={`w-5 h-5 ${
+                              user.role === 'owner' ? 'text-yellow-400' :
+                              user.role === 'admin' ? 'text-purple-400' : 'text-primary'
+                            }`} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-medium">{user.username}</p>
+                              {isVerified && <BadgeCheck className="w-4 h-4 text-primary" />}
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] ${ROLE_CONFIG[user.role]?.color}`}>
+                                {ROLE_CONFIG[user.role]?.label}
+                              </span>
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] ${PLAN_CONFIG[user.plan]?.color}`}>
+                                {PLAN_CONFIG[user.plan]?.label}
+                              </span>
+                              {isBanned && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400">
+                                  Забанен
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="flex items-center gap-4 text-sm pl-[52px] lg:pl-0">
+                          <div className="text-center">
+                            <p className="font-medium">{user.page_count || 0}</p>
+                            <p className="text-[10px] text-muted-foreground">страниц</p>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 pl-[52px] lg:pl-0 flex-wrap">
+                          {/* Verify Button */}
+                          {user.role !== 'owner' && (
+                            <Button
+                              size="sm"
+                              variant={isVerified ? "outline" : "default"}
+                              onClick={() => toggleUserVerify(user.id, isVerified)}
+                              className="text-xs"
+                            >
+                              <BadgeCheck className="w-3 h-3 mr-1" />
+                              {isVerified ? "Снять" : "Выдать"}
+                            </Button>
+                          )}
+
+                          {/* Plan Selector */}
+                          {user.role !== 'owner' && (
+                            <select
+                              value={user.plan}
+                              onChange={(e) => updateUserPlan(user.id, e.target.value)}
+                              className="h-8 px-2 rounded-md bg-zinc-800 border border-white/10 text-xs cursor-pointer"
+                            >
+                              <option value="free">Free</option>
+                              <option value="pro">Pro</option>
+                              <option value="ultimate">Ultimate</option>
+                            </select>
+                          )}
+
+                          {/* Role Selector (Owner only) */}
+                          {isOwner && user.role !== 'owner' && (
+                            <select
+                              value={user.role}
+                              onChange={(e) => updateUserRole(user.id, e.target.value)}
+                              className="h-8 px-2 rounded-md bg-zinc-800 border border-white/10 text-xs cursor-pointer"
+                            >
+                              <option value="user">Пользователь</option>
+                              <option value="moderator">Модератор</option>
+                              <option value="admin">Админ</option>
+                            </select>
+                          )}
+
+                          {/* Ban/Unban Button */}
+                          {user.role !== 'owner' && user.role !== 'admin' && (
+                            <Button
+                              size="sm"
+                              variant={isBanned ? "default" : "destructive"}
+                              onClick={() => toggleUserBan(user.id, isBanned)}
+                              className="text-xs"
+                            >
+                              {isBanned ? (
+                                <><Check className="w-3 h-3 mr-1" /> Разбанить</>
+                              ) : (
+                                <><Ban className="w-3 h-3 mr-1" /> Забанить</>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Plans Tab - NEW */}
+          <TabsContent value="plans">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Настройки планов</h2>
+                <p className="text-xs text-muted-foreground">Изменения применяются ко всем пользователям плана</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {planConfigs.map((config) => (
+                  <motion.div
+                    key={config.plan_name}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-5 rounded-2xl border ${
+                      config.plan_name === 'ultimate' ? 'bg-gradient-to-br from-purple-950/50 to-pink-950/50 border-purple-500/20' :
+                      config.plan_name === 'pro' ? 'bg-blue-950/30 border-blue-500/20' :
+                      'bg-zinc-900/50 border-white/5'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold capitalize">{config.plan_name}</h3>
+                      {config.plan_name === 'ultimate' && <Crown className="w-5 h-5 text-yellow-400" />}
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Max Pages Limit */}
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Лимит страниц</label>
+                        <input
+                          type="number"
+                          value={editingPlan === config.plan_name ? 
+                            (planConfigs.find(p => p.plan_name === config.plan_name)?.max_pages_limit || 0) :
+                            config.max_pages_limit
+                          }
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            setPlanConfigs(prev => prev.map(p => 
+                              p.plan_name === config.plan_name ? {...p, max_pages_limit: value} : p
+                            ));
+                            setEditingPlan(config.plan_name);
+                          }}
+                          className="w-full h-9 px-3 rounded-lg bg-zinc-800 border border-white/10 text-sm"
+                          min="-1"
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-1">-1 = безлимит</p>
+                      </div>
+
+                      {/* Boolean toggles */}
+                      <div className="space-y-2">
+                        {[
+                          { key: 'can_use_custom_design', label: 'Кастомный дизайн' },
+                          { key: 'has_analytics', label: 'Аналитика' },
+                          { key: 'has_advanced_analytics', label: 'Расширенная аналитика' },
+                          { key: 'can_remove_branding', label: 'Убрать брендинг' },
+                          { key: 'priority_support', label: 'Приоритетная поддержка' }
+                        ].map(({ key, label }) => (
+                          <label key={key} className="flex items-center justify-between cursor-pointer">
+                            <span className="text-xs">{label}</span>
+                            <input
+                              type="checkbox"
+                              checked={config[key] || false}
+                              onChange={(e) => {
+                                setPlanConfigs(prev => prev.map(p => 
+                                  p.plan_name === config.plan_name ? {...p, [key]: e.target.checked} : p
+                                ));
+                                setEditingPlan(config.plan_name);
+                              }}
+                              className="w-4 h-4 rounded bg-zinc-700 border-white/10"
+                            />
+                          </label>
+                        ))}
+                      </div>
+
+                      {/* Save Button */}
+                      {editingPlan === config.plan_name && (
+                        <Button
+                          onClick={() => {
+                            const currentConfig = planConfigs.find(p => p.plan_name === config.plan_name);
+                            updatePlanConfig(config.plan_name, {
+                              max_pages_limit: currentConfig.max_pages_limit,
+                              can_use_custom_design: currentConfig.can_use_custom_design,
+                              has_analytics: currentConfig.has_analytics,
+                              has_advanced_analytics: currentConfig.has_advanced_analytics,
+                              can_remove_branding: currentConfig.can_remove_branding,
+                              priority_support: currentConfig.priority_support
+                            });
+                          }}
+                          className="w-full mt-2"
+                          size="sm"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Сохранить
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Users count */}
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                      <p className="text-xs text-muted-foreground">
+                        Пользователей: <span className="text-white font-medium">
+                          {users.filter(u => u.plan === config.plan_name).length}
+                        </span>
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
           {/* Global Analytics Tab */}
           <TabsContent value="analytics">
             {globalAnalytics ? (
               <div className="space-y-6">
                 {/* Stats Overview */}
                 <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users className="w-4 h-4 text-blue-500" />
-                      <span className="text-xs text-muted-foreground">Пользователей</span>
-                    </div>
-                    <p className="text-2xl font-bold">{globalAnalytics.total_users}</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <FileText className="w-4 h-4 text-purple-500" />
-                      <span className="text-xs text-muted-foreground">Страниц</span>
-                    </div>
-                    <p className="text-2xl font-bold">{globalAnalytics.total_pages}</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Eye className="w-4 h-4 text-primary" />
-                      <span className="text-xs text-muted-foreground">Просмотров</span>
-                    </div>
-                    <p className="text-2xl font-bold">{globalAnalytics.total_views.toLocaleString()}</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <MousePointer className="w-4 h-4 text-green-500" />
-                      <span className="text-xs text-muted-foreground">Кликов</span>
-                    </div>
-                    <p className="text-2xl font-bold">{globalAnalytics.total_clicks.toLocaleString()}</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Share2 className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs text-muted-foreground">Репостов</span>
-                    </div>
-                    <p className="text-2xl font-bold">{globalAnalytics.total_shares.toLocaleString()}</p>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.25 }}
-                    className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <QrCode className="w-4 h-4 text-violet-500" />
-                      <span className="text-xs text-muted-foreground">QR сканов</span>
-                    </div>
-                    <p className="text-2xl font-bold">{globalAnalytics.total_qr_scans.toLocaleString()}</p>
-                  </motion.div>
+                  {[
+                    { icon: Users, label: "Пользователей", value: globalAnalytics.total_users, color: "text-blue-500" },
+                    { icon: FileText, label: "Страниц", value: globalAnalytics.total_pages, color: "text-purple-500" },
+                    { icon: Eye, label: "Просмотров", value: globalAnalytics.total_views, color: "text-primary" },
+                    { icon: MousePointer, label: "Кликов", value: globalAnalytics.total_clicks, color: "text-green-500" },
+                    { icon: Share2, label: "Репостов", value: globalAnalytics.total_shares, color: "text-blue-400" },
+                    { icon: QrCode, label: "QR сканов", value: globalAnalytics.total_qr_scans, color: "text-violet-500" }
+                  ].map((stat, idx) => (
+                    <motion.div
+                      key={stat.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                        <span className="text-xs text-muted-foreground">{stat.label}</span>
+                      </div>
+                      <p className="text-2xl font-bold">{(stat.value || 0).toLocaleString()}</p>
+                    </motion.div>
+                  ))}
                 </div>
                 
                 {/* Charts Row */}
@@ -365,7 +576,7 @@ export default function AdminPanel() {
                     className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
                   >
                     <h3 className="text-lg font-semibold mb-4">Динамика за 30 дней</h3>
-                    {globalAnalytics.timeline && globalAnalytics.timeline.length > 0 ? (
+                    {globalAnalytics.timeline?.length > 0 ? (
                       <ResponsiveContainer width="100%" height={200}>
                         <AreaChart data={globalAnalytics.timeline}>
                           <defs>
@@ -382,9 +593,7 @@ export default function AdminPanel() {
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                        Нет данных
-                      </div>
+                      <div className="h-[200px] flex items-center justify-center text-muted-foreground">Нет данных</div>
                     )}
                   </motion.div>
                   
@@ -399,21 +608,26 @@ export default function AdminPanel() {
                       <Globe className="w-5 h-5 text-muted-foreground" />
                       <h3 className="text-lg font-semibold">По странам</h3>
                     </div>
-                    {globalAnalytics.by_country && globalAnalytics.by_country.length > 0 ? (
+                    {globalAnalytics.by_country?.length > 0 ? (
                       <div className="space-y-3">
-                        {globalAnalytics.by_country.slice(0, 5).map((item, i) => {
+                        {globalAnalytics.by_country.slice(0, 5).map((item, idx) => {
                           const maxClicks = globalAnalytics.by_country[0]?.clicks || 1;
                           const percentage = ((item.clicks / maxClicks) * 100).toFixed(0);
                           return (
-                            <div key={i} className="flex items-center gap-3">
-                              <span className="text-lg">{getCountryFlag(item.country)}</span>
+                            <div key={idx} className="flex items-center gap-3">
+                              <span className="text-lg w-6">{getCountryFlag(item.country)}</span>
                               <div className="flex-1">
                                 <div className="flex justify-between text-sm mb-1">
                                   <span>{getCountryName(item.country)}</span>
                                   <span className="text-muted-foreground">{item.clicks}</span>
                                 </div>
                                 <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                                  <div className="h-full bg-primary rounded-full" style={{ width: `${percentage}%` }} />
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${percentage}%` }}
+                                    transition={{ duration: 0.5, delay: 0.4 + idx * 0.05 }}
+                                    className="h-full bg-primary rounded-full"
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -421,222 +635,73 @@ export default function AdminPanel() {
                         })}
                       </div>
                     ) : (
-                      <div className="h-[150px] flex items-center justify-center text-muted-foreground">
-                        <Globe className="w-8 h-8 opacity-50" />
-                      </div>
+                      <div className="h-[160px] flex items-center justify-center text-muted-foreground">Нет данных</div>
                     )}
                   </motion.div>
                 </div>
-                
-                {/* Top Pages */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
-                >
-                  <h3 className="text-lg font-semibold mb-4">Топ страниц по просмотрам</h3>
-                  {globalAnalytics.top_pages && globalAnalytics.top_pages.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b border-white/5">
-                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Страница</th>
-                            <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">Автор</th>
-                            <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">Просмотры</th>
-                            <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">Клики</th>
-                            <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">Репосты</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {globalAnalytics.top_pages.map((page, i) => (
-                            <tr key={page.id} className="border-b border-white/5">
-                              <td className="py-2 px-3">
-                                <a href={`/${page.slug}`} target="_blank" rel="noopener" className="hover:text-primary">
-                                  {page.title}
-                                </a>
-                              </td>
-                              <td className="py-2 px-3 text-muted-foreground">{page.username}</td>
-                              <td className="text-right py-2 px-3 font-medium">{page.views.toLocaleString()}</td>
-                              <td className="text-right py-2 px-3">{page.clicks.toLocaleString()}</td>
-                              <td className="text-right py-2 px-3">{page.shares}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">Нет данных</p>
-                  )}
-                </motion.div>
               </div>
             ) : (
-              <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
-              </div>
+              <div className="text-center py-20 text-muted-foreground">Загрузка аналитики...</div>
             )}
           </TabsContent>
-          
-          {/* System Monitoring Tab */}
+
+          {/* System Metrics Tab */}
           <TabsContent value="system">
             {systemMetrics ? (
               <div className="space-y-6">
-                {/* Resource Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* CPU */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                          <Cpu className="w-6 h-6 text-blue-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">CPU</p>
-                          <p className="text-2xl font-bold">{systemMetrics.cpu.percent}%</p>
-                        </div>
-                      </div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Cpu className="w-5 h-5 text-blue-500" />
+                      <h3 className="font-semibold">CPU</h3>
                     </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-2">
-                      <div 
-                        className={`h-full rounded-full transition-all ${getProgressColor(systemMetrics.cpu.percent)}`}
-                        style={{ width: `${systemMetrics.cpu.percent}%` }}
-                      />
+                    <p className="text-3xl font-bold mb-2">{systemMetrics.cpu?.percent?.toFixed(1)}%</p>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className={`h-full ${getProgressColor(systemMetrics.cpu?.percent)} rounded-full transition-all`}
+                        style={{ width: `${systemMetrics.cpu?.percent}%` }} />
                     </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{systemMetrics.cpu.count} ядер</span>
-                      <span>Load: {systemMetrics.cpu.load_1m}</span>
-                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">{systemMetrics.cpu?.count} cores</p>
                   </motion.div>
-                  
+
                   {/* Memory */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                          <Activity className="w-6 h-6 text-purple-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">RAM</p>
-                          <p className="text-2xl font-bold">{systemMetrics.memory.percent}%</p>
-                        </div>
-                      </div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Activity className="w-5 h-5 text-green-500" />
+                      <h3 className="font-semibold">Память</h3>
                     </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-2">
-                      <div 
-                        className={`h-full rounded-full transition-all ${getProgressColor(systemMetrics.memory.percent)}`}
-                        style={{ width: `${systemMetrics.memory.percent}%` }}
-                      />
+                    <p className="text-3xl font-bold mb-2">{systemMetrics.memory?.percent?.toFixed(1)}%</p>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className={`h-full ${getProgressColor(systemMetrics.memory?.percent)} rounded-full transition-all`}
+                        style={{ width: `${systemMetrics.memory?.percent}%` }} />
                     </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{systemMetrics.memory.used_gb} GB</span>
-                      <span>из {systemMetrics.memory.total_gb} GB</span>
-                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {(systemMetrics.memory?.used / 1024 / 1024 / 1024).toFixed(1)} / {(systemMetrics.memory?.total / 1024 / 1024 / 1024).toFixed(1)} GB
+                    </p>
                   </motion.div>
-                  
+
                   {/* Disk */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
-                          <HardDrive className="w-6 h-6 text-green-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Диск</p>
-                          <p className="text-2xl font-bold">{systemMetrics.disk.percent}%</p>
-                        </div>
-                      </div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <HardDrive className="w-5 h-5 text-purple-500" />
+                      <h3 className="font-semibold">Диск</h3>
                     </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-2">
-                      <div 
-                        className={`h-full rounded-full transition-all ${getProgressColor(systemMetrics.disk.percent)}`}
-                        style={{ width: `${systemMetrics.disk.percent}%` }}
-                      />
+                    <p className="text-3xl font-bold mb-2">{systemMetrics.disk?.percent?.toFixed(1)}%</p>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className={`h-full ${getProgressColor(systemMetrics.disk?.percent)} rounded-full transition-all`}
+                        style={{ width: `${systemMetrics.disk?.percent}%` }} />
                     </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{systemMetrics.disk.used_gb} GB</span>
-                      <span>из {systemMetrics.disk.total_gb} GB</span>
-                    </div>
-                  </motion.div>
-                  
-                  {/* Network & Uptime */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                          <Server className="w-6 h-6 text-orange-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Аптайм</p>
-                          <p className="text-xl font-bold">{systemMetrics.uptime}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="p-2 bg-zinc-800 rounded-lg">
-                        <p className="text-muted-foreground">↑ Отправлено</p>
-                        <p className="font-medium">{systemMetrics.network.sent_mb} MB</p>
-                      </div>
-                      <div className="p-2 bg-zinc-800 rounded-lg">
-                        <p className="text-muted-foreground">↓ Получено</p>
-                        <p className="font-medium">{systemMetrics.network.recv_mb} MB</p>
-                      </div>
-                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {(systemMetrics.disk?.used / 1024 / 1024 / 1024).toFixed(1)} / {(systemMetrics.disk?.total / 1024 / 1024 / 1024).toFixed(1)} GB
+                    </p>
                   </motion.div>
                 </div>
-                
-                {/* Load Average Chart */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
-                >
-                  <h3 className="text-lg font-semibold mb-4">Средняя нагрузка системы</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-zinc-800 rounded-xl">
-                      <p className="text-3xl font-bold text-blue-400">{systemMetrics.cpu.load_1m}</p>
-                      <p className="text-xs text-muted-foreground mt-1">1 минута</p>
-                    </div>
-                    <div className="text-center p-4 bg-zinc-800 rounded-xl">
-                      <p className="text-3xl font-bold text-purple-400">{systemMetrics.cpu.load_5m}</p>
-                      <p className="text-xs text-muted-foreground mt-1">5 минут</p>
-                    </div>
-                    <div className="text-center p-4 bg-zinc-800 rounded-xl">
-                      <p className="text-3xl font-bold text-green-400">{systemMetrics.cpu.load_15m}</p>
-                      <p className="text-xs text-muted-foreground mt-1">15 минут</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-4 text-center">
-                    Последнее обновление: {new Date(systemMetrics.timestamp).toLocaleString('ru-RU')}
-                  </p>
-                </motion.div>
               </div>
             ) : (
-              <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
-              </div>
+              <div className="text-center py-20 text-muted-foreground">Загрузка метрик...</div>
             )}
           </TabsContent>
-          
+
           {/* Verification Tab */}
           <TabsContent value="verification">
             <div className="space-y-6">
@@ -644,17 +709,15 @@ export default function AdminPanel() {
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <BadgeCheck className="w-5 h-5 text-primary" />
-                  Заявки на верификацию
+                  Ожидающие заявки
                 </h3>
-                
                 {verificationRequests.filter(r => r.status === 'pending').length > 0 ? (
                   <div className="space-y-3">
-                    {verificationRequests.filter(r => r.status === 'pending').map((req, i) => (
+                    {verificationRequests.filter(r => r.status === 'pending').map((req) => (
                       <motion.div
                         key={req.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
                         className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -668,29 +731,16 @@ export default function AdminPanel() {
                               <span className="text-muted-foreground">Соц. сети: </span>
                               <span className="text-zinc-300 break-all">{req.social_links}</span>
                             </div>
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Описание: </span>
-                              <span className="text-zinc-300">{req.description}</span>
-                            </div>
                             <p className="text-xs text-muted-foreground mt-2">
                               Подана: {new Date(req.created_at).toLocaleString('ru-RU')}
                             </p>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
-                            <Button
-                              size="sm"
-                              onClick={() => approveVerification(req.user_id)}
-                              className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
-                            >
+                            <Button size="sm" onClick={() => approveVerification(req.user_id)} className="bg-green-600 hover:bg-green-700">
                               <Check className="w-4 h-4 sm:mr-1" />
                               <span className="hidden sm:inline">Одобрить</span>
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => rejectVerification(req.user_id)}
-                              className="flex-1 sm:flex-none"
-                            >
+                            <Button size="sm" variant="destructive" onClick={() => rejectVerification(req.user_id)}>
                               <X className="w-4 h-4 sm:mr-1" />
                               <span className="hidden sm:inline">Отклонить</span>
                             </Button>
@@ -700,167 +750,12 @@ export default function AdminPanel() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center text-muted-foreground py-8 bg-zinc-900/30 rounded-xl">
-                    Нет ожидающих заявок
-                  </p>
+                  <p className="text-center text-muted-foreground py-8 bg-zinc-900/30 rounded-xl">Нет ожидающих заявок</p>
                 )}
               </div>
-              
-              {/* Verified Users - Grant/Revoke */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Award className="w-5 h-5 text-yellow-500" />
-                  Управление верификацией пользователей
-                </h3>
-                
-                <div className="space-y-2">
-                  {users.map((user) => (
-                    <div
-                      key={user.id}
-                      className="p-3 rounded-lg bg-zinc-900/30 border border-white/5 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                          <span className="text-xs font-medium">{user.username?.[0]?.toUpperCase()}</span>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{user.username}</span>
-                            {user.verified && (
-                              <BadgeCheck className="w-4 h-4 text-primary" />
-                            )}
-                          </div>
-                          <span className="text-xs text-muted-foreground">{user.email}</span>
-                        </div>
-                      </div>
-                      
-                      {user.role !== "admin" && (
-                        user.verified ? (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => revokeVerification(user.id)}
-                          >
-                            Отозвать
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => grantVerification(user.id)}
-                            className="bg-primary hover:bg-primary/90"
-                          >
-                            <BadgeCheck className="w-4 h-4 mr-1" />
-                            Выдать
-                          </Button>
-                        )
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* History */}
-              {verificationRequests.filter(r => r.status !== 'pending').length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">История заявок</h3>
-                  <div className="space-y-2">
-                    {verificationRequests.filter(r => r.status !== 'pending').slice(0, 10).map((req) => (
-                      <div
-                        key={req.id}
-                        className="p-3 rounded-lg bg-zinc-900/30 border border-white/5 flex items-center justify-between"
-                      >
-                        <div>
-                          <span className="font-medium">{req.artist_name}</span>
-                          <span className="text-sm text-muted-foreground ml-2">(@{req.username})</span>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          req.status === 'approved' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                        }`}>
-                          {req.status === 'approved' ? 'Одобрено' : 'Отклонено'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </TabsContent>
-          
-          {/* Users Tab */}
-          <TabsContent value="users">
-            <div className="space-y-3">
-              {users.map((user, i) => (
-                <motion.div
-                  key={user.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="p-3 sm:p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  data-testid={`user-row-${user.id}`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-primary font-semibold text-sm sm:text-base">
-                          {user.username?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm sm:text-base">{user.username}</p>
-                          {user.role === "admin" && (
-                            <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs bg-primary/20 text-primary">
-                              Админ
-                            </span>
-                          )}
-                          <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs ${
-                            user.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                          }`}>
-                            {user.status}
-                          </span>
-                        </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-11 sm:pl-0">
-                      <div className="text-left sm:text-right">
-                        <p className="text-xs sm:text-sm font-medium">{user.page_count} страниц</p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">план {user.plan}</p>
-                      </div>
-                      
-                      {user.role !== "admin" && (
-                        <Button
-                          variant={user.status === "active" ? "destructive" : "default"}
-                          size="sm"
-                          onClick={() => toggleUserBlock(user.id)}
-                          data-testid={`block-user-${user.id}`}
-                          className="text-xs sm:text-sm flex-shrink-0"
-                        >
-                          {user.status === "active" ? (
-                            <>
-                              <Ban className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
-                              <span className="hidden sm:inline">Заблокировать</span>
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
-                              <span className="hidden sm:inline">Разблокировать</span>
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-              
-              {users.length === 0 && (
-                <p className="text-center text-muted-foreground py-10">Пользователи не найдены</p>
-              )}
-            </div>
-          </TabsContent>
-          
+
           {/* Pages Tab */}
           <TabsContent value="pages">
             <div className="space-y-3">
@@ -869,61 +764,50 @@ export default function AdminPanel() {
                   key={page.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="p-3 sm:p-4 rounded-xl bg-zinc-900/50 border border-white/5"
-                  data-testid={`page-row-${page.id}`}
+                  transition={{ delay: i * 0.02 }}
+                  className="p-4 rounded-xl bg-zinc-900/50 border border-white/5"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-zinc-800 overflow-hidden flex-shrink-0">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden flex-shrink-0">
                         {page.cover_image ? (
-                          <img 
-                            src={page.cover_image.startsWith('/') ? `${process.env.REACT_APP_BACKEND_URL}${page.cover_image}` : page.cover_image}
-                            alt={page.title}
-                            className="w-full h-full object-cover"
-                          />
+                          <img src={page.cover_image.startsWith('/') ? `${process.env.REACT_APP_BACKEND_URL}${page.cover_image}` : page.cover_image}
+                            alt={page.title} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <Music className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
+                            <Music className="w-6 h-6 text-muted-foreground" />
                           </div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium text-sm sm:text-base truncate max-w-[150px] sm:max-w-none">{page.title}</p>
-                          <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs flex-shrink-0 ${
+                          <p className="font-medium truncate">{page.title}</p>
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] ${
                             page.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                          }`}>
-                            {page.status}
-                          </span>
+                          }`}>{page.status}</span>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           by {page.user?.username || "Unknown"} • /{page.slug}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-[52px] sm:pl-0">
-                      <div className="text-left sm:text-right">
-                        <p className="text-xs sm:text-sm font-medium flex items-center gap-1">
-                          <Eye className="w-3 h-3 sm:w-4 sm:h-4" /> {page.views || 0}
+                    <div className="flex items-center gap-4 pl-[60px] sm:pl-0">
+                      <div className="text-right">
+                        <p className="text-sm font-medium flex items-center gap-1">
+                          <Eye className="w-4 h-4" /> {page.views || 0}
                         </p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">{page.total_clicks || 0} кликов</p>
+                        <p className="text-xs text-muted-foreground">{page.total_clicks || 0} кликов</p>
                       </div>
                       
-                      <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                      <div className="flex items-center gap-2">
                         <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
-                            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </Button>
+                          <Button variant="ghost" size="icon"><ExternalLink className="w-4 h-4" /></Button>
                         </a>
-                        
                         <Button
                           variant={page.status === "active" ? "destructive" : "default"}
                           size="sm"
                           onClick={() => togglePageStatus(page.id)}
-                          data-testid={`toggle-page-${page.id}`}
-                          className="text-xs sm:text-sm"
                         >
                           {page.status === "active" ? "Отключить" : "Включить"}
                         </Button>
@@ -932,7 +816,6 @@ export default function AdminPanel() {
                   </div>
                 </motion.div>
               ))}
-              
               {pages.length === 0 && (
                 <p className="text-center text-muted-foreground py-10">Страницы не найдены</p>
               )}
