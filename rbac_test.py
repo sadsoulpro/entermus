@@ -101,7 +101,8 @@ class RBACTester:
         
         if not success:
             # If email exists, try to login instead to verify owner status
-            if "already exists" in str(response):
+            response_text = str(response.get('detail', ''))
+            if "already exists" in response_text:
                 print("   Email exists, testing login to verify owner status...")
                 success, response = self.run_test(
                     "Owner Login (Existing)",
