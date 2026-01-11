@@ -795,59 +795,62 @@ export default function AdminPanel() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 flex items-center justify-between"
+                  className="p-3 sm:p-4 rounded-xl bg-zinc-900/50 border border-white/5"
                   data-testid={`user-row-${user.id}`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <span className="text-primary font-semibold">
-                        {user.username?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{user.username}</p>
-                        {user.role === "admin" && (
-                          <span className="px-2 py-0.5 rounded-full text-xs bg-primary/20 text-primary">
-                            Админ
-                          </span>
-                        )}
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${
-                          user.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                        }`}>
-                          {user.status}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary font-semibold text-sm sm:text-base">
+                          {user.username?.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{user.page_count} страниц</p>
-                      <p className="text-xs text-muted-foreground">план {user.plan}</p>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm sm:text-base">{user.username}</p>
+                          {user.role === "admin" && (
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs bg-primary/20 text-primary">
+                              Админ
+                            </span>
+                          )}
+                          <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs ${
+                            user.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                          }`}>
+                            {user.status}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+                      </div>
                     </div>
                     
-                    {user.role !== "admin" && (
-                      <Button
-                        variant={user.status === "active" ? "destructive" : "default"}
-                        size="sm"
-                        onClick={() => toggleUserBlock(user.id)}
-                        data-testid={`block-user-${user.id}`}
-                      >
-                        {user.status === "active" ? (
-                          <>
-                            <Ban className="w-4 h-4 mr-1" />
-                            Заблокировать
-                          </>
-                        ) : (
-                          <>
-                            <Check className="w-4 h-4 mr-1" />
-                            Разблокировать
-                          </>
-                        )}
-                      </Button>
-                    )}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-11 sm:pl-0">
+                      <div className="text-left sm:text-right">
+                        <p className="text-xs sm:text-sm font-medium">{user.page_count} страниц</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">план {user.plan}</p>
+                      </div>
+                      
+                      {user.role !== "admin" && (
+                        <Button
+                          variant={user.status === "active" ? "destructive" : "default"}
+                          size="sm"
+                          onClick={() => toggleUserBlock(user.id)}
+                          data-testid={`block-user-${user.id}`}
+                          className="text-xs sm:text-sm flex-shrink-0"
+                        >
+                          {user.status === "active" ? (
+                            <>
+                              <Ban className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Заблокировать</span>
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Разблокировать</span>
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
