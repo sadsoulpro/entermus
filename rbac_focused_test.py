@@ -102,8 +102,8 @@ def test_rbac_system():
         return False
         
     users = users_response.json()
-    if not users or 'page_count' not in users[0]:
-        print(f"❌ Users list missing page_count field")
+    if not users or len(users) == 0 or 'page_count' not in users[0]:
+        print(f"❌ Users list missing page_count field or empty")
         return False
         
     print(f"✅ Users list retrieved with page_count field")
