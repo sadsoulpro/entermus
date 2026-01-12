@@ -40,6 +40,9 @@ export default function AdminPanel() {
   const [globalAnalytics, setGlobalAnalytics] = useState(null);
   const [systemMetrics, setSystemMetrics] = useState(null);
   const [planConfigs, setPlanConfigs] = useState([]);
+  const [subdomains, setSubdomains] = useState([]);
+  const [subdomainsTotal, setSubdomainsTotal] = useState(0);
+  const [subdomainSearch, setSubdomainSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState(null);
   const [activeTab, setActiveTab] = useState("analytics");
