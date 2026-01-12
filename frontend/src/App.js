@@ -115,6 +115,9 @@ function App() {
   // Initialize user from localStorage for instant UI (no flash)
   const [user, setUser] = useState(() => getStoredUser());
   const [loading, setLoading] = useState(true);
+  
+  // Check if we're on a subdomain
+  const subdomain = getSubdomain();
 
   // On mount: verify token with backend and update user data
   useEffect(() => {
