@@ -231,6 +231,7 @@ class TokenResponse(BaseModel):
 class PlanConfigCreate(BaseModel):
     plan_name: str
     max_pages_limit: int = 3
+    max_subdomains_limit: int = 1
     can_use_custom_design: bool = False
     has_analytics: bool = True
     has_advanced_analytics: bool = False
@@ -239,6 +240,7 @@ class PlanConfigCreate(BaseModel):
 
 class PlanConfigUpdate(BaseModel):
     max_pages_limit: Optional[int] = None
+    max_subdomains_limit: Optional[int] = None
     can_use_custom_design: Optional[bool] = None
     has_analytics: Optional[bool] = None
     has_advanced_analytics: Optional[bool] = None
@@ -256,6 +258,14 @@ class UserBanUpdate(BaseModel):
 
 class UserVerifyUpdate(BaseModel):
     is_verified: bool
+
+# ===================== SUBDOMAIN MODELS =====================
+
+class SubdomainCreate(BaseModel):
+    subdomain: str = Field(..., min_length=3, max_length=32, pattern="^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
+
+class SubdomainUpdate(BaseModel):
+    is_active: bool
 
 # ===================== HELPERS =====================
 
