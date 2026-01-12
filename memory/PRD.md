@@ -191,3 +191,33 @@ Build a minimal band.link-like smart link web service for musicians. Focus on MV
 - ✅ Forgot Password page
 - ✅ Reset Password page
 - ✅ Password reset email template (Russian)
+
+## Recent Updates (January 12, 2026)
+
+### Subdomain Management System ✅
+- ✅ User Domains page (`/domains`) - create, toggle, delete personal subdomains
+- ✅ Plan-based limits: FREE=1, PRO=3, ULTIMATE=unlimited
+- ✅ Availability checker with real-time validation
+- ✅ Reserved subdomains protection (admin, www, api, etc.)
+- ✅ Admin Panel Domains tab - manage all system subdomains
+- ✅ Admin can block/unblock user subdomains
+- ✅ Subdomain format: `{subdomain}.mytrack.app`
+
+### New API Endpoints (Subdomains)
+- GET /api/subdomains - get user's subdomains
+- GET /api/subdomains/check/{subdomain} - check availability
+- POST /api/subdomains - create subdomain
+- PUT /api/subdomains/{id} - toggle active status
+- DELETE /api/subdomains/{id} - delete subdomain
+- GET /api/admin/subdomains - admin: list all subdomains
+- PUT /api/admin/subdomains/{id}/toggle - admin: block/unblock
+- DELETE /api/admin/subdomains/{id} - admin: force delete
+- GET /api/resolve/{subdomain} - resolve subdomain to user
+
+### Database Collections (Updated)
+- subdomains: `{id, user_id, subdomain, is_active, disabled_by_admin, created_at}`
+
+### Testing Status
+- Backend: 17/17 tests passed (100%)
+- Frontend: All UI tests passed
+- Test files: `/app/tests/test_subdomains.py`
