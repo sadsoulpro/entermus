@@ -844,6 +844,130 @@ export default function AdminPanel() {
               </div>
             </TabsContent>
 
+            {/* Domains Tab */}
+            <TabsContent value="domains" className="mt-0">
+              <div className="space-y-4">
+                {/* Search */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Поиск по поддомену..."
+                      value={subdomainSearch}
+                      onChange={(e) => {
+                        setSubdomainSearch(e.target.value);
+                        fetchSubdomains(e.target.value);
+                      }}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-900/50 border border-white/10 focus:border-primary focus:outline-none text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5">
+                    <Globe className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm">Всего: <span className="font-semibold">{subdomainsTotal}</span></span>
+                  </div>
+                </div>
+
+                {/* Subdomains List */}
+                {subdomains.map((sub, i) => (
+                  <motion.div
+                    key={sub.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.02 }}
+                    className={`p-4 rounded-2xl border transition-all ${
+                      sub.disabled_by_admin 
+                        ? 'bg-red-950/20 border-red-500/20' 
+                        : sub.is_active 
+                          ? 'bg-zinc-900/50 border-white/5 hover:border-white/10' 
+                          : 'bg-zinc-900/30 border-zinc-800/50'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                          sub.disabled_by_admin 
+                            ? 'bg-red-500/20' 
+                            : sub.is_active 
+                              ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20' 
+                              : 'bg-zinc-800'
+                        }`}>
+                          <Globe className={`w-5 h-5 ${
+                            sub.disabled_by_admin ? 'text-red-400' : sub.is_active ? 'text-emerald-400' : 'text-zinc-500'
+                          }`} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-mono font-semibold">{sub.subdomain}.mytrack.app</p>
+                            {sub.disabled_by_admin && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-400">
+                                Заблокирован
+                              </span>
+                            )}
+                            {!sub.is_active && !sub.disabled_by_admin && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-zinc-700 text-zinc-400">
+                                Выключен
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Владелец: <span className="text-foreground">{sub.user_email || sub.user_id}</span>
+                            {" • "}
+                            {new Date(sub.created_at).toLocaleDateString('ru-RU')}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pl-14 sm:pl-0">
+                        <a 
+                          href={`https://${sub.subdomain}.mytrack.app`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </a>
+                        <Button
+                          size="sm"
+                          variant={sub.disabled_by_admin ? "default" : "destructive"}
+                          onClick={() => toggleSubdomainAdmin(sub.id, sub.disabled_by_admin)}
+                          className="h-9 rounded-xl"
+                        >
+                          {sub.disabled_by_admin ? (
+                            <>
+                              <Check className="w-4 h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Разблок.</span>
+                            </>
+                          ) : (
+                            <>
+                              <Ban className="w-4 h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Блок.</span>
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => deleteSubdomainAdmin(sub.id)}
+                          className="h-9 w-9 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-500/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {subdomains.length === 0 && (
+                  <div className="text-center py-20 text-muted-foreground">
+                    <Link2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p>{subdomainSearch ? "Поддомены не найдены" : "Нет поддоменов"}</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             {/* Verification Tab */}
             <TabsContent value="verification" className="mt-0">
               <div className="space-y-4">
