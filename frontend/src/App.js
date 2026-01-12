@@ -100,7 +100,8 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/login" replace />;
   }
   
-  if (adminOnly && user.role !== "admin") {
+  // Check admin access for owner, admin, and moderator roles
+  if (adminOnly && !["owner", "admin", "moderator"].includes(user.role)) {
     return <Navigate to="/multilinks" replace />;
   }
   
