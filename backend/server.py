@@ -2419,6 +2419,16 @@ async def startup_event():
     await db.links.create_index("page_id")
     await db.clicks.create_index("link_id")
     await db.plan_configs.create_index("plan_name", unique=True)
+    await db.subdomains.create_index("subdomain", unique=True)
+    await db.subdomains.create_index("user_id")
+    
+    # Update existing plan configs with subdomain limits
+    for plan_name in ["free", "pro", "ultimate"]:
+        default_limit = DEFAULT_PLAN_CONFIGS[plan_name]["max_subdomains_limit"]
+        await db.plan_configs.update_one(
+            {"plan_name": plan_name, "max_subdomains_limit": {"$exists": False}},
+            {"$set": {"max_subdomains_limit": default_limit}}
+        )
     
     # Migrate old "Unknown" entries to "Неизвестно" for consistency
     migration_result = await db.clicks.update_many(
