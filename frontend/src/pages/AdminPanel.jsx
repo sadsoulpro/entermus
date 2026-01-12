@@ -911,7 +911,8 @@ export default function AdminPanel() {
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Владелец: <span className="text-foreground">{sub.user_email || sub.user_id}</span>
+                            Владелец: <span className="text-foreground">{sub.owner?.username || sub.owner?.email || sub.user_id}</span>
+                            {sub.owner?.email && <span className="text-zinc-500"> ({sub.owner.email})</span>}
                             {" • "}
                             {new Date(sub.created_at).toLocaleDateString('ru-RU')}
                           </p>
