@@ -27,7 +27,8 @@ const adminItems = [
 
 // Reusable navigation content
 function NavContent({ currentPath, user, onLogout, onNavigate }) {
-  const allItems = user?.role === "admin" 
+  const isAdminRole = user?.role === "admin" || user?.role === "owner" || user?.role === "moderator";
+  const allItems = isAdminRole 
     ? [...navItems.slice(0, 2), ...adminItems, ...navItems.slice(2)]
     : navItems;
 
