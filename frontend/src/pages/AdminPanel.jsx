@@ -251,8 +251,7 @@ export default function AdminPanel() {
   // Prepare chart data
   const planDistribution = [
     { name: 'Free', value: users.filter(u => u.plan === 'free').length, color: '#71717a' },
-    { name: 'Pro', value: users.filter(u => u.plan === 'pro').length, color: '#3b82f6' },
-    { name: 'Ultimate', value: users.filter(u => u.plan === 'ultimate').length, color: '#d946ef' }
+    { name: 'Pro', value: users.filter(u => u.plan === 'pro').length, color: '#a855f7' }
   ].filter(p => p.value > 0);
 
   const roleDistribution = [
