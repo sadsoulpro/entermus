@@ -320,11 +320,28 @@ export default function GlobalAnalytics() {
         </div>
         
         {/* Pages Table */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="p-4 sm:p-6 rounded-2xl bg-zinc-900/50 border border-white/5">
-          <div className="mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-semibold">Статистика по страницам</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">Детальная аналитика</p>
-          </div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="p-4 sm:p-6 rounded-2xl bg-zinc-900/50 border border-white/5 relative">
+          {/* PRO Overlay for pages table */}
+          {!hasAdvancedAnalytics && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-zinc-900/60 backdrop-blur-md">
+              <div className="text-center p-6">
+                <Crown className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-white mb-2">Доступно в PRO подписке</h3>
+                <p className="text-sm text-muted-foreground mb-4">Детальная статистика по страницам</p>
+                <Link to="/pricing">
+                  <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
+                    Перейти на PRO
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+          
+          <div className={`${!hasAdvancedAnalytics ? 'filter blur-sm pointer-events-none' : ''}`}>
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold">Статистика по страницам</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">Детальная аналитика</p>
+            </div>
           
           {analytics?.pages?.length > 0 ? (
             <div className="overflow-x-auto -mx-4 sm:mx-0">
