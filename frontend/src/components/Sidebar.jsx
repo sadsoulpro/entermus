@@ -196,12 +196,13 @@ function MobileHeader({ user, onLogout }) {
     <div className="flex items-center justify-between p-4 lg:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
       <div className="flex items-center gap-3">
         <MobileMenu user={user} onLogout={onLogout} />
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Music className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-display text-lg">MYTRACK</span>
-        </div>
+        <Link to="/multilinks">
+          <img 
+            src="/MyTrack-logo-main.svg" 
+            alt="MyTrack" 
+            className="h-6 w-auto"
+          />
+        </Link>
       </div>
     </div>
   );
