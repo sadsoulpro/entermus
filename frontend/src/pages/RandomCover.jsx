@@ -125,34 +125,65 @@ function TextElement({ shapeProps, isSelected, onSelect, onChange, onDelete }) {
 }
 
 // Background image with filters
-function BackgroundImage({ image, filter, filterValue }) {
+function BackgroundImage({ image, filterType, filterValue }) {
   const imageRef = useRef();
 
   useEffect(() => {
     if (imageRef.current && image) {
-      if (filter) {
-        imageRef.current.cache();
-        imageRef.current.filters([filter]);
+      const node = imageRef.current;
+      
+      // Clear previous filters
+      node.clearCache();
+      
+      if (filterType && filterType !== FILTER_TYPES.NONE && Konva.Filters) {
+        node.cache();
         
-        // Apply filter-specific values
-        if (filter === Konva.Filters.Brighten) {
-          imageRef.current.brightness(filterValue || 0.2);
-        } else if (filter === Konva.Filters.Contrast) {
-          imageRef.current.contrast(filterValue || 20);
-        } else if (filter === Konva.Filters.Noise) {
-          imageRef.current.noise(filterValue || 0.5);
-        } else if (filter === Konva.Filters.Blur) {
-          imageRef.current.blurRadius(filterValue || 5);
+        // Apply filter based on type
+        switch (filterType) {
+          case FILTER_TYPES.GRAYSCALE:
+            if (Konva.Filters.Grayscale) {
+              node.filters([Konva.Filters.Grayscale]);
+            }
+            break;
+          case FILTER_TYPES.SEPIA:
+            if (Konva.Filters.Sepia) {
+              node.filters([Konva.Filters.Sepia]);
+            }
+            break;
+          case FILTER_TYPES.BRIGHTEN:
+            if (Konva.Filters.Brighten) {
+              node.filters([Konva.Filters.Brighten]);
+              node.brightness(filterValue || 0.3);
+            }
+            break;
+          case FILTER_TYPES.CONTRAST:
+            if (Konva.Filters.Contrast) {
+              node.filters([Konva.Filters.Contrast]);
+              node.contrast(filterValue || 30);
+            }
+            break;
+          case FILTER_TYPES.BLUR:
+            if (Konva.Filters.Blur) {
+              node.filters([Konva.Filters.Blur]);
+              node.blurRadius(filterValue || 10);
+            }
+            break;
+          case FILTER_TYPES.INVERT:
+            if (Konva.Filters.Invert) {
+              node.filters([Konva.Filters.Invert]);
+            }
+            break;
+          default:
+            node.filters([]);
         }
         
-        imageRef.current.getLayer().batchDraw();
+        node.getLayer()?.batchDraw();
       } else {
-        imageRef.current.clearCache();
-        imageRef.current.filters([]);
-        imageRef.current.getLayer().batchDraw();
+        node.filters([]);
+        node.getLayer()?.batchDraw();
       }
     }
-  }, [filter, filterValue, image]);
+  }, [filterType, filterValue, image]);
 
   if (!image) return null;
 
