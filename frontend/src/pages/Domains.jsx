@@ -50,6 +50,7 @@ export default function Domains() {
     twitter: "",
     website: ""
   });
+  const [profileDescription, setProfileDescription] = useState("");
   const [savingContacts, setSavingContacts] = useState(false);
   const [contactsLoading, setContactsLoading] = useState(true);
 
@@ -89,6 +90,7 @@ export default function Domains() {
     try {
       const response = await api.get("/profile/contacts");
       setContactEmail(response.data.contact_email || "");
+      setProfileDescription(response.data.profile_description || "");
       setSocialLinks(response.data.social_links || {
         telegram: "",
         instagram: "",
