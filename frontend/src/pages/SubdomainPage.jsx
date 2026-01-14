@@ -271,6 +271,8 @@ function PagesListView({ data, subdomain }) {
     return url.startsWith('/') ? `${API_URL}${url}` : url;
   };
 
+  const hasContacts = data.contact_email || (data.social_links && Object.values(data.social_links).some(v => v));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       <div className="max-w-2xl mx-auto p-4 sm:p-6 py-12">
@@ -337,7 +339,59 @@ function PagesListView({ data, subdomain }) {
           </div>
         )}
 
-        {/* Footer */}
+        {/* Contact Info Footer */}
+        {hasContacts && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-12 pt-8 border-t border-white/10"
+          >
+            <p className="text-xs text-zinc-500 mb-4 text-center">Связаться</p>
+            
+            {/* Contact Email */}
+            {data.contact_email && (
+              <a 
+                href={`mailto:${data.contact_email}`}
+                className="flex items-center justify-center gap-2 mb-4 px-4 py-3 bg-zinc-800/50 hover:bg-zinc-700/50 border border-white/10 rounded-xl transition-all group max-w-sm mx-auto"
+              >
+                <Mail className="w-4 h-4 text-primary" />
+                <span className="text-sm text-zinc-300 group-hover:text-white">{data.contact_email}</span>
+              </a>
+            )}
+            
+            {/* Social Links */}
+            {data.social_links && Object.values(data.social_links).some(v => v) && (
+              <div className="flex flex-wrap justify-center gap-3">
+                {Object.entries(data.social_links).map(([platform, value]) => {
+                  if (!value) return null;
+                  
+                  const platformInfo = SOCIAL_PLATFORMS[platform];
+                  if (!platformInfo) return null;
+                  
+                  const Icon = platformInfo.icon;
+                  const url = formatSocialUrl(platform, value);
+                  
+                  return (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                      style={{ backgroundColor: `${platformInfo.color}20` }}
+                      title={platformInfo.name}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: platformInfo.color }} />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Branding Footer */}
         <div className="text-center mt-12">
           <a 
             href="https://mytrack.cc" 
