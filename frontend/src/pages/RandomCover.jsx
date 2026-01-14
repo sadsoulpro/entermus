@@ -693,6 +693,52 @@ export default function RandomCover() {
     reader.readAsDataURL(file);
   };
 
+  // ==================== AI IMAGE GENERATION ====================
+  const generateAIImage = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error("Введите промпт для генерации");
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      // Encode prompt for URL
+      const encodedPrompt = encodeURIComponent(aiPrompt.trim());
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024`;
+      
+      // Create a new image to load from URL
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+      
+      img.onload = () => {
+        // Convert to canvas to get data URL
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        setBgImage(img);
+        setBgImageData(dataUrl);
+        saveToHistory();
+        toast.success("AI изображение сгенерировано!");
+        setGeneratingAI(false);
+      };
+      
+      img.onerror = () => {
+        toast.error("Ошибка загрузки изображения. Попробуйте другой промпт.");
+        setGeneratingAI(false);
+      };
+      
+      img.src = imageUrl;
+    } catch (error) {
+      console.error("AI generation error:", error);
+      toast.error("Ошибка генерации изображения");
+      setGeneratingAI(false);
+    }
+  };
+
   // ==================== RECOVERY ====================
   const recoverProject = () => {
     if (savedProject) {
