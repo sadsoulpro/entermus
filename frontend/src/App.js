@@ -20,6 +20,7 @@ import Domains from "@/pages/Domains";
 import Settings from "@/pages/Settings";
 import Verification from "@/pages/Verification";
 import FAQ from "@/pages/FAQ";
+import RandomCover from "@/pages/RandomCover";
 import { getSubdomain } from "@/utils/subdomain";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
