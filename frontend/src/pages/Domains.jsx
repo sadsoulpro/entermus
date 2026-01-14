@@ -111,6 +111,7 @@ export default function Domains() {
     try {
       await api.put("/profile/contacts", {
         contact_email: contactEmail,
+        profile_description: profileDescription,
         social_links: socialLinks
       });
       toast.success("Контактная информация сохранена");
