@@ -611,7 +611,7 @@ export default function Domains() {
             <ul className="space-y-2 text-sm text-zinc-400">
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
-                <span>Ваши страницы будут доступны по адресу: <code className="text-blue-300 bg-blue-500/10 px-1 rounded">поддомен.mytrack.cc/slug</code></span>
+                <span>Ваши страницы будут доступны по адресу: <code className="text-blue-300 bg-blue-500/10 px-1 rounded">sub.mytrack.cc/release</code></span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
@@ -620,10 +620,6 @@ export default function Domains() {
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
                 <span>Поддомен привязан к вашему аккаунту и открывает только ваши страницы</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-400 mt-1">•</span>
-                <span>Контактная информация отображается на всех ваших публичных страницах</span>
               </li>
             </ul>
           </motion.div>
