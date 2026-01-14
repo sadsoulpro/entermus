@@ -7,9 +7,11 @@ import {
   Globe, MapPin, MousePointer, Share2, QrCode, Cpu, 
   HardDrive, Activity, TrendingUp, Server, Music,
   BadgeCheck, X, Crown, ChevronDown, UserCog, Sliders, 
-  Save, BarChart3, PieChart, Calendar, Clock, Zap, Link2, Trash2, Search
+  Save, BarChart3, PieChart, Calendar, Clock, Zap, Link2, Trash2, Search,
+  MessageCircle, AlertCircle, CheckCircle, Send, User
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart as RechartsPie, Pie, Cell, BarChart, Bar
@@ -26,8 +28,14 @@ const ROLE_CONFIG = {
 
 const PLAN_CONFIG = {
   free: { label: "Free", color: "bg-zinc-700/50 text-zinc-300" },
-  pro: { label: "Pro", color: "bg-blue-500/20 text-blue-400" },
-  ultimate: { label: "Ultimate", color: "bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300" }
+  pro: { label: "Pro", color: "bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300" }
+};
+
+const TICKET_STATUS_CONFIG = {
+  open: { label: "Открыт", color: "bg-blue-500", icon: AlertCircle },
+  in_progress: { label: "В работе", color: "bg-yellow-500", icon: Clock },
+  resolved: { label: "Решён", color: "bg-green-500", icon: CheckCircle },
+  closed: { label: "Закрыт", color: "bg-zinc-500", icon: CheckCircle }
 };
 
 const COLORS = ['#d946ef', '#8b5cf6', '#3b82f6', '#22c55e', '#eab308', '#ef4444'];
@@ -43,6 +51,12 @@ export default function AdminPanel() {
   const [subdomains, setSubdomains] = useState([]);
   const [subdomainsTotal, setSubdomainsTotal] = useState(0);
   const [subdomainSearch, setSubdomainSearch] = useState("");
+  const [tickets, setTickets] = useState([]);
+  const [ticketsTotal, setTicketsTotal] = useState(0);
+  const [unreadTickets, setUnreadTickets] = useState(0);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [ticketReply, setTicketReply] = useState("");
+  const [ticketStatusFilter, setTicketStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState(null);
   const [activeTab, setActiveTab] = useState("analytics");
