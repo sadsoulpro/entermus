@@ -29,7 +29,8 @@ import {
   Upload, Type, Shuffle, Download, Trash2, 
   Loader2, Image as ImageIcon, RotateCcw,
   Undo2, Redo2, Save, FolderOpen, Plus, 
-  FileImage, Clock, MoreVertical
+  FileImage, Clock, MoreVertical, PanelRightOpen,
+  PanelRightClose, ChevronDown, ChevronUp, Settings2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
