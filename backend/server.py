@@ -2841,6 +2841,7 @@ async def startup_event():
     await db.plan_configs.create_index("plan_name", unique=True)
     await db.subdomains.create_index("subdomain", unique=True)
     await db.subdomains.create_index("user_id")
+    await db.cover_projects.create_index("user_id")
     
     # Update existing plan configs with subdomain limits
     for plan_name in ["free", "pro", "ultimate"]:
