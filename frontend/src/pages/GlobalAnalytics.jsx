@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { api } from "@/App";
+import { api, useAuth } from "@/App";
 import { toast } from "sonner";
 import { 
   Eye, MousePointer, TrendingUp, Share2, QrCode,
-  Globe, MapPin, BarChart3, ArrowUpRight
+  Globe, MapPin, BarChart3, ArrowUpRight, Crown, Lock
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -14,8 +14,14 @@ import {
 import Sidebar from "@/components/Sidebar";
 
 export default function GlobalAnalytics() {
+  const { user } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Check if user has advanced analytics
+  const hasAdvancedAnalytics = analytics?.has_advanced_analytics || 
+    user?.plan_config?.has_advanced_analytics ||
+    user?.plan === 'pro';
 
   useEffect(() => {
     fetchAnalytics();
