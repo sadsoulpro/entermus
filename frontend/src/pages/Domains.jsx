@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { api, useAuth } from "@/App";
 import { toast } from "sonner";
 import { 
   Globe, Plus, Trash2, Check, X, AlertCircle, Crown, 
-  Loader2, ExternalLink, Copy, CheckCircle2, Link2
+  Loader2, ExternalLink, Copy, CheckCircle2, Link2,
+  Mail, Send, Instagram, Music2, Twitter, LinkIcon, Save
 } from "lucide-react";
+import { FaTelegram, FaInstagram, FaVk, FaTiktok, FaTwitter, FaGlobe } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
 
@@ -15,6 +18,15 @@ const PLAN_LIMITS = {
   pro: { limit: 3, label: "PRO" },
   ultimate: { limit: -1, label: "ULTIMATE" }
 };
+
+const SOCIAL_PLATFORMS = [
+  { id: "telegram", name: "Telegram", icon: FaTelegram, placeholder: "@username или ссылка", color: "#229ED9" },
+  { id: "instagram", name: "Instagram", icon: FaInstagram, placeholder: "@username", color: "#E4405F" },
+  { id: "vk", name: "VKontakte", icon: FaVk, placeholder: "vk.com/username", color: "#4C75A3" },
+  { id: "tiktok", name: "TikTok", icon: FaTiktok, placeholder: "@username", color: "#000000" },
+  { id: "twitter", name: "X (Twitter)", icon: FaTwitter, placeholder: "@username", color: "#1DA1F2" },
+  { id: "website", name: "Сайт", icon: FaGlobe, placeholder: "https://example.com", color: "#6B7280" },
+];
 
 export default function Domains() {
   const { user } = useAuth();
@@ -27,9 +39,23 @@ export default function Domains() {
   const [availability, setAvailability] = useState(null);
   const [creating, setCreating] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  
+  // Contact info state
+  const [contactEmail, setContactEmail] = useState("");
+  const [socialLinks, setSocialLinks] = useState({
+    telegram: "",
+    instagram: "",
+    vk: "",
+    tiktok: "",
+    twitter: "",
+    website: ""
+  });
+  const [savingContacts, setSavingContacts] = useState(false);
+  const [contactsLoading, setContactsLoading] = useState(true);
 
   useEffect(() => {
     fetchSubdomains();
+    fetchContactInfo();
   }, []);
 
   // Debounced availability check
@@ -57,6 +83,47 @@ export default function Domains() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchContactInfo = async () => {
+    try {
+      const response = await api.get("/profile/contacts");
+      setContactEmail(response.data.contact_email || "");
+      setSocialLinks(response.data.social_links || {
+        telegram: "",
+        instagram: "",
+        vk: "",
+        tiktok: "",
+        twitter: "",
+        website: ""
+      });
+    } catch (error) {
+      console.error("Failed to fetch contact info", error);
+    } finally {
+      setContactsLoading(false);
+    }
+  };
+
+  const saveContactInfo = async () => {
+    setSavingContacts(true);
+    try {
+      await api.put("/profile/contacts", {
+        contact_email: contactEmail,
+        social_links: socialLinks
+      });
+      toast.success("Контактная информация сохранена");
+    } catch (error) {
+      toast.error("Не удалось сохранить контактную информацию");
+    } finally {
+      setSavingContacts(false);
+    }
+  };
+
+  const handleSocialLinkChange = (platform, value) => {
+    setSocialLinks(prev => ({
+      ...prev,
+      [platform]: value
+    }));
   };
 
   const checkAvailability = async (subdomain) => {
@@ -156,7 +223,7 @@ export default function Domains() {
                   <div>
                     <h1 className="text-xl sm:text-2xl font-bold">Мои домены</h1>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Создайте персональные поддомены для ваших страниц
+                      Управление поддоменами и контактами
                     </p>
                   </div>
                 </div>
@@ -182,6 +249,88 @@ export default function Domains() {
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          {/* Contact Info Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="p-5 sm:p-6 rounded-2xl bg-zinc-900/50 border border-white/5 mb-6"
+          >
+            <h2 className="font-semibold mb-4 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-primary" />
+              Контактная информация
+            </h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              Эта информация будет отображаться на ваших публичных страницах
+            </p>
+            
+            {contactsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                {/* Contact Email */}
+                <div className="mb-4">
+                  <Label htmlFor="contact_email" className="text-sm mb-2 block">
+                    Email для связи
+                  </Label>
+                  <Input
+                    id="contact_email"
+                    type="email"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="contact@example.com"
+                    className="bg-zinc-800/50"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    Будет отображаться на публичных страницах для связи с вами
+                  </p>
+                </div>
+                
+                {/* Social Links */}
+                <div className="space-y-3">
+                  <Label className="text-sm">Социальные сети</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {SOCIAL_PLATFORMS.map((platform) => {
+                      const Icon = platform.icon;
+                      return (
+                        <div key={platform.id} className="flex items-center gap-2">
+                          <div 
+                            className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: `${platform.color}20` }}
+                          >
+                            <Icon className="w-4 h-4" style={{ color: platform.color }} />
+                          </div>
+                          <Input
+                            value={socialLinks[platform.id] || ""}
+                            onChange={(e) => handleSocialLinkChange(platform.id, e.target.value)}
+                            placeholder={platform.placeholder}
+                            className="bg-zinc-800/50 h-9 text-sm"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Save Button */}
+                <Button
+                  onClick={saveContactInfo}
+                  disabled={savingContacts}
+                  className="mt-5 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                >
+                  {savingContacts ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  Сохранить контакты
+                </Button>
+              </>
+            )}
           </motion.div>
 
           {/* Add Subdomain Form */}
@@ -426,6 +575,10 @@ export default function Domains() {
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
                 <span>Поддомен привязан к вашему аккаунту и открывает только ваши страницы</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-400 mt-1">•</span>
+                <span>Контактная информация отображается на всех ваших публичных страницах</span>
               </li>
             </ul>
           </motion.div>
