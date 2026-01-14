@@ -1071,16 +1071,35 @@ export default function RandomCover() {
 
             {/* Editor Tab */}
             <TabsContent value="editor" className="mt-0">
-              <div className="grid lg:grid-cols-[1fr,320px] gap-6">
+              {/* Mobile Controls Toggle */}
+              <div className="lg:hidden mb-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={() => setMobileControlsOpen(!mobileControlsOpen)}
+                >
+                  <span className="flex items-center gap-2">
+                    <Settings2 className="w-4 h-4" />
+                    Панель инструментов
+                  </span>
+                  {mobileControlsOpen ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex flex-col lg:grid lg:grid-cols-[1fr,320px] gap-4 lg:gap-6">
                 {/* Canvas Area */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="order-2 lg:order-1"
+                  className="order-1"
                 >
                   <div 
                     ref={containerRef}
-                    className="bg-zinc-900/50 rounded-2xl border border-white/5 p-4 sm:p-6"
+                    className="bg-zinc-900/50 rounded-2xl border border-white/5 p-3 sm:p-4 lg:p-6"
                   >
                     <div 
                       className="mx-auto bg-zinc-800 rounded-xl overflow-hidden relative"
