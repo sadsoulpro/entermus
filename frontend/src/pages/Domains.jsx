@@ -115,6 +115,7 @@ export default function Domains() {
       await api.put("/profile/contacts", {
         contact_email: contactEmail,
         profile_description: profileDescription,
+        artist_name: artistName,
         social_links: socialLinks
       });
       toast.success("Контактная информация сохранена");
