@@ -293,7 +293,7 @@ export default function Analytics() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="mb-6"
+                className="mb-6 relative"
               >
                 <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-400" />
@@ -302,7 +302,24 @@ export default function Analytics() {
                     PRO
                   </span>
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* PRO Overlay for FREE users */}
+                {!hasAdvancedAnalytics && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-zinc-900/60 backdrop-blur-md">
+                    <div className="text-center p-6">
+                      <Crown className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
+                      <h3 className="text-lg font-semibold text-white mb-2">Доступно в PRO подписке</h3>
+                      <p className="text-sm text-muted-foreground mb-4">Получите доступ к детальной географии кликов</p>
+                      <Link to="/pricing">
+                        <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
+                          Перейти на PRO
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+                
+                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${!hasAdvancedAnalytics ? 'filter blur-sm pointer-events-none' : ''}`}>
                   {/* Countries */}
                   <div className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5">
                     <h3 className="font-medium mb-4 flex items-center gap-2 text-sm">
