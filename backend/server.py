@@ -1334,6 +1334,10 @@ async def get_page_analytics(page_id: str, user: dict = Depends(get_current_user
 # Global analytics for all user pages
 @api_router.get("/analytics/global/summary")
 async def get_global_analytics(user: dict = Depends(get_current_user)):
+    # Check if user has advanced analytics access
+    plan_config = await get_plan_config(user.get("plan", "free"))
+    has_advanced = plan_config.get("has_advanced_analytics", False)
+    
     # Get all user pages
     pages = await db.pages.find({"user_id": user["id"]}, {"_id": 0}).to_list(100)
     page_ids = [p["id"] for p in pages]
@@ -1347,7 +1351,8 @@ async def get_global_analytics(user: dict = Depends(get_current_user)):
             "by_country": [],
             "by_city": [],
             "timeline": [],
-            "pages": []
+            "pages": [],
+            "has_advanced_analytics": has_advanced
         }
     
     # Aggregate stats from pages
@@ -1359,29 +1364,32 @@ async def get_global_analytics(user: dict = Depends(get_current_user)):
     links = await db.links.find({"page_id": {"$in": page_ids}}, {"_id": 0}).to_list(1000)
     total_clicks = sum(link.get("clicks", 0) for link in links)
     
-    # Get clicks by country
-    clicks_cursor = db.clicks.aggregate([
-        {"$match": {"page_id": {"$in": page_ids}}},
-        {"$group": {"_id": "$country", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
-        {"$limit": 10}
-    ])
     by_country = []
-    async for doc in clicks_cursor:
-        by_country.append({"country": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
-    
-    # Get clicks by city
-    city_cursor = db.clicks.aggregate([
-        {"$match": {"page_id": {"$in": page_ids}}},
-        {"$group": {"_id": "$city", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
-        {"$limit": 10}
-    ])
     by_city = []
-    async for doc in city_cursor:
-        by_city.append({"city": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
     
-    # Get timeline (last 30 days)
+    # Only fetch detailed geo data for PRO users
+    if has_advanced:
+        # Get clicks by country
+        clicks_cursor = db.clicks.aggregate([
+            {"$match": {"page_id": {"$in": page_ids}}},
+            {"$group": {"_id": "$country", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ])
+        async for doc in clicks_cursor:
+            by_country.append({"country": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
+        
+        # Get clicks by city
+        city_cursor = db.clicks.aggregate([
+            {"$match": {"page_id": {"$in": page_ids}}},
+            {"$group": {"_id": "$city", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ])
+        async for doc in city_cursor:
+            by_city.append({"city": doc["_id"] or "Неизвестно", "clicks": doc["count"]})
+    
+    # Get timeline (last 30 days) - available for all
     thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
     timeline_cursor = db.clicks.aggregate([
         {"$match": {"page_id": {"$in": page_ids}, "timestamp": {"$gte": thirty_days_ago}}},
@@ -1417,20 +1425,21 @@ async def get_global_analytics(user: dict = Depends(get_current_user)):
     async for doc in shares_by_type_cursor:
         shares_by_type[doc["_id"] or "link"] = doc["count"]
     
-    # Page stats
+    # Page stats (only for PRO)
     page_stats = []
-    for p in pages:
-        page_links = [l for l in links if l["page_id"] == p["id"]]
-        page_clicks = sum(l.get("clicks", 0) for l in page_links)
-        page_stats.append({
-            "id": p["id"],
-            "title": p["title"],
-            "slug": p["slug"],
-            "views": p.get("views", 0),
-            "clicks": page_clicks,
-            "shares": p.get("shares", 0),
-            "qr_scans": p.get("qr_scans", 0)
-        })
+    if has_advanced:
+        for p in pages:
+            page_links = [l for l in links if l["page_id"] == p["id"]]
+            page_clicks = sum(l.get("clicks", 0) for l in page_links)
+            page_stats.append({
+                "id": p["id"],
+                "title": p["title"],
+                "slug": p["slug"],
+                "views": p.get("views", 0),
+                "clicks": page_clicks,
+                "shares": p.get("shares", 0),
+                "qr_scans": p.get("qr_scans", 0)
+            })
     
     return {
         "total_views": total_views,
@@ -1441,7 +1450,8 @@ async def get_global_analytics(user: dict = Depends(get_current_user)):
         "by_country": by_country,
         "by_city": by_city,
         "timeline": timeline,
-        "pages": page_stats
+        "pages": page_stats,
+        "has_advanced_analytics": has_advanced
     }
 
 # ===================== ADMIN ROUTES =====================
