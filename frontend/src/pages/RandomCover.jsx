@@ -1317,6 +1317,9 @@ export default function RandomCover() {
                       <Label className="text-xs text-primary flex items-center gap-1 mb-2">
                         <Shuffle className="w-3 h-3" />
                         AI Генерация (Stable Diffusion XL)
+                        {!canUseAI && (
+                          <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-yellow-500/20 text-yellow-500 rounded">PRO</span>
+                        )}
                       </Label>
                       <Input
                         value={aiPrompt}
@@ -1324,31 +1327,52 @@ export default function RandomCover() {
                         placeholder="Опишите изображение на английском..."
                         className="bg-zinc-800 text-sm"
                         data-testid="ai-prompt-input"
+                        disabled={!canUseAI}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !generatingAI) {
+                          if (e.key === 'Enter' && !generatingAI && canUseAI) {
                             generateAIImage();
                           }
                         }}
                       />
-                      <Button
-                        variant="secondary"
-                        className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                        onClick={generateAIImage}
-                        disabled={generatingAI || !aiPrompt.trim()}
-                        data-testid="generate-ai-btn"
-                      >
-                        {generatingAI ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Генерация (~30 сек)...
-                          </>
-                        ) : (
-                          <>
-                            <ImageIcon className="w-4 h-4 mr-2" />
-                            Сгенерировать
-                          </>
-                        )}
-                      </Button>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="w-full">
+                              <Button
+                                variant="secondary"
+                                className={`w-full mt-2 ${canUseAI 
+                                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' 
+                                  : 'bg-zinc-700 text-zinc-400 cursor-not-allowed'}`}
+                                onClick={canUseAI ? generateAIImage : undefined}
+                                disabled={!canUseAI || generatingAI || !aiPrompt.trim()}
+                                data-testid="generate-ai-btn"
+                              >
+                                {!canUseAI ? (
+                                  <>
+                                    <Lock className="w-4 h-4 mr-2" />
+                                    Только для PRO
+                                  </>
+                                ) : generatingAI ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Генерация (~30 сек)...
+                                  </>
+                                ) : (
+                                  <>
+                                    <ImageIcon className="w-4 h-4 mr-2" />
+                                    Сгенерировать
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          {!canUseAI && (
+                            <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                              <p>Эта функция доступна только в PRO-версии</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
 
                     {bgImage && (
