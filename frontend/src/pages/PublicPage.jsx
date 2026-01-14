@@ -46,38 +46,6 @@ const PLATFORMS = {
   custom: { name: "Слушать", icon: FaLink, color: "#888888", bgClass: "" },
 };
 
-// Social platforms for contact info
-const SOCIAL_PLATFORMS = {
-  telegram: { name: "Telegram", icon: FaTelegram, color: "#229ED9", urlPrefix: "https://t.me/" },
-  instagram: { name: "Instagram", icon: FaInstagram, color: "#E4405F", urlPrefix: "https://instagram.com/" },
-  vk: { name: "VKontakte", icon: FaVk, color: "#4C75A3", urlPrefix: "https://vk.com/" },
-  tiktok: { name: "TikTok", icon: FaTiktok, color: "#000000", urlPrefix: "https://tiktok.com/@" },
-  twitter: { name: "X", icon: FaTwitter, color: "#1DA1F2", urlPrefix: "https://twitter.com/" },
-  website: { name: "Сайт", icon: FaGlobe, color: "#6B7280", urlPrefix: "" },
-};
-
-// Helper to format social link URL
-const formatSocialUrl = (platform, value) => {
-  if (!value) return null;
-  
-  // If already a URL, return as is
-  if (value.startsWith("http://") || value.startsWith("https://")) {
-    return value;
-  }
-  
-  const platformInfo = SOCIAL_PLATFORMS[platform];
-  if (!platformInfo) return value;
-  
-  // Remove @ if present
-  const cleanValue = value.startsWith("@") ? value.substring(1) : value;
-  
-  if (platform === "website") {
-    return `https://${cleanValue}`;
-  }
-  
-  return `${platformInfo.urlPrefix}${cleanValue}`;
-};
-
 export default function PublicPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
