@@ -22,6 +22,7 @@ import Verification from "@/pages/Verification";
 import FAQ from "@/pages/FAQ";
 import RandomCover from "@/pages/RandomCover";
 import Pricing from "@/pages/Pricing";
+import Support from "@/pages/Support";
 import { getSubdomain } from "@/utils/subdomain";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
