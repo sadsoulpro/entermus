@@ -420,6 +420,15 @@ export default function AdminPanel() {
                     <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/10 text-[10px]">{subdomainsTotal}</span>
                   )}
                 </TabsTrigger>
+                <TabsTrigger value="tickets" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4 relative">
+                  <MessageCircle className="w-4 h-4 mr-1.5" />
+                  Тикеты
+                  {unreadTickets > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center animate-pulse">
+                      {unreadTickets}
+                    </span>
+                  )}
+                </TabsTrigger>
                 {verificationRequests.filter(r => r.status === 'pending').length > 0 && (
                   <TabsTrigger value="verification" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4 relative">
                     <BadgeCheck className="w-4 h-4 mr-1.5" />
