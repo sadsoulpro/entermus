@@ -752,12 +752,14 @@ class SocialLinksModel(BaseModel):
 class ContactInfoUpdate(BaseModel):
     contact_email: Optional[str] = ""
     social_links: Optional[SocialLinksModel] = None
+    profile_description: Optional[str] = ""
 
 @api_router.get("/profile/contacts")
 async def get_contact_info(user: dict = Depends(get_current_user)):
     """Get user's contact information"""
     return {
         "contact_email": user.get("contact_email", ""),
+        "profile_description": user.get("profile_description", ""),
         "social_links": user.get("social_links", {
             "telegram": "",
             "instagram": "",
@@ -775,6 +777,9 @@ async def update_contact_info(data: ContactInfoUpdate, user: dict = Depends(get_
     
     if data.contact_email is not None:
         update_data["contact_email"] = data.contact_email
+    
+    if data.profile_description is not None:
+        update_data["profile_description"] = data.profile_description
     
     if data.social_links is not None:
         update_data["social_links"] = data.social_links.model_dump()
