@@ -7,7 +7,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://mylink-setup.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://app-uploader-4.preview.emergentagent.com')
 
 # Test credentials
 TEST_USER = {"email": "test@test.com", "password": "testpass123"}
