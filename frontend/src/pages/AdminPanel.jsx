@@ -72,9 +72,11 @@ export default function AdminPanel() {
     fetchVerificationRequests();
     fetchPlanConfigs();
     fetchSubdomains();
+    fetchTickets();
     
     const metricsInterval = setInterval(() => {
       if (canViewVPS) fetchSystemMetrics();
+      fetchUnreadTicketsCount();
     }, 30000);
     return () => clearInterval(metricsInterval);
   }, [canViewVPS]);
@@ -91,6 +93,74 @@ export default function AdminPanel() {
       toast.error("Не удалось загрузить данные");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTickets = async () => {
+    try {
+      const params = ticketStatusFilter ? `?status=${ticketStatusFilter}` : '';
+      const response = await api.get(`/admin/tickets${params}`);
+      setTickets(response.data.tickets || []);
+      setTicketsTotal(response.data.total || 0);
+      fetchUnreadTicketsCount();
+    } catch (error) {
+      console.error("Failed to fetch tickets");
+    }
+  };
+
+  const fetchUnreadTicketsCount = async () => {
+    try {
+      const response = await api.get("/admin/tickets/unread-count");
+      setUnreadTickets(response.data.unread_count);
+    } catch (error) {
+      console.error("Failed to fetch unread count");
+    }
+  };
+
+  const openTicket = async (ticketId) => {
+    try {
+      const response = await api.get(`/admin/tickets/${ticketId}`);
+      setSelectedTicket(response.data);
+      // Update local list
+      setTickets(prev => prev.map(t => 
+        t.id === ticketId ? { ...t, is_read_by_staff: true } : t
+      ));
+      fetchUnreadTicketsCount();
+    } catch (error) {
+      toast.error("Не удалось загрузить тикет");
+    }
+  };
+
+  const sendTicketReply = async () => {
+    if (!ticketReply.trim() || !selectedTicket) return;
+    
+    try {
+      const response = await api.post(`/tickets/${selectedTicket.id}/reply`, {
+        message: ticketReply
+      });
+      setSelectedTicket(response.data);
+      setTicketReply("");
+      setTickets(prev => prev.map(t => 
+        t.id === selectedTicket.id ? response.data : t
+      ));
+      toast.success("Ответ отправлен");
+    } catch (error) {
+      toast.error("Не удалось отправить ответ");
+    }
+  };
+
+  const updateTicketStatus = async (ticketId, status) => {
+    try {
+      await api.put(`/admin/tickets/${ticketId}/status`, { status });
+      setTickets(prev => prev.map(t => 
+        t.id === ticketId ? { ...t, status } : t
+      ));
+      if (selectedTicket?.id === ticketId) {
+        setSelectedTicket(prev => ({ ...prev, status }));
+      }
+      toast.success("Статус обновлён");
+    } catch (error) {
+      toast.error("Не удалось обновить статус");
     }
   };
 
