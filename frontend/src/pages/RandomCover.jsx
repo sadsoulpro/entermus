@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Stage, Layer, Image as KonvaImage, Text, Transformer } from "react-konva";
+import { Stage, Layer, Image as KonvaImage, Text, Transformer, Rect } from "react-konva";
 import Konva from "konva";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,15 +30,25 @@ const FONTS = [
   { name: "Bebas Neue", family: "Bebas Neue" },
 ];
 
-// Available filters for background
+// Available filters for background - only use safe filters
+const FILTER_TYPES = {
+  NONE: "none",
+  GRAYSCALE: "grayscale",
+  SEPIA: "sepia",
+  BRIGHTEN: "brighten",
+  CONTRAST: "contrast",
+  BLUR: "blur",
+  INVERT: "invert",
+};
+
 const FILTERS = [
-  { name: "Нет", filter: null },
-  { name: "Черно-белый", filter: Konva.Filters.Grayscale },
-  { name: "Сепия", filter: Konva.Filters.Sepia },
-  { name: "Яркость", filter: Konva.Filters.Brighten },
-  { name: "Контраст", filter: Konva.Filters.Contrast },
-  { name: "Шум", filter: Konva.Filters.Noise },
-  { name: "Размытие", filter: Konva.Filters.Blur },
+  { name: "Нет", type: FILTER_TYPES.NONE },
+  { name: "Черно-белый", type: FILTER_TYPES.GRAYSCALE },
+  { name: "Сепия", type: FILTER_TYPES.SEPIA },
+  { name: "Яркость", type: FILTER_TYPES.BRIGHTEN },
+  { name: "Контраст", type: FILTER_TYPES.CONTRAST },
+  { name: "Размытие", type: FILTER_TYPES.BLUR },
+  { name: "Инверсия", type: FILTER_TYPES.INVERT },
 ];
 
 // Canvas settings
