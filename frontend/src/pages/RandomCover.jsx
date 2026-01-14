@@ -704,23 +704,16 @@ export default function RandomCover() {
     try {
       // Encode prompt for URL
       const encodedPrompt = encodeURIComponent(aiPrompt.trim());
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024`;
+      // Use simple URL without extra params that might cause issues
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
       
       // Create a new image to load from URL
       const img = new window.Image();
-      img.crossOrigin = "anonymous";
       
       img.onload = () => {
-        // Convert to canvas to get data URL
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        
-        const dataUrl = canvas.toDataURL('image/png');
         setBgImage(img);
-        setBgImageData(dataUrl);
+        // Store the URL as bgImageData for saving (will be converted later if needed)
+        setBgImageData(imageUrl);
         saveToHistory();
         toast.success("AI изображение сгенерировано!");
         setGeneratingAI(false);
