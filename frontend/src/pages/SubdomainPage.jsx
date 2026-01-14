@@ -284,11 +284,11 @@ function PagesListView({ data, subdomain }) {
         >
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
             <span className="text-2xl font-bold text-white">
-              {data.username?.charAt(0).toUpperCase()}
+              {(data.artist_name || data.username)?.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="flex items-center justify-center gap-2 mb-2">
-            <h1 className="text-2xl font-bold">{data.username}</h1>
+            <h1 className="text-2xl font-bold">{data.artist_name || data.username}</h1>
             {data.verified && (
               <BadgeCheck className="w-5 h-5 text-primary" />
             )}
