@@ -702,32 +702,30 @@ export default function RandomCover() {
 
     setGeneratingAI(true);
     try {
-      // Encode prompt for URL
-      const encodedPrompt = encodeURIComponent(aiPrompt.trim());
-      // Use simple URL without extra params that might cause issues
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
+      const response = await api.post("/generate-bg", {
+        prompt: aiPrompt.trim()
+      });
       
-      // Create a new image to load from URL
-      const img = new window.Image();
-      
-      img.onload = () => {
-        setBgImage(img);
-        // Store the URL as bgImageData for saving (will be converted later if needed)
-        setBgImageData(imageUrl);
-        saveToHistory();
-        toast.success("AI изображение сгенерировано!");
-        setGeneratingAI(false);
-      };
-      
-      img.onerror = () => {
-        toast.error("Ошибка загрузки изображения. Попробуйте другой промпт.");
-        setGeneratingAI(false);
-      };
-      
-      img.src = imageUrl;
+      if (response.data.success) {
+        // Load image from base64
+        const img = new window.Image();
+        img.onload = () => {
+          setBgImage(img);
+          setBgImageData(response.data.image_base64);
+          saveToHistory();
+          toast.success("AI изображение сгенерировано!");
+          setGeneratingAI(false);
+        };
+        img.onerror = () => {
+          toast.error("Ошибка загрузки изображения");
+          setGeneratingAI(false);
+        };
+        img.src = response.data.image_base64;
+      }
     } catch (error) {
       console.error("AI generation error:", error);
-      toast.error("Ошибка генерации изображения");
+      const errorMessage = error.response?.data?.detail || "Ошибка генерации изображения";
+      toast.error(errorMessage);
       setGeneratingAI(false);
     }
   };
