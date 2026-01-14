@@ -129,6 +129,32 @@ export default function Landing() {
               <div className="absolute -inset-4 bg-primary/20 blur-3xl -z-10 rounded-full" />
             </div>
           </motion.div>
+          
+          {/* Mobile/Tablet buttons - hidden on desktop */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex lg:hidden flex-col sm:flex-row gap-3 justify-center col-span-full"
+          >
+            <Link to={isAuthenticated ? "/page/new" : "/register"} className="w-full sm:w-auto">
+              <Button 
+                data-testid="hero-get-started-btn-mobile"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 rounded-full px-6 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-gilroy-600 shadow-lg shadow-primary/20 transition-all hover:scale-105"
+              >
+                Создать страницу
+              </Button>
+            </Link>
+            <Link to="/demo" className="w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                data-testid="hero-demo-btn-mobile"
+                className="w-full sm:w-auto rounded-full px-6 sm:px-8 py-4 sm:py-5 text-sm sm:text-base font-gilroy-600 border-white/10 hover:bg-white/5"
+              >
+                Демо
+              </Button>
+            </Link>
+          </motion.div>
         </div>
         
         {/* Scroll indicator - hidden on mobile */}
