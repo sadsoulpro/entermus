@@ -1001,6 +1001,139 @@ class BandLinkAPITester:
         print(f"   ✅ Access check returned has_access=true (launch mode)")
         return True
 
+    # ===================== CONTACT INFO API TESTS =====================
+
+    def test_get_contact_info(self):
+        """Test GET /api/profile/contacts - should return contact_email and social_links"""
+        if not self.token:
+            print("❌ No user token available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Contact Info",
+            "GET",
+            "profile/contacts",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Verify response structure
+        required_fields = ['contact_email', 'social_links']
+        for field in required_fields:
+            if field not in response:
+                print(f"❌ Missing required field: {field}")
+                return False
+        
+        # Verify social_links structure
+        social_links = response.get('social_links', {})
+        expected_social_platforms = ['telegram', 'instagram', 'vk', 'tiktok', 'twitter', 'website']
+        
+        for platform in expected_social_platforms:
+            if platform not in social_links:
+                print(f"❌ Missing social platform: {platform}")
+                return False
+        
+        print(f"   ✅ Contact email: {response.get('contact_email', 'empty')}")
+        print(f"   ✅ Social links: {list(social_links.keys())}")
+        return True
+
+    def test_update_contact_info(self):
+        """Test PUT /api/profile/contacts - update contact info"""
+        if not self.token:
+            print("❌ No user token available")
+            return False
+            
+        # Test data as specified in the review request
+        update_data = {
+            "contact_email": "new@example.com",
+            "social_links": {
+                "telegram": "@newtest",
+                "instagram": "@newtest"
+            }
+        }
+        
+        success, response = self.run_test(
+            "Update Contact Info",
+            "PUT",
+            "profile/contacts",
+            200,
+            data=update_data
+        )
+        
+        if not success:
+            return False
+            
+        # Verify success message
+        if 'message' not in response:
+            print("❌ Missing success message in response")
+            return False
+            
+        print(f"   ✅ Update message: {response.get('message')}")
+        
+        # Verify the update by getting contact info again
+        success, get_response = self.run_test(
+            "Verify Contact Info Update",
+            "GET",
+            "profile/contacts",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Check if the data was updated correctly
+        if get_response.get('contact_email') != update_data['contact_email']:
+            print(f"❌ Contact email not updated correctly. Expected: {update_data['contact_email']}, Got: {get_response.get('contact_email')}")
+            return False
+            
+        social_links = get_response.get('social_links', {})
+        if social_links.get('telegram') != update_data['social_links']['telegram']:
+            print(f"❌ Telegram not updated correctly. Expected: {update_data['social_links']['telegram']}, Got: {social_links.get('telegram')}")
+            return False
+            
+        if social_links.get('instagram') != update_data['social_links']['instagram']:
+            print(f"❌ Instagram not updated correctly. Expected: {update_data['social_links']['instagram']}, Got: {social_links.get('instagram')}")
+            return False
+            
+        print(f"   ✅ Contact info updated and verified successfully")
+        return True
+
+    def test_artist_page_contact_info(self):
+        """Test GET /api/artist/thley - should include contact_email and social_links"""
+        # Test the specific slug mentioned in the review request
+        success, response = self.run_test(
+            "Get Artist Page with Contact Info",
+            "GET",
+            "artist/thley",
+            200
+        )
+        
+        if not success:
+            return False
+            
+        # Verify response includes contact info fields
+        required_fields = ['contact_email', 'social_links']
+        for field in required_fields:
+            if field not in response:
+                print(f"❌ Missing required field in artist page: {field}")
+                return False
+        
+        # Check if contact info is present (could be empty strings/objects)
+        contact_email = response.get('contact_email', '')
+        social_links = response.get('social_links', {})
+        
+        print(f"   ✅ Artist page contact email: {contact_email if contact_email else 'empty'}")
+        print(f"   ✅ Artist page social links: {social_links if social_links else 'empty'}")
+        
+        # Verify social_links is a dict (even if empty)
+        if not isinstance(social_links, dict):
+            print(f"❌ Social links should be a dict, got: {type(social_links)}")
+            return False
+            
+        return True
+
 def main():
     print("🚀 Starting BandLink API Tests...")
     print(f"Testing against: https://app-uploader-4.preview.emergentagent.com/api")
