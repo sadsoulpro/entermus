@@ -2795,8 +2795,8 @@ async def generate_ai_background(request: AIGenerateRequest, user: dict = Depend
     if not huggingface_token:
         raise HTTPException(status_code=500, detail="Hugging Face token not configured")
     
-    # Hugging Face Inference API endpoint for SDXL
-    api_url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+    # Hugging Face Router API endpoint for SDXL (new API)
+    api_url = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
     
     headers = {
         "Authorization": f"Bearer {huggingface_token}",
