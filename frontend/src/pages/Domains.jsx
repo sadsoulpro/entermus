@@ -247,7 +247,6 @@ export default function Domains() {
                   </p>
                 </div>
                 <div className={`px-2 py-1 rounded-lg text-xs ${
-                  user?.plan === 'ultimate' ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-300' :
                   user?.plan === 'pro' ? 'bg-blue-500/20 text-blue-400' :
                   'bg-zinc-700 text-zinc-400'
                 }`}>
