@@ -23,9 +23,8 @@ const getNavItems = (t) => [
   { path: "/analytics", label: t('sidebar', 'analytics'), icon: Eye },
   { path: "/domains", label: t('sidebar', 'domains'), icon: Globe },
   { path: "/settings", label: t('sidebar', 'settings'), icon: Settings },
-  { path: "/verification", label: t('common', 'verified'), icon: BadgeCheck },
+  { path: "/verification", label: t('sidebar', 'verification'), icon: BadgeCheck },
   { path: "/support", label: t('sidebar', 'support'), icon: MessageCircle },
-  { path: "/faq", label: "FAQ", icon: HelpCircle },
 ];
 
 // Reusable navigation content
