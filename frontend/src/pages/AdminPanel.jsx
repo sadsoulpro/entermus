@@ -1350,21 +1350,21 @@ export default function AdminPanel() {
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">{req.email}</p>
                         {req.social_links && (
-                          <p className="text-sm"><span className="text-muted-foreground">Соц. сети:</span> {req.social_links}</p>
+                          <p className="text-sm"><span className="text-muted-foreground">{t('admin', 'socialLinks')}:</span> {req.social_links}</p>
                         )}
                         <p className="text-xs text-muted-foreground mt-2">
                           <Clock className="w-3 h-3 inline mr-1" />
-                          {new Date(req.created_at).toLocaleString('ru-RU')}
+                          {new Date(req.created_at).toLocaleString()}
                         </p>
                       </div>
                       <div className="flex gap-2">
                         <Button onClick={() => approveVerification(req.user_id)} className="bg-emerald-600 hover:bg-emerald-700">
                           <Check className="w-4 h-4 sm:mr-1" />
-                          <span className="hidden sm:inline">Одобрить</span>
+                          <span className="hidden sm:inline">{t('admin', 'approveBtn')}</span>
                         </Button>
                         <Button variant="destructive" onClick={() => rejectVerification(req.user_id)}>
                           <X className="w-4 h-4 sm:mr-1" />
-                          <span className="hidden sm:inline">Отклонить</span>
+                          <span className="hidden sm:inline">{t('admin', 'rejectBtn')}</span>
                         </Button>
                       </div>
                     </div>
@@ -1373,7 +1373,7 @@ export default function AdminPanel() {
                 {verificationRequests.filter(r => r.status === 'pending').length === 0 && (
                   <div className="text-center py-20 text-muted-foreground">
                     <BadgeCheck className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                    <p>Нет ожидающих заявок</p>
+                    <p>{t('admin', 'noPendingRequests')}</p>
                   </div>
                 )}
               </div>
