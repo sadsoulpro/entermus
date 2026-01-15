@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell
 } from "recharts";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Custom icons
 const ZvukIcon = (props) => (
@@ -107,10 +108,9 @@ const PLATFORMS = {
   googleStore: { name: "Google Store", icon: GooglePlayIcon, color: "#34A853" },
   zvuk: { name: "Звук", icon: ZvukIcon, color: "#6B4EFF" },
   mts: { name: "МТС Музыка", icon: MtsIcon, color: "#E30611" },
-  // Legacy mappings
   apple: { name: "Apple Music", icon: FaApple, color: "#FA233B" },
   amazon: { name: "Amazon Music", icon: FaAmazon, color: "#FF9900" },
-  custom: { name: "Другая ссылка", icon: FaLink, color: "#888888" },
+  custom: { name: "Other", icon: FaLink, color: "#888888" },
 };
 
 const COUNTRY_FLAGS = {
@@ -132,11 +132,11 @@ const COLORS = ['#d946ef', '#8b5cf6', '#3b82f6', '#22c55e', '#eab308', '#ef4444'
 export default function Analytics() {
   const { pageId } = useParams();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [analytics, setAnalytics] = useState(null);
   const [userLimits, setUserLimits] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if user has advanced analytics from API response or user plan
   const hasAdvancedAnalytics = analytics?.has_advanced_analytics || 
     user?.plan_config?.has_advanced_analytics ||
     user?.plan === 'pro';
@@ -151,7 +151,7 @@ export default function Analytics() {
       const response = await api.get(`/analytics/${pageId}`);
       setAnalytics(response.data);
     } catch (error) {
-      toast.error("Не удалось загрузить аналитику");
+      toast.error(t('errors', 'loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -174,7 +174,6 @@ export default function Analytics() {
     ? ((analytics.total_clicks / analytics.views) * 100).toFixed(1)
     : 0;
 
-  // Prepare chart data
   const platformData = analytics?.links?.map(link => ({
     name: getPlatformInfo(link.platform).name,
     value: link.clicks || 0,
@@ -189,7 +188,7 @@ export default function Analytics() {
             <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
             <BarChart3 className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
-          <p className="text-muted-foreground">Загрузка...</p>
+          <p className="text-muted-foreground">{t('common', 'loading')}</p>
         </div>
       </div>
     );
@@ -198,7 +197,7 @@ export default function Analytics() {
   if (!analytics) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Аналитика не найдена</p>
+        <p className="text-muted-foreground">{t('analytics', 'noData')}</p>
       </div>
     );
   }
@@ -215,9 +214,9 @@ export default function Analytics() {
               </Button>
             </Link>
             <div>
-              <h1 className="font-semibold text-sm sm:text-base">Аналитика страницы</h1>
+              <h1 className="font-semibold text-sm sm:text-base">{t('analytics', 'pageAnalytics')}</h1>
               <p className="text-xs text-muted-foreground">
-                {hasAdvancedAnalytics ? "Расширенная" : "Базовая"} статистика
+                {hasAdvancedAnalytics ? t('analytics', 'proFeature') : t('analytics', 'overview')}
               </p>
             </div>
           </div>
@@ -225,7 +224,7 @@ export default function Analytics() {
             <Link to="/settings">
               <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs">
                 <Crown className="w-3 h-3 mr-1" />
-                Улучшить
+                {t('common', 'upgrade')}
               </Button>
             </Link>
           )}
@@ -233,7 +232,7 @@ export default function Analytics() {
       </header>
       
       <main className="max-w-5xl mx-auto p-4 sm:p-6">
-        {/* Stats Overview - Basic Analytics */}
+        {/* Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -244,7 +243,7 @@ export default function Analytics() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                 <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">Просмотры</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('analytics', 'totalViews')}</span>
             </div>
             <p className="text-2xl sm:text-3xl font-bold" data-testid="page-views">
               {analytics.views.toLocaleString()}
@@ -261,7 +260,7 @@ export default function Analytics() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
                 <MousePointer className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">Клики</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('analytics', 'totalClicks')}</span>
             </div>
             <p className="text-2xl sm:text-3xl font-bold" data-testid="page-clicks">
               {analytics.total_clicks.toLocaleString()}
@@ -278,7 +277,7 @@ export default function Analytics() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
               </div>
-              <span className="text-xs sm:text-sm text-muted-foreground">CTR</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{t('analytics', 'clickRate')}</span>
             </div>
             <p className="text-2xl sm:text-3xl font-bold" data-testid="page-ctr">
               {ctr}%
@@ -286,7 +285,7 @@ export default function Analytics() {
           </motion.div>
         </div>
 
-        {/* Platform Clicks - Basic Analytics */}
+        {/* Platform Clicks */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -295,7 +294,7 @@ export default function Analytics() {
         >
           <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
             <Zap className="w-4 h-4 text-yellow-400" />
-            Клики по платформам
+            {t('analytics', 'clicksByPlatform')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {analytics.links?.filter(l => l.clicks > 0).map((link, idx) => {
@@ -321,7 +320,7 @@ export default function Analytics() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{platform.name}</p>
-                      <p className="text-xs text-muted-foreground">{link.clicks} кликов</p>
+                      <p className="text-xs text-muted-foreground">{link.clicks} {t('common', 'clicks')}</p>
                     </div>
                   </div>
                   <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
@@ -340,7 +339,7 @@ export default function Analytics() {
             {(!analytics.links || analytics.links.filter(l => l.clicks > 0).length === 0) && (
               <div className="col-span-full text-center py-10 text-muted-foreground border border-dashed border-zinc-800 rounded-xl">
                 <MousePointer className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p>Пока нет кликов</p>
+                <p>{t('analytics', 'noData')}</p>
               </div>
             )}
           </div>
@@ -350,7 +349,7 @@ export default function Analytics() {
         <AnimatePresence>
           {hasAdvancedAnalytics ? (
             <>
-              {/* Geography - Advanced */}
+              {/* Geography */}
               <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -359,34 +358,18 @@ export default function Analytics() {
               >
                 <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-400" />
-                  География кликов
+                  {t('analytics', 'geography')}
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 font-normal ml-2">
                     PRO
                   </span>
                 </h2>
                 
-                {/* PRO Overlay for FREE users */}
-                {!hasAdvancedAnalytics && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-zinc-900/60 backdrop-blur-md">
-                    <div className="text-center p-6">
-                      <Crown className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
-                      <h3 className="text-lg font-semibold text-white mb-2">Доступно в PRO подписке</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Получите доступ к детальной географии кликов</p>
-                      <Link to="/pricing">
-                        <Button className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
-                          Перейти на PRO
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                )}
-                
-                <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${!hasAdvancedAnalytics ? 'filter blur-sm pointer-events-none' : ''}`}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Countries */}
                   <div className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5">
                     <h3 className="font-medium mb-4 flex items-center gap-2 text-sm">
                       <Globe className="w-4 h-4 text-muted-foreground" />
-                      По странам
+                      {t('analytics', 'topCountries')}
                     </h3>
                     {analytics.by_country?.length > 0 ? (
                       <div className="space-y-3">
@@ -418,7 +401,7 @@ export default function Analytics() {
                       <div className="h-[150px] flex items-center justify-center text-muted-foreground text-sm">
                         <div className="text-center">
                           <Globe className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                          <p>Нет данных</p>
+                          <p>{t('analytics', 'noData')}</p>
                         </div>
                       </div>
                     )}
@@ -428,7 +411,7 @@ export default function Analytics() {
                   <div className="p-5 rounded-2xl bg-zinc-900/50 border border-white/5">
                     <h3 className="font-medium mb-4 flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-muted-foreground" />
-                      По городам
+                      {t('analytics', 'topCountries')}
                     </h3>
                     {analytics.by_city?.length > 0 ? (
                       <div className="space-y-3">
@@ -460,7 +443,7 @@ export default function Analytics() {
                       <div className="h-[150px] flex items-center justify-center text-muted-foreground text-sm">
                         <div className="text-center">
                           <MapPin className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                          <p>Нет данных</p>
+                          <p>{t('analytics', 'noData')}</p>
                         </div>
                       </div>
                     )}
@@ -468,7 +451,7 @@ export default function Analytics() {
                 </div>
               </motion.section>
 
-              {/* Platform Distribution Chart - Advanced */}
+              {/* Platform Distribution Chart */}
               {platformData.length > 0 && (
                 <motion.section
                   initial={{ opacity: 0, y: 20 }}
@@ -478,7 +461,7 @@ export default function Analytics() {
                 >
                   <h2 className="text-base sm:text-lg font-semibold mb-4 flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-purple-400" />
-                    Распределение по платформам
+                    {t('analytics', 'topPlatforms')}
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 font-normal ml-2">
                       PRO
                     </span>
@@ -503,7 +486,7 @@ export default function Analytics() {
                         </Pie>
                         <Tooltip 
                           contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-                          formatter={(value) => [`${value} кликов`, 'Клики']}
+                          formatter={(value) => [`${value} ${t('common', 'clicks')}`, t('common', 'clicks')]}
                         />
                       </PieChart>
                     </ResponsiveContainer>
@@ -520,28 +503,26 @@ export default function Analytics() {
               className="mb-6"
             >
               <div className="relative p-6 sm:p-10 rounded-2xl bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 border border-white/5 overflow-hidden">
-                {/* Blur overlay */}
                 <div className="absolute inset-0 backdrop-blur-sm bg-zinc-950/60 flex items-center justify-center z-10">
                   <div className="text-center p-6">
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto mb-4">
                       <Lock className="w-7 h-7 text-purple-400" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Расширенная аналитика</h3>
+                    <h3 className="text-lg font-semibold mb-2">{t('analytics', 'proFeature')}</h3>
                     <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
-                      География кликов, детальные графики и экспорт данных доступны в тарифах Pro и Ultimate
+                      {t('analytics', 'upgradeToSee')}
                     </p>
                     <Link to="/settings">
                       <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
                         <Crown className="w-4 h-4 mr-2" />
-                        Перейти на Pro
+                        {t('common', 'upgrade')}
                       </Button>
                     </Link>
                   </div>
                 </div>
                 
-                {/* Blurred preview content */}
                 <div className="opacity-30 pointer-events-none">
-                  <h2 className="text-lg font-semibold mb-4">География кликов</h2>
+                  <h2 className="text-lg font-semibold mb-4">{t('analytics', 'geography')}</h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="h-40 rounded-xl bg-zinc-800/50"></div>
                     <div className="h-40 rounded-xl bg-zinc-800/50"></div>

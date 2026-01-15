@@ -26,23 +26,11 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
-
-const STATUS_CONFIG = {
-  open: { label: "Открыт", color: "bg-blue-500", icon: AlertCircle },
-  in_progress: { label: "В работе", color: "bg-yellow-500", icon: Clock },
-  resolved: { label: "Решён", color: "bg-green-500", icon: CheckCircle },
-  closed: { label: "Закрыт", color: "bg-zinc-500", icon: CheckCircle }
-};
-
-const CATEGORY_LABELS = {
-  general: "Общие вопросы",
-  technical: "Технические проблемы",
-  billing: "Оплата и подписка",
-  other: "Другое"
-};
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Support() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -56,6 +44,21 @@ export default function Support() {
     category: "general"
   });
 
+  // Translations
+  const STATUS_CONFIG = {
+    open: { label: t('support', 'statusOpen'), color: "bg-blue-500", icon: AlertCircle },
+    in_progress: { label: t('support', 'statusInProgress'), color: "bg-yellow-500", icon: Clock },
+    resolved: { label: t('support', 'statusResolved'), color: "bg-green-500", icon: CheckCircle },
+    closed: { label: t('support', 'statusClosed'), color: "bg-zinc-500", icon: CheckCircle }
+  };
+
+  const CATEGORY_LABELS = {
+    general: t('support', 'categoryGeneral'),
+    technical: t('support', 'categoryTechnical'),
+    billing: t('support', 'categoryBilling'),
+    other: t('support', 'categoryOther')
+  };
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -65,7 +68,7 @@ export default function Support() {
       const response = await api.get("/tickets");
       setTickets(response.data);
     } catch (error) {
-      toast.error("Не удалось загрузить обращения");
+      toast.error(t('errors', 'loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -73,7 +76,7 @@ export default function Support() {
 
   const createTicket = async () => {
     if (!newTicket.subject.trim() || !newTicket.message.trim()) {
-      toast.error("Заполните все поля");
+      toast.error(t('errors', 'validationError'));
       return;
     }
 
@@ -83,12 +86,12 @@ export default function Support() {
       setTickets(prev => [response.data, ...prev]);
       setShowNewDialog(false);
       setNewTicket({ subject: "", message: "", category: "general" });
-      toast.success("Обращение отправлено");
+      toast.success(t('support', 'ticketCreated'));
     } catch (error) {
       const detail = error.response?.data?.detail;
       const errorMsg = typeof detail === 'string' ? detail : 
                        Array.isArray(detail) ? detail.map(d => d.msg || d).join(', ') :
-                       "Не удалось создать обращение";
+                       t('errors', 'generic');
       toast.error(errorMsg);
     } finally {
       setSubmitting(false);
@@ -99,12 +102,11 @@ export default function Support() {
     try {
       const response = await api.get(`/tickets/${ticketId}`);
       setSelectedTicket(response.data);
-      // Update local list to mark as read
       setTickets(prev => prev.map(t => 
         t.id === ticketId ? { ...t, is_read_by_user: true } : t
       ));
     } catch (error) {
-      toast.error("Не удалось загрузить обращение");
+      toast.error(t('errors', 'loadFailed'));
     }
   };
 
@@ -118,13 +120,12 @@ export default function Support() {
       });
       setSelectedTicket(response.data);
       setReplyText("");
-      // Update tickets list
       setTickets(prev => prev.map(t => 
         t.id === selectedTicket.id ? response.data : t
       ));
-      toast.success("Сообщение отправлено");
+      toast.success(t('common', 'success'));
     } catch (error) {
-      toast.error("Не удалось отправить сообщение");
+      toast.error(t('errors', 'generic'));
     } finally {
       setSubmitting(false);
     }
@@ -163,7 +164,7 @@ export default function Support() {
             onClick={() => setSelectedTicket(null)}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад к списку
+            {t('common', 'back')}
           </Button>
 
           <div className="bg-zinc-900/50 rounded-2xl border border-white/5 p-4 sm:p-6 mb-4">
@@ -201,7 +202,7 @@ export default function Support() {
                     <User className="w-4 h-4 text-muted-foreground" />
                   )}
                   <span className="text-sm font-medium">
-                    {msg.sender_role === 'staff' ? 'Поддержка' : 'Вы'}
+                    {msg.sender_role === 'staff' ? t('support', 'staffReply') : t('support', 'yourMessage')}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {formatDate(msg.created_at)}
@@ -218,7 +219,7 @@ export default function Support() {
               <Textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Напишите ответ..."
+                placeholder={t('support', 'replyPlaceholder')}
                 className="bg-zinc-800 border-zinc-700 min-h-[100px] mb-3"
               />
               <Button
@@ -231,7 +232,7 @@ export default function Support() {
                 ) : (
                   <Send className="w-4 h-4 mr-2" />
                 )}
-                Отправить
+                {t('support', 'sendReply')}
               </Button>
             </div>
           )}
@@ -247,12 +248,12 @@ export default function Support() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-display mb-1">Поддержка</h1>
-            <p className="text-sm text-muted-foreground">Ваши обращения в службу поддержки</p>
+            <h1 className="text-2xl font-display mb-1">{t('support', 'title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('support', 'subtitle')}</p>
           </div>
           <Button onClick={() => setShowNewDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Новое обращение
+            {t('support', 'newTicket')}
           </Button>
         </div>
 
@@ -260,13 +261,13 @@ export default function Support() {
         {tickets.length === 0 ? (
           <div className="text-center py-16">
             <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-medium mb-2">Нет обращений</h3>
+            <h3 className="text-lg font-medium mb-2">{t('support', 'noTickets')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              У вас пока нет обращений в поддержку
+              {t('support', 'noTicketsDesc')}
             </p>
             <Button onClick={() => setShowNewDialog(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Создать обращение
+              {t('support', 'createTicket')}
             </Button>
           </div>
         ) : (
@@ -325,15 +326,15 @@ export default function Support() {
         <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Новое обращение</DialogTitle>
+              <DialogTitle>{t('support', 'newTicket')}</DialogTitle>
               <DialogDescription>
-                Опишите вашу проблему или вопрос
+                {t('support', 'subtitle')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div>
-                <Label>Категория</Label>
+                <Label>{t('support', 'category')}</Label>
                 <Select 
                   value={newTicket.category} 
                   onValueChange={(val) => setNewTicket(prev => ({ ...prev, category: val }))}
@@ -342,30 +343,30 @@ export default function Support() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="general">Общие вопросы</SelectItem>
-                    <SelectItem value="technical">Технические проблемы</SelectItem>
-                    <SelectItem value="billing">Оплата и подписка</SelectItem>
-                    <SelectItem value="other">Другое</SelectItem>
+                    <SelectItem value="general">{t('support', 'categoryGeneral')}</SelectItem>
+                    <SelectItem value="technical">{t('support', 'categoryTechnical')}</SelectItem>
+                    <SelectItem value="billing">{t('support', 'categoryBilling')}</SelectItem>
+                    <SelectItem value="other">{t('support', 'categoryOther')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label>Тема</Label>
+                <Label>{t('support', 'subject')}</Label>
                 <Input
                   value={newTicket.subject}
                   onChange={(e) => setNewTicket(prev => ({ ...prev, subject: e.target.value }))}
-                  placeholder="Кратко опишите проблему"
+                  placeholder={t('support', 'subjectPlaceholder')}
                   className="mt-1.5"
                 />
               </div>
 
               <div>
-                <Label>Сообщение</Label>
+                <Label>{t('support', 'message')}</Label>
                 <Textarea
                   value={newTicket.message}
                   onChange={(e) => setNewTicket(prev => ({ ...prev, message: e.target.value }))}
-                  placeholder="Подробно опишите вашу проблему или вопрос..."
+                  placeholder={t('support', 'messagePlaceholder')}
                   className="mt-1.5 min-h-[120px]"
                 />
               </div>
@@ -373,10 +374,10 @@ export default function Support() {
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowNewDialog(false)}>
-                Отмена
+                {t('common', 'cancel')}
               </Button>
               <Button onClick={createTicket} disabled={submitting}>
-                {submitting ? "Отправка..." : "Отправить"}
+                {submitting ? t('support', 'submitting') : t('support', 'submit')}
               </Button>
             </DialogFooter>
           </DialogContent>

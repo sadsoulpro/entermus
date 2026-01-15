@@ -13,23 +13,20 @@ import {
 import { FaTelegram, FaInstagram, FaVk, FaTiktok, FaTwitter, FaGlobe } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
-
-const PLAN_LIMITS = {
-  free: { limit: 1, label: "FREE" },
-  pro: { limit: 3, label: "PRO" }
-};
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SOCIAL_PLATFORMS = [
-  { id: "telegram", name: "Telegram", icon: FaTelegram, placeholder: "@username или ссылка", color: "#229ED9" },
+  { id: "telegram", name: "Telegram", icon: FaTelegram, placeholder: "@username", color: "#229ED9" },
   { id: "instagram", name: "Instagram", icon: FaInstagram, placeholder: "@username", color: "#E4405F" },
   { id: "vk", name: "VKontakte", icon: FaVk, placeholder: "vk.com/username", color: "#4C75A3" },
   { id: "tiktok", name: "TikTok", icon: FaTiktok, placeholder: "@username", color: "#000000" },
   { id: "twitter", name: "X (Twitter)", icon: FaTwitter, placeholder: "@username", color: "#1DA1F2" },
-  { id: "website", name: "Сайт", icon: FaGlobe, placeholder: "https://example.com", color: "#6B7280" },
+  { id: "website", name: "Website", icon: FaGlobe, placeholder: "https://example.com", color: "#6B7280" },
 ];
 
 export default function Domains() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [subdomains, setSubdomains] = useState([]);
   const [maxLimit, setMaxLimit] = useState(1);
   const [canAdd, setCanAdd] = useState(false);
@@ -81,7 +78,7 @@ export default function Domains() {
       setMaxLimit(response.data.max_limit);
       setCanAdd(response.data.can_add);
     } catch (error) {
-      toast.error("Не удалось загрузить домены");
+      toast.error(t('errors', 'loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -117,9 +114,9 @@ export default function Domains() {
         artist_name: artistName,
         social_links: socialLinks
       });
-      toast.success("Контактная информация сохранена");
+      toast.success(t('common', 'success'));
     } catch (error) {
-      toast.error("Не удалось сохранить контактную информацию");
+      toast.error(t('errors', 'saveFailed'));
     } finally {
       setSavingContacts(false);
     }
@@ -138,7 +135,7 @@ export default function Domains() {
       const response = await api.get(`/subdomains/check/${subdomain}`);
       setAvailability(response.data);
     } catch (error) {
-      setAvailability({ available: false, reason: "Ошибка проверки" });
+      setAvailability({ available: false, reason: t('errors', 'generic') });
     } finally {
       setChecking(false);
     }
@@ -150,12 +147,12 @@ export default function Domains() {
     setCreating(true);
     try {
       await api.post("/subdomains", { subdomain: newSubdomain.toLowerCase() });
-      toast.success("Поддомен успешно создан!");
+      toast.success(t('common', 'success'));
       setNewSubdomain("");
       setAvailability(null);
       fetchSubdomains();
     } catch (error) {
-      toast.error(typeof (error.response?.data?.detail) === "string" ? error.response.data.detail : "Не удалось создать поддомен");
+      toast.error(typeof (error.response?.data?.detail) === "string" ? error.response.data.detail : t('errors', 'generic'));
     } finally {
       setCreating(false);
     }
@@ -164,22 +161,22 @@ export default function Domains() {
   const toggleSubdomain = async (id, currentActive) => {
     try {
       await api.put(`/subdomains/${id}`, { is_active: !currentActive });
-      toast.success(currentActive ? "Поддомен выключен" : "Поддомен включен");
+      toast.success(t('common', 'success'));
       fetchSubdomains();
     } catch (error) {
-      toast.error("Не удалось обновить поддомен");
+      toast.error(t('errors', 'generic'));
     }
   };
 
   const deleteSubdomain = async (id) => {
-    if (!confirm("Вы уверены, что хотите удалить этот поддомен?")) return;
+    if (!confirm(t('domains', 'removeDomain') + "?")) return;
 
     try {
       await api.delete(`/subdomains/${id}`);
-      toast.success("Поддомен удалён");
+      toast.success(t('common', 'success'));
       fetchSubdomains();
     } catch (error) {
-      toast.error("Не удалось удалить поддомен");
+      toast.error(t('errors', 'deleteFailed'));
     }
   };
 
@@ -187,7 +184,7 @@ export default function Domains() {
     const url = `${subdomain}.mytrack.cc`;
     navigator.clipboard.writeText(url);
     setCopiedId(subdomain);
-    toast.success("Скопировано!");
+    toast.success(t('common', 'copied'));
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -203,7 +200,7 @@ export default function Domains() {
               <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
               <Globe className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             </div>
-            <p className="text-muted-foreground">Загрузка...</p>
+            <p className="text-muted-foreground">{t('common', 'loading')}</p>
           </div>
         </div>
       </Sidebar>
@@ -227,9 +224,9 @@ export default function Domains() {
                     <Globe className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-xl sm:text-2xl font-bold">Мои домены</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold">{t('domains', 'title')}</h1>
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Управление поддоменами и контактами
+                      {t('domains', 'subtitle')}
                     </p>
                   </div>
                 </div>
@@ -238,7 +235,7 @@ export default function Domains() {
               {/* Usage indicator */}
               <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5">
                 <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Использовано</p>
+                  <p className="text-xs text-muted-foreground">{t('common', 'total')}</p>
                   <p className="text-lg font-bold">
                     <span className={usedCount >= maxLimit && maxLimit !== -1 ? "text-red-400" : "text-white"}>
                       {usedCount}
@@ -265,7 +262,7 @@ export default function Domains() {
           >
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Plus className="w-4 h-4 text-primary" />
-              Добавить поддомен
+              {t('domains', 'addDomain')}
             </h2>
             
             <div className="flex flex-col sm:flex-row gap-3">
@@ -274,7 +271,7 @@ export default function Domains() {
                   <Input
                     value={newSubdomain}
                     onChange={(e) => setNewSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="mymusic"
+                    placeholder={t('domains', 'domainPlaceholder')}
                     className="rounded-r-none border-r-0 bg-zinc-800/50 lowercase"
                     disabled={!canAdd}
                     maxLength={32}
@@ -296,12 +293,12 @@ export default function Domains() {
                       {checking ? (
                         <>
                           <Loader2 className="w-3 h-3 animate-spin" />
-                          <span className="text-muted-foreground">Проверка...</span>
+                          <span className="text-muted-foreground">{t('common', 'loading')}</span>
                         </>
                       ) : availability?.available ? (
                         <>
                           <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                          <span className="text-emerald-400">Доступен</span>
+                          <span className="text-emerald-400">{t('common', 'active')}</span>
                         </>
                       ) : availability ? (
                         <>
@@ -324,7 +321,7 @@ export default function Domains() {
                 ) : (
                   <>
                     <Plus className="w-4 h-4 mr-1" />
-                    Добавить
+                    {t('common', 'create')}
                   </>
                 )}
               </Button>
@@ -340,15 +337,12 @@ export default function Domains() {
                 <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm text-amber-200">
-                    Вы достигли лимита поддоменов для вашего тарифа ({maxLimit}).
-                  </p>
-                  <p className="text-xs text-amber-200/70 mt-1">
-                    Обновите тариф для добавления новых поддоменов.
+                    {t('domains', 'proRequired')}
                   </p>
                 </div>
                 <Button size="sm" variant="outline" className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 flex-shrink-0">
                   <Crown className="w-3 h-3 mr-1" />
-                  Upgrade
+                  {t('common', 'upgrade')}
                 </Button>
               </motion.div>
             )}
@@ -362,15 +356,14 @@ export default function Domains() {
           >
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Link2 className="w-4 h-4 text-muted-foreground" />
-              Ваши поддомены
+              {t('nav', 'domains')}
               <span className="text-xs text-muted-foreground font-normal">({subdomains.length})</span>
             </h2>
             
             {subdomains.length === 0 ? (
               <div className="text-center py-16 rounded-2xl border border-dashed border-zinc-800">
                 <Globe className="w-12 h-12 mx-auto mb-4 text-zinc-700" />
-                <p className="text-muted-foreground mb-2">У вас пока нет поддоменов</p>
-                <p className="text-xs text-zinc-600">Создайте первый поддомен выше</p>
+                <p className="text-muted-foreground mb-2">{t('analytics', 'noData')}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -403,17 +396,17 @@ export default function Domains() {
                             </p>
                             {!sub.is_active && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] bg-zinc-700 text-zinc-400">
-                                Выключен
+                                {t('common', 'disabled')}
                               </span>
                             )}
                             {sub.disabled_by_admin && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-400">
-                                Заблокирован
+                                {t('domains', 'failed')}
                               </span>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Создан: {new Date(sub.created_at).toLocaleDateString('ru-RU')}
+                            {new Date(sub.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
@@ -484,11 +477,8 @@ export default function Domains() {
           >
             <h2 className="font-semibold mb-4 flex items-center gap-2">
               <Mail className="w-4 h-4 text-primary" />
-              Контактная информация
+              {t('settings', 'profile')}
             </h2>
-            <p className="text-xs text-muted-foreground mb-4">
-              Эта информация будет отображаться на ваших публичных страницах
-            </p>
             
             {contactsLoading ? (
               <div className="flex items-center justify-center py-8">
@@ -499,62 +489,53 @@ export default function Domains() {
                 {/* Artist Name */}
                 <div className="mb-4">
                   <Label htmlFor="artist_name" className="text-sm mb-2 block">
-                    Псевдоним артиста
+                    {t('common', 'artist')}
                   </Label>
                   <Input
                     id="artist_name"
                     type="text"
                     value={artistName}
                     onChange={(e) => setArtistName(e.target.value)}
-                    placeholder="Ваше имя или псевдоним"
+                    placeholder={t('pageBuilder', 'artistPlaceholder')}
                     className="bg-zinc-800/50"
                     maxLength={50}
                   />
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    Отображается на главной странице поддомена как имя артиста
-                  </p>
                 </div>
 
                 {/* Profile Description */}
                 <div className="mb-4">
                   <Label htmlFor="profile_description" className="text-sm mb-2 block">
-                    Описание профиля
+                    {t('settings', 'bio')}
                   </Label>
                   <Textarea
                     id="profile_description"
                     value={profileDescription}
                     onChange={(e) => setProfileDescription(e.target.value)}
-                    placeholder="Музыкант, продюсер, автор песен..."
+                    placeholder={t('settings', 'bioPlaceholder')}
                     className="bg-zinc-800/50 resize-none"
                     rows={3}
                     maxLength={200}
                   />
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    Отображается на главной странице поддомена под именем ({profileDescription.length}/200)
-                  </p>
                 </div>
                 
                 {/* Contact Email */}
                 <div className="mb-4">
                   <Label htmlFor="contact_email" className="text-sm mb-2 block">
-                    Email для связи
+                    {t('common', 'email')}
                   </Label>
                   <Input
                     id="contact_email"
                     type="email"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="contact@example.com"
+                    placeholder={t('auth', 'emailPlaceholder')}
                     className="bg-zinc-800/50"
                   />
-                  <p className="text-[10px] text-muted-foreground mt-1">
-                    Будет отображаться на публичных страницах для связи с вами
-                  </p>
                 </div>
                 
                 {/* Social Links */}
                 <div className="space-y-3">
-                  <Label className="text-sm">Социальные сети</Label>
+                  <Label className="text-sm">{t('settings', 'socialLinks')}</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {SOCIAL_PLATFORMS.map((platform) => {
                       const Icon = platform.icon;
@@ -589,7 +570,7 @@ export default function Domains() {
                   ) : (
                     <Save className="w-4 h-4 mr-2" />
                   )}
-                  Сохранить контакты
+                  {t('common', 'save')}
                 </Button>
               </>
             )}
@@ -604,20 +585,20 @@ export default function Domains() {
           >
             <h3 className="font-semibold mb-3 flex items-center gap-2 text-blue-400">
               <AlertCircle className="w-4 h-4" />
-              Как работают поддомены?
+              {t('domains', 'instructions')}
             </h3>
             <ul className="space-y-2 text-sm text-zinc-400">
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
-                <span>Ваши страницы будут доступны по адресу: <code className="text-blue-300 bg-blue-500/10 px-1 rounded">sub.mytrack.cc/release</code></span>
+                <span>{t('domains', 'step1')} <code className="text-blue-300 bg-blue-500/10 px-1 rounded">mytrack.cc</code></span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
-                <span>Выключенный поддомен показывает страницу "Домен неактивен"</span>
+                <span>{t('domains', 'step2')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
-                <span>Поддомен привязан к вашему аккаунту и открывает только ваши страницы</span>
+                <span>{t('domains', 'step3')}</span>
               </li>
             </ul>
           </motion.div>
