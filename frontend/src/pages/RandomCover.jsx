@@ -1311,14 +1311,14 @@ export default function RandomCover() {
                       data-testid="upload-image-btn"
                     >
                       <Upload className="w-4 h-4 mr-2" />
-                      {bgImage ? "Заменить фото" : "Загрузить фото"}
+                      {bgImage ? t('randomCover', 'replacePhoto') : t('randomCover', 'uploadPhoto')}
                     </Button>
 
                     {/* AI Image Generation */}
                     <div className="mt-4 pt-4 border-t border-white/10">
                       <Label className="text-xs text-primary flex items-center gap-1 mb-2">
                         <Shuffle className="w-3 h-3" />
-                        AI Генерация (Stable Diffusion XL)
+                        {t('randomCover', 'aiGeneration')}
                         {!canUseAI && (
                           <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-yellow-500/20 text-yellow-500 rounded">PRO</span>
                         )}
@@ -1326,7 +1326,7 @@ export default function RandomCover() {
                       <Input
                         value={aiPrompt}
                         onChange={(e) => setAiPrompt(e.target.value)}
-                        placeholder="Опишите изображение на английском..."
+                        placeholder={t('randomCover', 'describeImage')}
                         className="bg-zinc-800 text-sm"
                         data-testid="ai-prompt-input"
                         disabled={!canUseAI}
@@ -1352,17 +1352,17 @@ export default function RandomCover() {
                                 {!canUseAI ? (
                                   <>
                                     <Lock className="w-4 h-4 mr-2" />
-                                    Только для PRO
+                                    {t('randomCover', 'proOnly')}
                                   </>
                                 ) : generatingAI ? (
                                   <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Генерация (~30 сек)...
+                                    {t('randomCover', 'generating')}
                                   </>
                                 ) : (
                                   <>
                                     <ImageIcon className="w-4 h-4 mr-2" />
-                                    Сгенерировать
+                                    {t('randomCover', 'generate')}
                                   </>
                                 )}
                               </Button>
@@ -1370,7 +1370,7 @@ export default function RandomCover() {
                           </TooltipTrigger>
                           {!canUseAI && (
                             <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
-                              <p>Эта функция доступна только в PRO-версии</p>
+                              <p>{t('randomCover', 'proOnlyFeature')}</p>
                             </TooltipContent>
                           )}
                         </Tooltip>
@@ -1379,7 +1379,7 @@ export default function RandomCover() {
 
                     {bgImage && (
                       <div className="mt-3">
-                        <Label className="text-xs">Фильтр</Label>
+                        <Label className="text-xs">{t('randomCover', 'filter')}</Label>
                         <Select
                           value={currentFilter}
                           onValueChange={(val) => {
