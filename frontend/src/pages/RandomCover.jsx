@@ -1567,14 +1567,14 @@ export default function RandomCover() {
                 className="bg-zinc-900/50 rounded-2xl border border-white/5 p-6"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-semibold">Мои проекты</h2>
+                  <h2 className="text-lg font-semibold">{t('randomCover', 'myProjects')}</h2>
                   <Button 
                     onClick={startNewProject}
                     className="gap-2"
                     data-testid="new-project-btn"
                   >
                     <Plus className="w-4 h-4" />
-                    Новый проект
+                    {t('pageBuilder', 'newPage')}
                   </Button>
                 </div>
 
@@ -1585,12 +1585,12 @@ export default function RandomCover() {
                 ) : projects.length === 0 ? (
                   <div className="text-center py-12">
                     <FileImage className="w-16 h-16 mx-auto text-zinc-700 mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Нет сохранённых проектов</h3>
+                    <h3 className="text-lg font-medium mb-2">{t('randomCover', 'noProjects')}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Создайте свою первую обложку в редакторе и сохраните проект
+                      {t('randomCover', 'noProjectsDesc')}
                     </p>
                     <Button onClick={() => setActiveTab("editor")} variant="outline">
-                      Перейти в редактор
+                      {t('randomCover', 'goToEditor')}
                     </Button>
                   </div>
                 ) : (
@@ -1646,7 +1646,7 @@ export default function RandomCover() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => loadProject(project.id)}>
                                 <FolderOpen className="w-4 h-4 mr-2" />
-                                Открыть
+                                {t('randomCover', 'open')}
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={(e) => deleteProject(project.id, e)}
