@@ -1993,8 +1993,8 @@ async def admin_update_user_role(user_id: str, data: UserRoleUpdate, user: dict 
 @api_router.put("/admin/users/{user_id}/plan")
 async def admin_update_user_plan(user_id: str, data: UserPlanUpdate, user: dict = Depends(get_admin_user)):
     """Update user plan - Admin/Owner"""
-    if data.plan not in ["free", "pro", "ultimate"]:
-        raise HTTPException(status_code=400, detail="Invalid plan. Valid plans: free, pro, ultimate")
+    if data.plan not in ["free", "pro"]:
+        raise HTTPException(status_code=400, detail="Invalid plan. Valid plans: free, pro")
     
     target_user = await db.users.find_one({"id": user_id})
     if not target_user:
