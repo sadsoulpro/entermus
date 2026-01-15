@@ -112,15 +112,15 @@ export default function Settings() {
           
           <form onSubmit={handleProfileSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm">Имя пользователя</Label>
+              <Label htmlFor="username" className="text-sm">{t('common', 'username')}</Label>
               <Input id="username" value={profileForm.username} onChange={(e) => setProfileForm(prev => ({ ...prev, username: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm">Email</Label>
+              <Label htmlFor="email" className="text-sm">{t('common', 'email')}</Label>
               <Input id="email" type="email" value={profileForm.email} onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
             </div>
             <Button type="submit" disabled={profileLoading} className="w-full sm:w-auto bg-primary hover:bg-primary/90">
-              {profileLoading ? "Сохранение..." : "Сохранить изменения"}
+              {profileLoading ? t('common', 'loading') : t('common', 'save')}
             </Button>
           </form>
         </motion.div>
@@ -132,26 +132,26 @@ export default function Settings() {
               <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
             </div>
             <div>
-              <h2 className="font-semibold text-sm sm:text-base">Безопасность</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">Изменить пароль</p>
+              <h2 className="font-semibold text-sm sm:text-base">{t('settings', 'security')}</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">{t('settings', 'changePassword')}</p>
             </div>
           </div>
           
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="current_password" className="text-sm">Текущий пароль</Label>
+              <Label htmlFor="current_password" className="text-sm">{t('settings', 'currentPassword')}</Label>
               <Input id="current_password" type="password" value={passwordForm.current_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, current_password: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new_password" className="text-sm">Новый пароль</Label>
+              <Label htmlFor="new_password" className="text-sm">{t('settings', 'newPassword')}</Label>
               <Input id="new_password" type="password" value={passwordForm.new_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, new_password: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm_password" className="text-sm">Подтвердите пароль</Label>
+              <Label htmlFor="confirm_password" className="text-sm">{t('settings', 'confirmNewPassword')}</Label>
               <Input id="confirm_password" type="password" value={passwordForm.confirm_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm_password: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
             </div>
             <Button type="submit" disabled={passwordLoading} className="w-full sm:w-auto bg-primary hover:bg-primary/90">
-              {passwordLoading ? "Изменение..." : "Изменить пароль"}
+              {passwordLoading ? t('common', 'loading') : t('settings', 'changePassword')}
             </Button>
           </form>
         </motion.div>
@@ -164,28 +164,28 @@ export default function Settings() {
                 <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
               </div>
               <div>
-                <h2 className="font-semibold text-sm sm:text-base text-red-400">Опасная зона</h2>
-                <p className="text-xs sm:text-sm text-red-400/70">Удаление аккаунта необратимо</p>
+                <h2 className="font-semibold text-sm sm:text-base text-red-400">{t('settings', 'deleteAccount')}</h2>
+                <p className="text-xs sm:text-sm text-red-400/70">{t('settings', 'deleteAccountWarning')}</p>
               </div>
             </div>
             
             {!showDeleteConfirm ? (
               <Button variant="outline" onClick={() => setShowDeleteConfirm(true)} className="w-full sm:w-auto border-red-500/30 text-red-400 hover:bg-red-500/10">
-                Удалить аккаунт
+                {t('settings', 'deleteAccount')}
               </Button>
             ) : (
               <div className="space-y-4">
                 <div className="p-3 sm:p-4 bg-red-500/10 rounded-xl flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs sm:text-sm text-red-400">Все ваши страницы, ссылки и статистика будут удалены. Введите УДАЛИТЬ для подтверждения.</p>
+                  <p className="text-xs sm:text-sm text-red-400">{t('settings', 'deleteAccountWarning')} {getDeleteWord()}</p>
                 </div>
-                <Input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder="УДАЛИТЬ" className="bg-zinc-800 border-red-500/30" />
+                <Input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder={getDeleteWord()} className="bg-zinc-800 border-red-500/30" />
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button onClick={handleDeleteAccount} disabled={deleteLoading} className="bg-red-500 hover:bg-red-600">
-                    {deleteLoading ? "Удаление..." : "Подтвердить удаление"}
+                    {deleteLoading ? t('common', 'loading') : t('common', 'confirm')}
                   </Button>
                   <Button variant="ghost" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}>
-                    Отмена
+                    {t('common', 'cancel')}
                   </Button>
                 </div>
               </div>
