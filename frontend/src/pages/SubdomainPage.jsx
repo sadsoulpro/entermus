@@ -310,6 +310,7 @@ function PageView({ page, subdomain }) {
           <div className="space-y-3">
             {page.links?.map((link, idx) => {
               const platform = PLATFORMS[link.platform] || PLATFORMS.custom;
+              const PlatformIcon = platform.icon || ExternalLink;
               return (
                 <motion.button
                   key={link.id}
@@ -323,7 +324,7 @@ function PageView({ page, subdomain }) {
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
                     style={{ backgroundColor: platform.color }}
                   >
-                    <ExternalLink className="w-5 h-5 text-white" />
+                    <PlatformIcon className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-medium flex-1 text-left">
                     {link.title || platform.name}
