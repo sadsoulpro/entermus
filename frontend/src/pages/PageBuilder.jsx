@@ -16,6 +16,7 @@ import { FaSpotify, FaApple, FaYoutube, FaSoundcloud, FaLink, FaYandex, FaVk, Fa
 import { SiTidal, SiPandora, SiAudiomack } from "react-icons/si";
 import { motion } from "framer-motion";
 import { QRCodeSVG } from "qrcode.react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Custom SVG icons for platforms without react-icons support
 const ZvukIcon = (props) => (
