@@ -2246,6 +2246,10 @@ export const translations = {
       goToEditor: "Go to Editor",
       open: "Open",
       photo: "Photo",
+      processingImage: "Processing image...",
+      imageUploaded: "Image uploaded",
+      imageLoadError: "Failed to load image",
+      imageProcessError: "Failed to process image",
     },
     ru: {
       title: "Генератор обложек",
