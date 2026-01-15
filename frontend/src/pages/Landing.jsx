@@ -237,18 +237,18 @@ export default function Landing() {
           >
             <h2 className="font-gilroy-600 mb-3 sm:mb-4 lg:mb-6 leading-tight
               text-xl sm:text-2xl md:text-3xl lg:text-4xl">
-              НАЧНИ ДЕЛИТЬСЯ<br />МУЗЫКОЙ СЕГОДНЯ
+              {t('landing', 'ctaTitle')}
             </h2>
             <p className="font-gilroy-300 text-muted-foreground mb-5 sm:mb-6 lg:mb-8 px-4
               text-xs sm:text-sm lg:text-base">
-              Присоединяйтесь к тысячам артистов, использующих MyTrack.
+              {t('landing', 'ctaSubtitle')}
             </p>
             <Link to="/register">
               <Button 
                 data-testid="cta-get-started-btn"
                 className="bg-primary hover:bg-primary/90 rounded-full px-6 sm:px-8 lg:px-10 py-4 sm:py-5 text-sm sm:text-base font-gilroy-600 shadow-lg shadow-primary/20 transition-all hover:scale-105"
               >
-                Начать бесплатно
+                {t('landing', 'ctaButton')}
               </Button>
             </Link>
           </motion.div>
@@ -267,7 +267,7 @@ export default function Landing() {
           </div>
           <p className="font-gilroy-300 text-muted-foreground text-center sm:text-left
             text-xs sm:text-sm">
-            © 2026 MyTrack. Все права защищены.
+            © 2026 MyTrack. {t('landing', 'footer')}
           </p>
         </div>
       </footer>
