@@ -171,7 +171,7 @@ export default function AdminPanel() {
       }
       toast.success(t('admin', 'statusUpdated'));
     } catch (error) {
-      toast.error("Не удалось обновить статус");
+      toast.error(t('admin', 'statusUpdateError'));
     }
   };
 
