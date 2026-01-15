@@ -391,14 +391,17 @@ export default function PageBuilder() {
   // Scan source to auto-detect platform links via Odesli API
   const scanSource = async () => {
     if (!scanInput.trim()) {
-      toast.error("Введите ссылку Apple Music, Spotify, YouTube, Deezer, Tidal или SoundCloud");
+      toast.error("Введите UPC код или ссылку Apple Music, Spotify, YouTube, Deezer, Tidal или SoundCloud");
       return;
     }
 
     setScanningSource(true);
     
     try {
-      const sourceUrl = scanInput.trim();
+      const sourceInput = scanInput.trim();
+      
+      // Check if input is a UPC code (numeric, 10-14 digits)
+      const isUpcCode = /^\d{10,14}$/.test(sourceInput);
       
       // Detect input type - Odesli supports many platforms
       const supportedPatterns = [
@@ -409,25 +412,33 @@ export default function PageBuilder() {
         "tidal.com", "listen.tidal.com",
         "soundcloud.com",
         "amazon.com/music", "music.amazon",
+        "pandora.com",
+        "napster.com",
+        "audiomack.com",
+        "audius.co",
+        "anghami.com",
+        "boomplay.com",
+        "spinrilla.com",
+        "bandcamp.com",
         "song.link", "album.link", "odesli.co"
       ];
       
-      const isValidUrl = supportedPatterns.some(pattern => sourceUrl.includes(pattern));
+      const isValidUrl = supportedPatterns.some(pattern => sourceInput.includes(pattern));
       
-      if (!isValidUrl) {
-        toast.error("Введите ссылку из Spotify, Apple Music, YouTube, Deezer, Tidal или SoundCloud");
+      if (!isValidUrl && !isUpcCode) {
+        toast.error("Введите UPC код или ссылку Apple Music, Spotify, YouTube, Deezer, Tidal или SoundCloud");
         setScanningSource(false);
         return;
       }
 
       // Call Odesli API via backend proxy
-      toast.info("Поиск ссылок на всех платформах...");
+      toast.info(isUpcCode ? "Поиск по UPC коду..." : "Поиск ссылок на всех платформах...");
       
-      const odesliResponse = await api.get(`/lookup/odesli?url=${encodeURIComponent(sourceUrl)}`);
+      const odesliResponse = await api.get(`/lookup/odesli?url=${encodeURIComponent(sourceInput)}`);
       const odesliData = odesliResponse.data;
       
       if (odesliData.error && Object.keys(odesliData.links || {}).length === 0) {
-        toast.error("Не удалось найти трек. Попробуйте другую ссылку.");
+        toast.error(isUpcCode ? "Не удалось найти релиз по UPC коду. Проверьте код." : "Не удалось найти трек. Попробуйте другую ссылку.");
         setScanningSource(false);
         return;
       }
