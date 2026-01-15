@@ -234,13 +234,13 @@ export default function AdminPanel() {
   };
 
   const deleteSubdomainAdmin = async (subdomainId) => {
-    if (!confirm("Удалить поддомен? Это действие необратимо.")) return;
+    if (!confirm(t('admin', 'subdomainDeleteConfirm'))) return;
     try {
       await api.delete(`/admin/subdomains/${subdomainId}`);
-      toast.success("Поддомен удалён");
+      toast.success(t('admin', 'subdomainDeleted'));
       fetchSubdomains(subdomainSearch);
     } catch (error) {
-      toast.error("Ошибка");
+      toast.error(t('errors', 'generic'));
     }
   };
 
