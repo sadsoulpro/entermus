@@ -1001,7 +1001,7 @@ export default function AdminPanel() {
                 {pages.length === 0 && (
                   <div className="text-center py-20 text-muted-foreground">
                     <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                    <p>Страницы не найдены</p>
+                    <p>{t('admin', 'noData')}</p>
                   </div>
                 )}
               </div>
@@ -1016,7 +1016,7 @@ export default function AdminPanel() {
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input
                       type="text"
-                      placeholder="Поиск по поддомену..."
+                      placeholder={t('admin', 'searchSubdomains')}
                       value={subdomainSearch}
                       onChange={(e) => {
                         setSubdomainSearch(e.target.value);
@@ -1027,7 +1027,7 @@ export default function AdminPanel() {
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/50 border border-white/5">
                     <Globe className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm">Всего: <span className="font-semibold">{subdomainsTotal}</span></span>
+                    <span className="text-sm">{t('common', 'total')}: <span className="font-semibold">{subdomainsTotal}</span></span>
                   </div>
                 </div>
 
@@ -1064,17 +1064,17 @@ export default function AdminPanel() {
                             <p className="font-mono font-semibold">{sub.subdomain}.mytrack.cc</p>
                             {sub.disabled_by_admin && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-400">
-                                Заблокирован
+                                {t('admin', 'banned')}
                               </span>
                             )}
                             {!sub.is_active && !sub.disabled_by_admin && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] bg-zinc-700 text-zinc-400">
-                                Выключен
+                                {t('common', 'disabled')}
                               </span>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Владелец: <span className="text-foreground">{sub.owner?.username || sub.owner?.email || sub.user_id}</span>
+                            {t('admin', 'user')}: <span className="text-foreground">{sub.owner?.username || sub.owner?.email || sub.user_id}</span>
                             {sub.owner?.email && <span className="text-zinc-500"> ({sub.owner.email})</span>}
                             {" • "}
                             {new Date(sub.created_at).toLocaleDateString('ru-RU')}
@@ -1101,12 +1101,12 @@ export default function AdminPanel() {
                           {sub.disabled_by_admin ? (
                             <>
                               <Check className="w-4 h-4 sm:mr-1" />
-                              <span className="hidden sm:inline">Разблок.</span>
+                              <span className="hidden sm:inline">{t('admin', 'enableSubdomain')}</span>
                             </>
                           ) : (
                             <>
                               <Ban className="w-4 h-4 sm:mr-1" />
-                              <span className="hidden sm:inline">Блок.</span>
+                              <span className="hidden sm:inline">{t('admin', 'disableSubdomain')}</span>
                             </>
                           )}
                         </Button>
@@ -1126,7 +1126,7 @@ export default function AdminPanel() {
                 {subdomains.length === 0 && (
                   <div className="text-center py-20 text-muted-foreground">
                     <Link2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                    <p>{subdomainSearch ? "Поддомены не найдены" : "Нет поддоменов"}</p>
+                    <p>{t('admin', 'noData')}</p>
                   </div>
                 )}
               </div>
