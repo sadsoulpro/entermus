@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Dashboard() {
   const [pages, setPages] = useState([]);
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [siteMode, setSiteMode] = useState(false);
   const [siteModeLoading, setSiteModeLoading] = useState(false);
   const { user, refreshUser } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchPages();
@@ -37,28 +39,28 @@ export default function Dashboard() {
       const response = await api.get("/pages");
       setPages(response.data);
     } catch (error) {
-      toast.error("Не удалось загрузить страницы");
+      toast.error(t('errors', 'loadFailed'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (pageId) => {
-    if (!window.confirm("Вы уверены, что хотите удалить эту страницу?")) return;
+    if (!window.confirm(t('dashboard', 'confirmDelete'))) return;
     
     try {
       await api.delete(`/pages/${pageId}`);
-      toast.success("Страница удалена");
+      toast.success(t('dashboard', 'pageDeleted'));
       fetchPages();
     } catch (error) {
-      toast.error("Не удалось удалить страницу");
+      toast.error(t('errors', 'deleteFailed'));
     }
   };
 
   const copyLink = (slug) => {
     const url = `${window.location.origin}/${slug}`;
     navigator.clipboard.writeText(url);
-    toast.success("Ссылка скопирована");
+    toast.success(t('common', 'copied'));
   };
 
   const toggleSiteMode = async () => {
@@ -67,9 +69,9 @@ export default function Dashboard() {
       const response = await api.put("/settings/site-navigation", { enabled: !siteMode });
       setSiteMode(response.data.enabled);
       if (refreshUser) await refreshUser();
-      toast.success(response.data.enabled ? "Режим сайта включён" : "Режим сайта выключен");
+      toast.success(response.data.enabled ? t('common', 'enabled') : t('common', 'disabled'));
     } catch (error) {
-      toast.error("Не удалось изменить настройку");
+      toast.error(t('errors', 'generic'));
     } finally {
       setSiteModeLoading(false);
     }
@@ -84,13 +86,13 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-10">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold mb-1">С возвращением, {user?.username}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">Управляйте вашими страницами</p>
+            <h1 className="text-xl sm:text-2xl font-semibold mb-1">{t('auth', 'loginTitle')}, {user?.username}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{t('dashboard', 'subtitle')}</p>
           </div>
           <Link to="/page/new">
             <Button data-testid="create-page-btn" className="w-full sm:w-auto bg-primary hover:bg-primary/90 rounded-full px-6">
               <Plus className="w-4 h-4 mr-2" />
-              Создать страницу
+              {t('dashboard', 'createNew')}
             </Button>
           </Link>
         </div>
@@ -106,7 +108,7 @@ export default function Dashboard() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="text-sm sm:text-base text-muted-foreground">Всего просмотров</span>
+              <span className="text-sm sm:text-base text-muted-foreground">{t('dashboard', 'totalViews')}</span>
             </div>
             <p className="text-2xl sm:text-3xl font-semibold" data-testid="total-views">{totalViews.toLocaleString()}</p>
           </motion.div>
@@ -121,7 +123,7 @@ export default function Dashboard() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
                 <MousePointer className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
               </div>
-              <span className="text-sm sm:text-base text-muted-foreground">Всего кликов</span>
+              <span className="text-sm sm:text-base text-muted-foreground">{t('dashboard', 'totalClicks')}</span>
             </div>
             <p className="text-2xl sm:text-3xl font-semibold" data-testid="total-clicks">{totalClicks.toLocaleString()}</p>
           </motion.div>
@@ -136,7 +138,7 @@ export default function Dashboard() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                 <Music className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
               </div>
-              <span className="text-sm sm:text-base text-muted-foreground">Всего страниц</span>
+              <span className="text-sm sm:text-base text-muted-foreground">{t('dashboard', 'activePages')}</span>
             </div>
             <p className="text-2xl sm:text-3xl font-semibold" data-testid="total-pages">{pages.length}</p>
           </motion.div>
@@ -145,13 +147,13 @@ export default function Dashboard() {
         {/* Pages List */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Ваши страницы</h2>
+            <h2 className="text-lg font-semibold">{t('dashboard', 'title')}</h2>
             
             {/* Site Mode Switch */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-white/5">
                 <Globe className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">Сайт</span>
+                <span className="text-sm font-medium">{t('common', 'page')}</span>
                 <Switch
                   checked={siteMode}
                   onCheckedChange={toggleSiteMode}
@@ -159,23 +161,8 @@ export default function Dashboard() {
                   data-testid="site-mode-switch"
                 />
               </div>
-              {pages.length < 2 && (
-                <span className="text-xs text-muted-foreground hidden sm:block">
-                  Нужно минимум 2 страницы
-                </span>
-              )}
             </div>
           </div>
-          
-          {siteMode && pages.length >= 2 && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="mb-4 p-3 rounded-xl bg-primary/5 border border-primary/20 text-sm text-muted-foreground"
-            >
-              <span className="text-primary font-medium">Режим сайта включён.</span> На ваших публичных страницах появятся стрелки для навигации между релизами.
-            </motion.div>
-          )}
           
           {loading ? (
             <div className="flex items-center justify-center py-20">
@@ -190,12 +177,12 @@ export default function Dashboard() {
               <div className="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center mx-auto mb-4">
                 <Music className="w-8 h-8 text-muted-foreground" />
               </div>
-              <h3 className="font-semibold mb-2">Страниц пока нет</h3>
-              <p className="text-muted-foreground mb-6">Создайте свою первую страницу</p>
+              <h3 className="font-semibold mb-2">{t('dashboard', 'noPages')}</h3>
+              <p className="text-muted-foreground mb-6">{t('dashboard', 'noPagesDesc')}</p>
               <Link to="/page/new">
                 <Button className="bg-primary hover:bg-primary/90 rounded-full">
                   <Plus className="w-4 h-4 mr-2" />
-                  Создать страницу
+                  {t('dashboard', 'createNew')}
                 </Button>
               </Link>
             </motion.div>
@@ -244,7 +231,7 @@ export default function Dashboard() {
                         <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs ${
                           page.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                         }`}>
-                          {page.status}
+                          {page.status === 'active' ? t('common', 'active') : t('common', 'inactive')}
                         </span>
                       </div>
                     </div>
@@ -257,7 +244,7 @@ export default function Dashboard() {
                         className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={() => copyLink(page.slug)}
                         data-testid={`copy-link-${page.id}`}
-                        title="Копировать ссылку"
+                        title={t('common', 'copy')}
                       >
                         <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Button>
@@ -266,7 +253,7 @@ export default function Dashboard() {
                         target="_blank" 
                         rel="noopener noreferrer"
                       >
-                        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" data-testid={`view-page-${page.id}`} title="Открыть страницу">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" data-testid={`view-page-${page.id}`} title={t('dashboard', 'viewPage')}>
                           <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Button>
                       </a>
@@ -280,13 +267,13 @@ export default function Dashboard() {
                           <DropdownMenuItem asChild>
                             <Link to={`/page/${page.id}/edit`} className="flex items-center gap-2">
                               <Edit className="w-4 h-4" />
-                              Редактировать
+                              {t('dashboard', 'editPage')}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link to={`/analytics/${page.id}`} className="flex items-center gap-2">
                               <BarChart3 className="w-4 h-4" />
-                              Аналитика
+                              {t('sidebar', 'analytics')}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -294,7 +281,7 @@ export default function Dashboard() {
                             className="text-red-400 focus:text-red-400"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Удалить
+                            {t('dashboard', 'deletePage')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
