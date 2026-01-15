@@ -226,6 +226,8 @@ export const translations = {
       success: "Éxito",
       warning: "Advertencia",
       info: "Información",
+      selected: "seleccionado",
+      current: "Actual",
     },
   },
 
