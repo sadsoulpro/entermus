@@ -400,7 +400,7 @@ export default function AdminPanel() {
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-                      Панель управления
+                      {t('admin', 'title')}
                     </h1>
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       {currentUser?.email}
@@ -423,10 +423,10 @@ export default function AdminPanel() {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex items-center gap-2">
                     <Crown className="w-5 h-5 text-yellow-400" />
-                    <span className="text-sm font-medium text-yellow-300">Тестирование подписок</span>
+                    <span className="text-sm font-medium text-yellow-300">{t('admin', 'testSubscriptions')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">Ваш текущий план:</span>
+                    <span className="text-xs text-muted-foreground">{t('admin', 'yourPlan')}:</span>
                     <select
                       value={currentUser?.plan || 'free'}
                       onChange={(e) => updateOwnerPlan(e.target.value)}
@@ -435,7 +435,7 @@ export default function AdminPanel() {
                       <option value="free">Free</option>
                       <option value="pro">Pro</option>
                     </select>
-                    <span className="text-xs text-muted-foreground">(для тестирования)</span>
+                    <span className="text-xs text-muted-foreground">({t('admin', 'forTesting')})</span>
                   </div>
                 </div>
               </motion.div>
@@ -448,30 +448,31 @@ export default function AdminPanel() {
               <TabsList className="bg-zinc-900/80 backdrop-blur-sm border border-white/5 p-1 rounded-xl inline-flex min-w-max">
                 <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4">
                   <BarChart3 className="w-4 h-4 mr-1.5" />
-                  <span className="hidden sm:inline">Глобальная </span>Аналитика
+                  <span className="hidden sm:inline">{t('admin', 'globalAnalytics')}</span>
+                  <span className="sm:hidden">{t('nav', 'analytics')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="users" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4">
                   <Users className="w-4 h-4 mr-1.5" />
-                  Пользователи
+                  {t('admin', 'users')}
                 </TabsTrigger>
                 <TabsTrigger value="plans" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4">
                   <Sliders className="w-4 h-4 mr-1.5" />
-                  Планы
+                  {t('admin', 'plans')}
                 </TabsTrigger>
                 <TabsTrigger value="pages" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4">
                   <FileText className="w-4 h-4 mr-1.5" />
-                  Страницы
+                  {t('admin', 'pages')}
                 </TabsTrigger>
                 <TabsTrigger value="domains" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4">
                   <Link2 className="w-4 h-4 mr-1.5" />
-                  Домены
+                  {t('nav', 'domains')}
                   {subdomainsTotal > 0 && (
                     <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-white/10 text-[10px]">{subdomainsTotal}</span>
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="tickets" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4 relative">
                   <MessageCircle className="w-4 h-4 mr-1.5" />
-                  Тикеты
+                  {t('admin', 'tickets')}
                   {unreadTickets > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center animate-pulse">
                       {unreadTickets}
@@ -481,7 +482,7 @@ export default function AdminPanel() {
                 {verificationRequests.filter(r => r.status === 'pending').length > 0 && (
                   <TabsTrigger value="verification" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-white text-xs sm:text-sm px-3 sm:px-4 relative">
                     <BadgeCheck className="w-4 h-4 mr-1.5" />
-                    Заявки
+                    {t('admin', 'requests')}
                     <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center">
                       {verificationRequests.filter(r => r.status === 'pending').length}
                     </span>
