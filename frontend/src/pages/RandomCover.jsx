@@ -1020,7 +1020,7 @@ export default function RandomCover() {
                     size="icon"
                     onClick={handleUndo}
                     disabled={!canUndo}
-                    title="Отменить (Ctrl+Z)"
+                    title={t('randomCover', 'undo')}
                     className="h-9 w-9"
                     data-testid="undo-btn"
                   >
@@ -1031,7 +1031,7 @@ export default function RandomCover() {
                     size="icon"
                     onClick={handleRedo}
                     disabled={!canRedo}
-                    title="Повторить (Ctrl+Y)"
+                    title={t('randomCover', 'redo')}
                     className="h-9 w-9"
                     data-testid="redo-btn"
                   >
@@ -1056,7 +1056,7 @@ export default function RandomCover() {
                 >
                   <Save className="w-4 h-4" />
                   <span className="hidden sm:inline">
-                    {currentProjectId ? "Сохранить" : "Сохранить проект"}
+                    {currentProjectId ? t('common', 'save') : t('randomCover', 'saveProject')}
                   </span>
                 </Button>
               </div>
@@ -1068,11 +1068,11 @@ export default function RandomCover() {
             <TabsList className="bg-zinc-900/50 border border-white/5">
               <TabsTrigger value="editor" className="gap-2" data-testid="editor-tab">
                 <ImageIcon className="w-4 h-4" />
-                Редактор
+                {t('randomCover', 'editor')}
               </TabsTrigger>
               <TabsTrigger value="projects" className="gap-2" data-testid="projects-tab">
                 <FolderOpen className="w-4 h-4" />
-                Мои проекты
+                {t('randomCover', 'myProjects')}
                 {projects.length > 0 && (
                   <span className="ml-1 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
                     {projects.length}
