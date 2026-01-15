@@ -278,7 +278,7 @@ export default function AdminPanel() {
   const updateOwnerPlan = async (newPlan) => {
     try {
       await api.put(`/owner/my-plan`, { plan: newPlan });
-      toast.success(`Ваш план изменён на ${newPlan} для тестирования`);
+      toast.success(t('admin', 'planChangedForTesting'));
       window.location.reload(); // Reload to update user context
     } catch (error) {
       toast.error(getErrorMessage(error));
