@@ -1498,7 +1498,7 @@ export default function RandomCover() {
                         data-testid="add-text-btn"
                       >
                         <Type className="w-4 h-4 mr-1" />
-                        Добавить текст
+                        {t('randomCover', 'addText')}
                       </Button>
                     </div>
                   </div>
@@ -1515,7 +1515,7 @@ export default function RandomCover() {
                       data-testid="random-design-btn"
                     >
                       <Shuffle className="w-4 h-4 mr-2" />
-                      Случайный дизайн
+                      {t('randomCover', 'randomDesign')}
                     </Button>
 
                     <Button
@@ -1525,7 +1525,7 @@ export default function RandomCover() {
                       data-testid="reset-design-btn"
                     >
                       <RotateCcw className="w-4 h-4 mr-2" />
-                      Сбросить
+                      {t('randomCover', 'reset')}
                     </Button>
 
                     <Button
@@ -1539,20 +1539,20 @@ export default function RandomCover() {
                       ) : (
                         <Download className="w-4 h-4 mr-2" />
                       )}
-                      <span className="hidden sm:inline">Сохранить (3000x3000)</span>
-                      <span className="sm:hidden">Скачать</span>
+                      <span className="hidden sm:inline">{t('randomCover', 'saveHD')}</span>
+                      <span className="sm:hidden">{t('randomCover', 'download')}</span>
                     </Button>
                   </div>
 
                   {/* Tips - Desktop only */}
                   <div className="hidden lg:block bg-blue-500/5 border border-blue-500/10 rounded-xl p-4">
-                    <h4 className="text-sm font-semibold text-blue-400 mb-2">Советы</h4>
+                    <h4 className="text-sm font-semibold text-blue-400 mb-2">{t('randomCover', 'tips')}</h4>
                     <ul className="text-xs text-zinc-400 space-y-1">
-                      <li>• Изменения применяются мгновенно</li>
-                      <li>• Элементы примагничиваются к центру и друг к другу</li>
-                      <li>• <kbd className="px-1 bg-zinc-800 rounded">Ctrl+Z</kbd> — отмена, <kbd className="px-1 bg-zinc-800 rounded">Ctrl+Y</kbd> — повтор</li>
-                      <li>• <kbd className="px-1 bg-zinc-800 rounded">Ctrl+S</kbd> — сохранить проект</li>
-                      <li>• Проект автоматически сохраняется</li>
+                      <li>• {t('randomCover', 'tip1')}</li>
+                      <li>• {t('randomCover', 'tip2')}</li>
+                      <li>• <kbd className="px-1 bg-zinc-800 rounded">Ctrl+Z</kbd> — {t('randomCover', 'undo')}, <kbd className="px-1 bg-zinc-800 rounded">Ctrl+Y</kbd> — {t('randomCover', 'redo')}</li>
+                      <li>• <kbd className="px-1 bg-zinc-800 rounded">Ctrl+S</kbd> — {t('randomCover', 'saveProject')}</li>
+                      <li>• {t('randomCover', 'tip3')}</li>
                     </ul>
                   </div>
                 </motion.div>
