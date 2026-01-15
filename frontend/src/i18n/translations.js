@@ -2311,6 +2311,10 @@ export const translations = {
       goToEditor: "Перейти в редактор",
       open: "Открыть",
       photo: "Фото",
+      processingImage: "Обработка изображения...",
+      imageUploaded: "Изображение загружено",
+      imageLoadError: "Ошибка загрузки изображения",
+      imageProcessError: "Ошибка обработки изображения",
     },
     es: {
       title: "Generador de portadas",
