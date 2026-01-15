@@ -18,31 +18,142 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, useAuth } from "@/App";
 import { toast } from "sonner";
 import { 
   MessageCircle, Plus, Send, Clock, CheckCircle, 
-  AlertCircle, ArrowLeft, User, Shield
+  AlertCircle, ArrowLeft, User, Shield, HelpCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// FAQ Data
+const getFaqData = (t) => [
+  {
+    category: { en: "General Questions", ru: "Общие вопросы", es: "Preguntas generales" },
+    subtitle: { en: "For beginners", ru: "Для новичков", es: "Para principiantes" },
+    items: [
+      {
+        question: { en: "What is MyTrack?", ru: "Что такое MyTrack?", es: "¿Qué es MyTrack?" },
+        answer: { 
+          en: "MyTrack is a tool for artists that combines all links to streaming platforms (Spotify, Apple Music, YouTube Music, etc.) on one beautiful page.",
+          ru: "Это инструмент для артистов, который объединяет все ссылки на стриминговые платформы (Spotify, Apple Music, VK Музыка и др.) на одной красивой странице.",
+          es: "MyTrack es una herramienta para artistas que combina todos los enlaces a plataformas de streaming (Spotify, Apple Music, YouTube Music, etc.) en una página hermosa."
+        }
+      },
+      {
+        question: { en: "Is it free?", ru: "Это бесплатно?", es: "¿Es gratis?" },
+        answer: {
+          en: "The basic functionality for creating pages is available for free.",
+          ru: "Основной функционал создания страниц доступен бесплатно.",
+          es: "La funcionalidad básica para crear páginas está disponible de forma gratuita."
+        }
+      }
+    ]
+  },
+  {
+    category: { en: "Technical Questions", ru: "Технические вопросы", es: "Preguntas técnicas" },
+    subtitle: { en: "How it works", ru: "Процесс", es: "Cómo funciona" },
+    items: [
+      {
+        question: { en: "How do I add my track?", ru: "Как добавить свой трек?", es: "¿Cómo agrego mi canción?" },
+        answer: {
+          en: "Simply paste a link to your release from any streaming service (e.g., Spotify or Apple Music) into the search field, and our service will automatically pull links from other platforms.",
+          ru: "Просто вставьте ссылку на ваш релиз из любого стриминга (например, Spotify или Apple Music) в поле поиска, и наш сервис автоматически подтянет ссылки на другие площадки.",
+          es: "Simplemente pega un enlace a tu lanzamiento de cualquier servicio de streaming (por ejemplo, Spotify o Apple Music) en el campo de búsqueda, y nuestro servicio extraerá automáticamente los enlaces de otras plataformas."
+        }
+      },
+      {
+        question: { en: "Can I customize the design?", ru: "Могу ли я изменить оформление?", es: "¿Puedo personalizar el diseño?" },
+        answer: {
+          en: "Yes, you can upload your own cover and customize the order of platform buttons.",
+          ru: "Да, вы можете загрузить свою обложку и настроить порядок отображения кнопок платформ.",
+          es: "Sí, puedes subir tu propia portada y personalizar el orden de los botones de las plataformas."
+        }
+      },
+      {
+        question: { en: "What is a 'slug'?", ru: 'Что такое "Вид ссылки"?', es: "¿Qué es un 'slug'?" },
+        answer: {
+          en: "It's the unique name of your page in the URL. For example: mytrack.cc/mysong - the word 'mysong' is the slug.",
+          ru: "Это уникальное имя вашей страницы в адресной строке. Например: mytrack.cc/mysong, слово mysong — это и есть вид ссылки.",
+          es: "Es el nombre único de tu página en la URL. Por ejemplo: mytrack.cc/mysong - la palabra 'mysong' es el slug."
+        }
+      }
+    ]
+  },
+  {
+    category: { en: "Analytics & Promotion", ru: "Аналитика и продвижение", es: "Analíticas y promoción" },
+    subtitle: { en: "Statistics", ru: "Статистика", es: "Estadísticas" },
+    items: [
+      {
+        question: { en: "Where can I see view counts?", ru: "Где я могу увидеть количество просмотров?", es: "¿Dónde puedo ver el conteo de vistas?" },
+        answer: {
+          en: "View statistics are displayed in your dashboard under the Analytics tab.",
+          ru: "Статистика просмотров отображается в вашем личном кабинете во вкладке Аналитика.",
+          es: "Las estadísticas de vistas se muestran en tu panel de control en la pestaña Analíticas."
+        }
+      },
+      {
+        question: { en: "What is the QR code for?", ru: "Зачем нужен QR-код?", es: "¿Para qué es el código QR?" },
+        answer: {
+          en: "We automatically create a QR code for each page. You can download it and place it on posters or social media so fans can listen with a single scan.",
+          ru: "Мы автоматически создаем QR-код для каждой страницы. Вы можете скачать его и разместить на афишах или в соцсетях, чтобы фанаты могли перейти к прослушиванию за одно сканирование.",
+          es: "Creamos automáticamente un código QR para cada página. Puedes descargarlo y colocarlo en pósters o redes sociales para que los fans puedan escuchar con un solo escaneo."
+        }
+      }
+    ]
+  },
+  {
+    category: { en: "Troubleshooting", ru: "Решение проблем", es: "Solución de problemas" },
+    subtitle: { en: "Help", ru: "Помощь", es: "Ayuda" },
+    items: [
+      {
+        question: { en: "The service didn't find my track automatically. What should I do?", ru: "Сервис не нашел мой трек автоматически, что делать?", es: "El servicio no encontró mi canción automáticamente. ¿Qué debo hacer?" },
+        answer: {
+          en: "If auto-search didn't work (for example, if the release just came out), you can manually add platform links in the page editor.",
+          ru: "Если автопоиск не сработал (например, если релиз только что вышел), вы можете добавить ссылки на площадки вручную в редакторе страницы.",
+          es: "Si la búsqueda automática no funcionó (por ejemplo, si el lanzamiento acaba de salir), puedes agregar los enlaces de las plataformas manualmente en el editor de páginas."
+        }
+      },
+      {
+        question: { en: "How do I delete a page?", ru: "Как удалить страницу?", es: "¿Cómo elimino una página?" },
+        answer: {
+          en: "In your dashboard, click on the trash icon next to the release. Warning: this action is irreversible.",
+          ru: "В личном кабинете нажмите на иконку корзины рядом с нужным релизом. Внимание: это действие необратимо.",
+          es: "En tu panel de control, haz clic en el ícono de papelera junto al lanzamiento. Advertencia: esta acción es irreversible."
+        }
+      }
+    ]
+  }
+];
+
 export default function Support() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [activeTab, setActiveTab] = useState("faq");
   
   const [newTicket, setNewTicket] = useState({
     subject: "",
     message: "",
     category: "general"
   });
+
+  const faqData = getFaqData(t);
+  const getText = (obj) => obj[language] || obj.en;
 
   // Translations
   const STATUS_CONFIG = {
@@ -87,6 +198,7 @@ export default function Support() {
       setShowNewDialog(false);
       setNewTicket({ subject: "", message: "", category: "general" });
       toast.success(t('support', 'ticketCreated'));
+      setActiveTab("tickets");
     } catch (error) {
       const detail = error.response?.data?.detail;
       const errorMsg = typeof detail === 'string' ? detail : 
@@ -241,7 +353,7 @@ export default function Support() {
     );
   }
 
-  // Tickets list view
+  // Main view with tabs
   return (
     <Sidebar>
       <div className="max-w-3xl mx-auto p-4 sm:p-6">
@@ -257,70 +369,144 @@ export default function Support() {
           </Button>
         </div>
 
-        {/* Tickets List */}
-        {tickets.length === 0 ? (
-          <div className="text-center py-16">
-            <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-medium mb-2">{t('support', 'noTickets')}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('support', 'noTicketsDesc')}
-            </p>
-            <Button onClick={() => setShowNewDialog(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              {t('support', 'createTicket')}
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <AnimatePresence>
-              {tickets.map((ticket) => {
-                const StatusIcon = STATUS_CONFIG[ticket.status]?.icon || AlertCircle;
-                const hasUnread = !ticket.is_read_by_user;
-                
-                return (
-                  <motion.div
-                    key={ticket.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    onClick={() => openTicket(ticket.id)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-colors hover:bg-zinc-800/50 ${
-                      hasUnread 
-                        ? 'bg-primary/5 border-primary/30' 
-                        : 'bg-zinc-900/50 border-white/5'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          {hasUnread && (
-                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                          )}
-                          <h3 className="font-medium truncate">{ticket.subject}</h3>
+        {/* Tabs: FAQ and Tickets */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-zinc-900/50 border border-white/5">
+            <TabsTrigger value="faq" className="gap-2">
+              <HelpCircle className="w-4 h-4" />
+              FAQ
+            </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-2">
+              <MessageCircle className="w-4 h-4" />
+              {t('support', 'myTickets')}
+              {tickets.filter(t => !t.is_read_by_user).length > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] bg-red-500 text-white">
+                  {tickets.filter(t => !t.is_read_by_user).length}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* FAQ Tab */}
+          <TabsContent value="faq" className="mt-0">
+            <div className="space-y-4 sm:space-y-6">
+              {faqData.map((category, categoryIndex) => (
+                <motion.div
+                  key={categoryIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: categoryIndex * 0.1 }}
+                  className="p-4 sm:p-5 rounded-2xl bg-zinc-900/50 border border-white/5"
+                >
+                  {/* Category Header */}
+                  <div className="mb-3">
+                    <h2 className="text-sm sm:text-base font-semibold">{getText(category.category)}</h2>
+                    <p className="text-xs text-muted-foreground">{getText(category.subtitle)}</p>
+                  </div>
+                  
+                  {/* Accordion */}
+                  <Accordion type="single" collapsible className="space-y-2">
+                    {category.items.map((item, itemIndex) => (
+                      <AccordionItem 
+                        key={itemIndex} 
+                        value={`${categoryIndex}-${itemIndex}`}
+                        className="border border-white/5 rounded-xl px-3 bg-zinc-800/30 data-[state=open]:bg-zinc-800/50"
+                      >
+                        <AccordionTrigger className="text-xs sm:text-sm text-left hover:no-underline py-3">
+                          {getText(item.question)}
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs sm:text-sm text-muted-foreground pb-3">
+                          {getText(item.answer)}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </motion.div>
+              ))}
+              
+              {/* Contact prompt */}
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {t('faq', 'noAnswer')}
+                </p>
+                <Button 
+                  variant="link" 
+                  className="text-primary mt-1" 
+                  onClick={() => setShowNewDialog(true)}
+                >
+                  {t('faq', 'contactUs')}
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Tickets Tab */}
+          <TabsContent value="tickets" className="mt-0">
+            {tickets.length === 0 ? (
+              <div className="text-center py-16">
+                <MessageCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-lg font-medium mb-2">{t('support', 'noTickets')}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t('support', 'noTicketsDesc')}
+                </p>
+                <Button onClick={() => setShowNewDialog(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t('support', 'createTicket')}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {tickets.map((ticket) => {
+                    const StatusIcon = STATUS_CONFIG[ticket.status]?.icon || AlertCircle;
+                    const hasUnread = !ticket.is_read_by_user;
+                    
+                    return (
+                      <motion.div
+                        key={ticket.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        onClick={() => openTicket(ticket.id)}
+                        className={`p-4 rounded-xl border cursor-pointer transition-colors hover:bg-zinc-800/50 ${
+                          hasUnread 
+                            ? 'bg-primary/5 border-primary/30' 
+                            : 'bg-zinc-900/50 border-white/5'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              {hasUnread && (
+                                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                              )}
+                              <h3 className="font-medium truncate">{ticket.subject}</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {ticket.messages?.[ticket.messages.length - 1]?.message?.slice(0, 80)}...
+                            </p>
+                            <div className="flex items-center gap-3 mt-2">
+                              <span className="text-xs text-muted-foreground">
+                                {formatDate(ticket.updated_at)}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {CATEGORY_LABELS[ticket.category]}
+                              </span>
+                            </div>
+                          </div>
+                          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CONFIG[ticket.status]?.color} text-white ml-3`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {STATUS_CONFIG[ticket.status]?.label}
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {ticket.messages?.[ticket.messages.length - 1]?.message?.slice(0, 80)}...
-                        </p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(ticket.updated_at)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {CATEGORY_LABELS[ticket.category]}
-                          </span>
-                        </div>
-                      </div>
-                      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CONFIG[ticket.status]?.color} text-white ml-3`}>
-                        <StatusIcon className="w-3 h-3" />
-                        {STATUS_CONFIG[ticket.status]?.label}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-        )}
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* New Ticket Dialog */}
         <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
