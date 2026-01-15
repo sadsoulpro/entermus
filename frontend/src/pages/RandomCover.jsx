@@ -1004,9 +1004,9 @@ export default function RandomCover() {
                   <ImageIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold">RandomCover</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold">{t('randomCover', 'title')}</h1>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    {currentProjectName || "Новый проект"}
+                    {currentProjectName || t('pageBuilder', 'newPage')}
                   </p>
                 </div>
               </div>
