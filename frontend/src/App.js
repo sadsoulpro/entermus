@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { useState, useEffect, createContext, useContext } from "react";
 import axios from "axios";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 // Pages
 import Landing from "@/pages/Landing";
