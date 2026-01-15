@@ -1653,7 +1653,7 @@ export default function RandomCover() {
                                 className="text-red-400"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
-                                Удалить
+                                {t('common', 'delete')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1663,7 +1663,7 @@ export default function RandomCover() {
                         {currentProjectId === project.id && (
                           <div className="absolute top-2 left-2">
                             <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full">
-                              Текущий
+                              {t('common', 'current')}
                             </span>
                           </div>
                         )}
