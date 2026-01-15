@@ -151,6 +151,8 @@ export const translations = {
       success: "Успешно",
       warning: "Предупреждение",
       info: "Информация",
+      selected: "выбран",
+      current: "Текущий",
     },
     es: {
       appName: "MyTrack",
