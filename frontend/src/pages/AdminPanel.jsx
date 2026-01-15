@@ -156,7 +156,7 @@ export default function AdminPanel() {
       ));
       toast.success(t('admin', 'replySent'));
     } catch (error) {
-      toast.error("Не удалось отправить ответ");
+      toast.error(t('admin', 'replyError'));
     }
   };
 
