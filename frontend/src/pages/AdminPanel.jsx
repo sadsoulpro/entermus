@@ -169,7 +169,7 @@ export default function AdminPanel() {
       if (selectedTicket?.id === ticketId) {
         setSelectedTicket(prev => ({ ...prev, status }));
       }
-      toast.success("Статус обновлён");
+      toast.success(t('admin', 'statusUpdated'));
     } catch (error) {
       toast.error("Не удалось обновить статус");
     }
