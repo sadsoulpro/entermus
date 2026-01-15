@@ -76,6 +76,8 @@ export const translations = {
       success: "Success",
       warning: "Warning",
       info: "Info",
+      selected: "selected",
+      current: "Current",
     },
     ru: {
       appName: "MyTrack",
