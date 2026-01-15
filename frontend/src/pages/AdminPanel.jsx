@@ -435,7 +435,7 @@ export default function AdminPanel() {
                 </div>
               </div>
               <div className={`px-3 py-1.5 rounded-full text-sm border ${ROLE_CONFIG[currentUser?.role]?.color}`}>
-                {ROLE_CONFIG[currentUser?.role]?.label}
+                {t('admin', ROLE_CONFIG[currentUser?.role]?.labelKey)}
               </div>
             </div>
             
