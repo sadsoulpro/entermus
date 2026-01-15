@@ -1092,7 +1092,7 @@ export default function RandomCover() {
                 >
                   <span className="flex items-center gap-2">
                     <Settings2 className="w-4 h-4" />
-                    Панель инструментов
+                    {t('randomCover', 'tools')}
                   </span>
                   {mobileControlsOpen ? (
                     <ChevronUp className="w-4 h-4" />
