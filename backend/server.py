@@ -458,7 +458,7 @@ async def register(data: UserCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Email or username already exists")
     
-    # Auto-assign owner role and ultimate plan for specific email
+    # Auto-assign owner role and pro plan for specific email
     is_owner = data.email.lower() == OWNER_EMAIL.lower()
     
     user = {
@@ -468,7 +468,7 @@ async def register(data: UserCreate):
         "password_hash": hash_password(data.password),
         "role": "owner" if is_owner else "user",
         "status": "active",
-        "plan": "ultimate" if is_owner else "free",
+        "plan": "pro" if is_owner else "free",
         "is_verified": is_owner,  # Owner is auto-verified
         "is_banned": False,
         "verified": is_owner,  # Legacy field
