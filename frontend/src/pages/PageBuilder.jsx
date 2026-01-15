@@ -359,9 +359,9 @@ export default function PageBuilder() {
       try {
         await api.delete(`/pages/${pageId}/links/${linkId}`);
         setLinks(prev => prev.filter(l => l.id !== linkId));
-        toast.success("Ссылка удалена");
+        toast.success(t('pageBuilder', 'linkDeleted'));
       } catch (error) {
-        toast.error("Не удалось удалить ссылку");
+        toast.error(t('errors', 'deleteFailed'));
       }
     } else {
       setLinks(prev => prev.filter(l => l.id !== linkId));
@@ -383,7 +383,7 @@ export default function PageBuilder() {
         const linkIds = newLinks.map(l => l.id);
         await api.put(`/pages/${pageId}/links/reorder`, { link_ids: linkIds });
       } catch (error) {
-        toast.error("Не удалось сохранить порядок");
+        toast.error(t('errors', 'saveFailed'));
         // Revert on error
         setLinks(links);
       }
@@ -393,7 +393,7 @@ export default function PageBuilder() {
   // Scan source to auto-detect platform links via Odesli API
   const scanSource = async () => {
     if (!scanInput.trim()) {
-      toast.error("Введите UPC код или ссылку Apple Music, Spotify, YouTube, Deezer, Tidal или SoundCloud");
+      toast.error(t('pageBuilder', 'autofillHint'));
       return;
     }
 
@@ -428,19 +428,19 @@ export default function PageBuilder() {
       const isValidUrl = supportedPatterns.some(pattern => sourceInput.includes(pattern));
       
       if (!isValidUrl && !isUpcCode) {
-        toast.error("Введите UPC код или ссылку Apple Music, Spotify, YouTube, Deezer, Tidal или SoundCloud");
+        toast.error(t('pageBuilder', 'autofillHint'));
         setScanningSource(false);
         return;
       }
 
       // Call Odesli API via backend proxy
-      toast.info(isUpcCode ? "Поиск по UPC коду..." : "Поиск ссылок на всех платформах...");
+      toast.info(isUpcCode ? t('pageBuilder', 'searchingUPC') : t('pageBuilder', 'searchingLinks'));
       
       const odesliResponse = await api.get(`/lookup/odesli?url=${encodeURIComponent(sourceInput)}`);
       const odesliData = odesliResponse.data;
       
       if (odesliData.error && Object.keys(odesliData.links || {}).length === 0) {
-        toast.error(isUpcCode ? "Не удалось найти релиз по UPC коду. Проверьте код." : "Не удалось найти трек. Попробуйте другую ссылку.");
+        toast.error(isUpcCode ? t('pageBuilder', 'upcNotFound') : t('pageBuilder', 'trackNotFound'));
         setScanningSource(false);
         return;
       }
