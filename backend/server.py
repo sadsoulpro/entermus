@@ -3128,7 +3128,7 @@ async def startup_event():
             "password_hash": hash_password("admin123"),
             "role": "admin",
             "status": "active",
-            "plan": "ultimate",
+            "plan": "pro",
             "is_verified": True,
             "is_banned": False,
             "created_at": datetime.now(timezone.utc).isoformat()
@@ -3141,7 +3141,7 @@ async def startup_event():
     if owner and owner.get("role") != "owner":
         await db.users.update_one(
             {"email": OWNER_EMAIL},
-            {"$set": {"role": "owner", "plan": "ultimate", "is_verified": True, "is_banned": False}}
+            {"$set": {"role": "owner", "plan": "pro", "is_verified": True, "is_banned": False}}
         )
         logging.info(f"Owner role assigned to: {OWNER_EMAIL}")
     
