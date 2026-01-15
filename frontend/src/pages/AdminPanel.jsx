@@ -1291,10 +1291,10 @@ export default function AdminPanel() {
                               <div className="flex items-center gap-2 mb-2">
                                 <User className="w-4 h-4" />
                                 <span className="text-sm font-medium">
-                                  {message.is_staff_reply ? 'Поддержка' : (selectedTicket.user?.username || 'Пользователь')}
+                                  {message.is_staff_reply ? t('admin', 'supportTeam') : (selectedTicket.user?.username || t('admin', 'roleUser'))}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                  {new Date(message.created_at).toLocaleString('ru-RU')}
+                                  {new Date(message.created_at).toLocaleString()}
                                 </span>
                               </div>
                               <p className="text-sm whitespace-pre-wrap">{message.message}</p>
@@ -1305,7 +1305,7 @@ export default function AdminPanel() {
                         {/* Reply Form */}
                         <div className="space-y-3">
                           <Textarea
-                            placeholder="Ваш ответ..."
+                            placeholder={t('admin', 'yourReply')}
                             value={ticketReply}
                             onChange={(e) => setTicketReply(e.target.value)}
                             className="min-h-[100px] bg-zinc-800/50 border-white/10 focus:border-primary"
@@ -1316,14 +1316,14 @@ export default function AdminPanel() {
                             className="w-full bg-gradient-to-r from-primary to-purple-600"
                           >
                             <Send className="w-4 h-4 mr-2" />
-                            Отправить ответ
+                            {t('admin', 'sendReplyBtn')}
                           </Button>
                         </div>
                       </motion.div>
                     ) : (
                       <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 text-center text-muted-foreground">
                         <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                        <p>Выберите тикет для просмотра</p>
+                        <p>{t('admin', 'selectTicket')}</p>
                       </div>
                     )}
                   </div>
