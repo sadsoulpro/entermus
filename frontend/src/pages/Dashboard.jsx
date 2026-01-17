@@ -17,6 +17,7 @@ import {
 import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Dashboard() {
   const [pages, setPages] = useState([]);
