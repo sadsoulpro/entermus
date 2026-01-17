@@ -208,6 +208,7 @@ export default function PageBuilder() {
       });
       setLinks(response.data.links || []);
       setQrEnabled(response.data.qr_enabled !== false);
+      setPageTheme(response.data.page_theme || "dark");
     } catch (error) {
       toast.error(t('errors', 'loadFailed'));
       navigate("/multilinks");
