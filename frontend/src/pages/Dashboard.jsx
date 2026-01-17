@@ -118,12 +118,14 @@ export default function Dashboard() {
             <h1 className="text-xl sm:text-2xl font-semibold mb-1">{t('auth', 'loginTitle')}, {user?.username}</h1>
             <p className="text-sm sm:text-base text-muted-foreground">{t('dashboard', 'subtitle')}</p>
           </div>
-          <Link to="/page/new">
-            <Button data-testid="create-page-btn" className="w-full sm:w-auto bg-primary hover:bg-primary/90 rounded-full px-6">
-              <Plus className="w-4 h-4 mr-2" />
-              {t('dashboard', 'createNew')}
-            </Button>
-          </Link>
+          <Button 
+            data-testid="create-page-btn" 
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90 rounded-full px-6"
+            onClick={handleCreateClick}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {t('dashboard', 'createNew')}
+          </Button>
         </div>
         
         {/* Stats */}
