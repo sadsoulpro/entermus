@@ -30,7 +30,7 @@ export default function Dashboard() {
 
   // Card styles based on theme
   const cardClass = theme === 'dark' 
-    ? 'bg-zinc-900/50 border-white/5' 
+    ? 'bg-card/50 border-border' 
     : 'bg-white border-gray-200 shadow-sm';
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export default function Dashboard() {
               animate={{ opacity: 1 }}
               className={`text-center py-20 rounded-2xl border border-dashed ${theme === 'dark' ? 'border-white/10' : 'border-gray-300'}`}
             >
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${theme === 'dark' ? 'bg-zinc-800' : 'bg-gray-100'}`}>
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-muted`}>
                 <Music className="w-8 h-8 text-muted-foreground" />
               </div>
               <h3 className="font-semibold mb-2">{t('dashboard', 'noPages')}</h3>
@@ -207,7 +207,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-start gap-3 sm:gap-4">
                     {/* Cover Image */}
-                    <div className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 ${theme === 'dark' ? 'bg-zinc-800' : 'bg-gray-100'}`}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 bg-muted`}>
                       {page.cover_image ? (
                         <img 
                           src={page.cover_image.startsWith('/') ? `${process.env.REACT_APP_BACKEND_URL}${page.cover_image}` : page.cover_image} 
