@@ -137,10 +137,20 @@ export default function Analytics() {
   const [analytics, setAnalytics] = useState(null);
   const [userLimits, setUserLimits] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [proModalOpen, setProModalOpen] = useState(false);
 
   const hasAdvancedAnalytics = analytics?.has_advanced_analytics || 
     user?.plan_config?.has_advanced_analytics ||
     user?.plan === 'pro';
+
+  const handleUpgradeClick = () => {
+    const submittedEmail = localStorage.getItem('waitlist_email_submitted');
+    if (submittedEmail) {
+      toast.info(t('proModal', 'alreadySubmitted'));
+    } else {
+      setProModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     fetchAnalytics();
