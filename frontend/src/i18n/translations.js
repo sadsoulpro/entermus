@@ -707,6 +707,10 @@ export const translations = {
       trackNotFound: "Не удалось найти трек. Попробуйте другую ссылку.",
       upcNotFound: "Не удалось найти релиз по UPC коду. Проверьте код.",
       scanError: "Не удалось получить ссылки. Проверьте URL и попробуйте снова.",
+      pageDesign: "Вид дизайна",
+      darkTheme: "Тёмная",
+      lightTheme: "Светлая",
+      pageDesignHint: "Выберите тему для вашей публичной страницы",
     },
     es: {
       title: "Constructor de página",
