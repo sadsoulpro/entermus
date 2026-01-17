@@ -162,7 +162,7 @@ export default function Verification() {
         {status?.verified && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 sm:p-6 rounded-2xl panel-card mb-4 sm:mb-6">
             <h2 className="font-semibold text-sm sm:text-base mb-3 sm:mb-4">{t('verification', 'showBadge')}</h2>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 bg-zinc-800/50 rounded-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 bg-muted/50 rounded-xl">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   {status?.show_badge !== false ? <ToggleRight className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /> : <ToggleLeft className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-500" />}
@@ -204,17 +204,17 @@ export default function Verification() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="artist_name" className="text-sm">{t('common', 'artist')}</Label>
-                <Input id="artist_name" value={form.artist_name} onChange={(e) => setForm(prev => ({ ...prev, artist_name: e.target.value }))} placeholder="DJ Shadow" className="bg-zinc-800 border-zinc-700" />
+                <Input id="artist_name" value={form.artist_name} onChange={(e) => setForm(prev => ({ ...prev, artist_name: e.target.value }))} placeholder="DJ Shadow" className="bg-muted border-zinc-700" />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="social_links" className="text-sm">{t('settings', 'socialLinks')}</Label>
-                <Textarea id="social_links" value={form.social_links} onChange={(e) => setForm(prev => ({ ...prev, social_links: e.target.value }))} placeholder="Instagram, VK, YouTube..." className="bg-zinc-800 border-zinc-700 min-h-[80px]" />
+                <Textarea id="social_links" value={form.social_links} onChange={(e) => setForm(prev => ({ ...prev, social_links: e.target.value }))} placeholder="Instagram, VK, YouTube..." className="bg-muted border-zinc-700 min-h-[80px]" />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm">{t('common', 'description')}</Label>
-                <Textarea id="description" value={form.description} onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))} placeholder="..." className="bg-zinc-800 border-zinc-700 min-h-[100px]" />
+                <Textarea id="description" value={form.description} onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))} placeholder="..." className="bg-muted border-zinc-700 min-h-[100px]" />
               </div>
               
               <Button type="submit" disabled={submitting} className="w-full bg-primary hover:bg-primary/90">
@@ -225,7 +225,7 @@ export default function Verification() {
         )}
         
         {/* Info */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 sm:mt-6 p-4 sm:p-6 rounded-2xl bg-zinc-900/30 border border-white/5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 sm:mt-6 p-4 sm:p-6 rounded-2xl bg-zinc-900/30 border border-border">
           <h3 className="font-semibold text-sm sm:text-base mb-3">{t('verification', 'benefits')}</h3>
           <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
             <li className="flex items-start gap-2"><BadgeCheck className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />{t('verification', 'benefit1')}</li>

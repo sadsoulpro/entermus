@@ -272,11 +272,11 @@ export default function Domains() {
                     value={newSubdomain}
                     onChange={(e) => setNewSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     placeholder={t('domains', 'domainPlaceholder')}
-                    className="rounded-r-none border-r-0 bg-zinc-800/50 lowercase"
+                    className="rounded-r-none border-r-0 bg-muted/50 lowercase"
                     disabled={!canAdd}
                     maxLength={32}
                   />
-                  <div className="h-10 px-3 flex items-center bg-zinc-800 border border-l-0 border-white/10 rounded-r-lg text-muted-foreground text-sm">
+                  <div className="h-10 px-3 flex items-center bg-muted border border-l-0 border-border rounded-r-lg text-muted-foreground text-sm">
                     .mytrack.cc
                   </div>
                 </div>
@@ -375,7 +375,7 @@ export default function Domains() {
                     transition={{ delay: 0.3 + idx * 0.05 }}
                     className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                       sub.is_active 
-                        ? 'bg-zinc-900/50 border-white/5 hover:border-white/10' 
+                        ? 'bg-zinc-900/50 border-border hover:border-border' 
                         : 'bg-zinc-900/30 border-zinc-800/50'
                     }`}
                   >
@@ -385,7 +385,7 @@ export default function Domains() {
                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
                           sub.is_active 
                             ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20' 
-                            : 'bg-zinc-800'
+                            : 'bg-muted'
                         }`}>
                           <Globe className={`w-5 h-5 ${sub.is_active ? 'text-emerald-400' : 'text-zinc-500'}`} />
                         </div>
@@ -497,7 +497,7 @@ export default function Domains() {
                     value={artistName}
                     onChange={(e) => setArtistName(e.target.value)}
                     placeholder={t('pageBuilder', 'artistPlaceholder')}
-                    className="bg-zinc-800/50"
+                    className="bg-muted/50"
                     maxLength={50}
                   />
                 </div>
@@ -512,7 +512,7 @@ export default function Domains() {
                     value={profileDescription}
                     onChange={(e) => setProfileDescription(e.target.value)}
                     placeholder={t('settings', 'bioPlaceholder')}
-                    className="bg-zinc-800/50 resize-none"
+                    className="bg-muted/50 resize-none"
                     rows={3}
                     maxLength={200}
                   />
@@ -529,7 +529,7 @@ export default function Domains() {
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
                     placeholder={t('auth', 'emailPlaceholder')}
-                    className="bg-zinc-800/50"
+                    className="bg-muted/50"
                   />
                 </div>
                 
@@ -551,7 +551,7 @@ export default function Domains() {
                             value={socialLinks[platform.id] || ""}
                             onChange={(e) => handleSocialLinkChange(platform.id, e.target.value)}
                             placeholder={platform.placeholder}
-                            className="bg-zinc-800/50 h-9 text-sm"
+                            className="bg-muted/50 h-9 text-sm"
                           />
                         </div>
                       );

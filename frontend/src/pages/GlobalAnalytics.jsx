@@ -215,7 +215,7 @@ export default function GlobalAnalytics() {
                         <span className="text-xs sm:text-sm font-medium">{item.label}</span>
                         <span className="text-xs sm:text-sm text-muted-foreground">{item.count}</span>
                       </div>
-                      <div className="h-1.5 sm:h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: item.color }} />
                       </div>
                     </div>
@@ -267,7 +267,7 @@ export default function GlobalAnalytics() {
                           <span className="text-xs sm:text-sm font-medium">{getCountryName(item.country)}</span>
                           <span className="text-xs text-muted-foreground">{item.clicks}</span>
                         </div>
-                        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className="h-full rounded-full bg-primary" style={{ width: `${percentage}%` }} />
                         </div>
                       </div>
@@ -299,13 +299,13 @@ export default function GlobalAnalytics() {
                   const percentage = ((item.clicks / maxClicks) * 100).toFixed(0);
                   return (
                     <div key={i} className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center text-xs font-medium">{i + 1}</div>
+                      <div className="w-6 h-6 rounded bg-muted flex items-center justify-center text-xs font-medium">{i + 1}</div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs sm:text-sm font-medium">{item.city}</span>
                           <span className="text-xs text-muted-foreground">{item.clicks}</span>
                         </div>
-                        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className="h-full rounded-full bg-blue-500" style={{ width: `${percentage}%` }} />
                         </div>
                       </div>
@@ -349,7 +349,7 @@ export default function GlobalAnalytics() {
             <div className="overflow-x-auto -mx-4 sm:mx-0">
               <table className="w-full min-w-[500px]">
                 <thead>
-                  <tr className="border-b border-white/5">
+                  <tr className="border-b border-border">
                     <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground">{t('common', 'page')}</th>
                     <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">{t('analytics', 'views')}</th>
                     <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground">{t('common', 'clicks')}</th>
@@ -360,7 +360,7 @@ export default function GlobalAnalytics() {
                   {analytics.pages.map((page) => {
                     const ctr = page.views > 0 ? ((page.clicks / page.views) * 100).toFixed(1) : 0;
                     return (
-                      <tr key={page.id} className="border-b border-white/5 hover:bg-white/5">
+                      <tr key={page.id} className="border-b border-border hover:bg-white/5">
                         <td className="py-2 px-3">
                           <Link to={`/analytics/${page.id}`} className="hover:text-primary">
                             <p className="font-medium text-sm truncate max-w-[150px] sm:max-w-none">{page.title}</p>

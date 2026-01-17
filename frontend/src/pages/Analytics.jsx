@@ -205,7 +205,7 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5">
+      <header className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/multilinks">
@@ -309,7 +309,7 @@ export default function Analytics() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + idx * 0.05 }}
-                  className="p-4 rounded-xl panel-card hover:border-white/10 transition-all"
+                  className="p-4 rounded-xl panel-card hover:border-border transition-all"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div 
@@ -323,7 +323,7 @@ export default function Analytics() {
                       <p className="text-xs text-muted-foreground">{link.clicks} {t('common', 'clicks')}</p>
                     </div>
                   </div>
-                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${percentage}%` }}
@@ -384,7 +384,7 @@ export default function Analytics() {
                                   <span className="font-medium">{item.country}</span>
                                   <span className="text-muted-foreground">{item.clicks}</span>
                                 </div>
-                                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                   <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${percentage}%` }}
@@ -420,13 +420,13 @@ export default function Analytics() {
                           const percentage = ((item.clicks / maxClicks) * 100);
                           return (
                             <div key={i} className="flex items-center gap-3">
-                              <div className="w-7 h-7 rounded bg-zinc-800 flex items-center justify-center text-xs font-medium">{i + 1}</div>
+                              <div className="w-7 h-7 rounded bg-muted flex items-center justify-center text-xs font-medium">{i + 1}</div>
                               <div className="flex-1">
                                 <div className="flex justify-between text-sm mb-1">
                                   <span className="font-medium">{item.city}</span>
                                   <span className="text-muted-foreground">{item.clicks}</span>
                                 </div>
-                                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                   <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${percentage}%` }}
@@ -502,7 +502,7 @@ export default function Analytics() {
               transition={{ delay: 0.4 }}
               className="mb-6"
             >
-              <div className="relative p-6 sm:p-10 rounded-2xl bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 border border-white/5 overflow-hidden">
+              <div className="relative p-6 sm:p-10 rounded-2xl bg-gradient-to-br from-zinc-900/80 to-zinc-900/40 border border-border overflow-hidden">
                 <div className="absolute inset-0 backdrop-blur-sm bg-zinc-950/60 flex items-center justify-center z-10">
                   <div className="text-center p-6">
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto mb-4">
@@ -524,8 +524,8 @@ export default function Analytics() {
                 <div className="opacity-30 pointer-events-none">
                   <h2 className="text-lg font-semibold mb-4">{t('analytics', 'geography')}</h2>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="h-40 rounded-xl bg-zinc-800/50"></div>
-                    <div className="h-40 rounded-xl bg-zinc-800/50"></div>
+                    <div className="h-40 rounded-xl bg-muted/50"></div>
+                    <div className="h-40 rounded-xl bg-muted/50"></div>
                   </div>
                 </div>
               </div>

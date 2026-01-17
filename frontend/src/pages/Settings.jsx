@@ -113,11 +113,11 @@ export default function Settings() {
           <form onSubmit={handleProfileSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username" className="text-sm">{t('common', 'username')}</Label>
-              <Input id="username" value={profileForm.username} onChange={(e) => setProfileForm(prev => ({ ...prev, username: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
+              <Input id="username" value={profileForm.username} onChange={(e) => setProfileForm(prev => ({ ...prev, username: e.target.value }))} className="bg-muted border-zinc-700" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm">{t('common', 'email')}</Label>
-              <Input id="email" type="email" value={profileForm.email} onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
+              <Input id="email" type="email" value={profileForm.email} onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))} className="bg-muted border-zinc-700" />
             </div>
             <Button type="submit" disabled={profileLoading} className="w-full sm:w-auto bg-primary hover:bg-primary/90">
               {profileLoading ? t('common', 'loading') : t('common', 'save')}
@@ -140,15 +140,15 @@ export default function Settings() {
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="current_password" className="text-sm">{t('settings', 'currentPassword')}</Label>
-              <Input id="current_password" type="password" value={passwordForm.current_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, current_password: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
+              <Input id="current_password" type="password" value={passwordForm.current_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, current_password: e.target.value }))} className="bg-muted border-zinc-700" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="new_password" className="text-sm">{t('settings', 'newPassword')}</Label>
-              <Input id="new_password" type="password" value={passwordForm.new_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, new_password: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
+              <Input id="new_password" type="password" value={passwordForm.new_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, new_password: e.target.value }))} className="bg-muted border-zinc-700" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm_password" className="text-sm">{t('settings', 'confirmNewPassword')}</Label>
-              <Input id="confirm_password" type="password" value={passwordForm.confirm_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm_password: e.target.value }))} className="bg-zinc-800 border-zinc-700" />
+              <Input id="confirm_password" type="password" value={passwordForm.confirm_password} onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm_password: e.target.value }))} className="bg-muted border-zinc-700" />
             </div>
             <Button type="submit" disabled={passwordLoading} className="w-full sm:w-auto bg-primary hover:bg-primary/90">
               {passwordLoading ? t('common', 'loading') : t('settings', 'changePassword')}
@@ -179,7 +179,7 @@ export default function Settings() {
                   <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <p className="text-xs sm:text-sm text-red-400">{t('settings', 'deleteAccountWarning')} {getDeleteWord()}</p>
                 </div>
-                <Input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder={getDeleteWord()} className="bg-zinc-800 border-red-500/30" />
+                <Input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder={getDeleteWord()} className="bg-muted border-red-500/30" />
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button onClick={handleDeleteAccount} disabled={deleteLoading} className="bg-red-500 hover:bg-red-600">
                     {deleteLoading ? t('common', 'loading') : t('common', 'confirm')}

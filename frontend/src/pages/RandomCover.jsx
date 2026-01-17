@@ -1010,7 +1010,7 @@ export default function RandomCover() {
               value={currentProjectName}
               onChange={(e) => setCurrentProjectName(e.target.value)}
               placeholder={t('common', 'title')}
-              className="bg-zinc-800"
+              className="bg-muted"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -1160,10 +1160,10 @@ export default function RandomCover() {
                 >
                   <div 
                     ref={containerRef}
-                    className="bg-zinc-900/50 rounded-2xl border border-white/5 p-3 sm:p-4 lg:p-6"
+                    className="bg-zinc-900/50 rounded-2xl border border-border p-3 sm:p-4 lg:p-6"
                   >
                     <div 
-                      className="mx-auto bg-zinc-800 rounded-xl overflow-hidden relative"
+                      className="mx-auto bg-muted rounded-xl overflow-hidden relative"
                       style={{ 
                         width: containerSize, 
                         height: containerSize,
@@ -1301,7 +1301,7 @@ export default function RandomCover() {
                   className={`order-2 space-y-3 lg:space-y-4 ${mobileControlsOpen ? 'block' : 'hidden lg:block'}`}
                 >
                   {/* Mobile Tab Navigation */}
-                  <div className="lg:hidden flex gap-1 bg-zinc-900/50 rounded-xl p-1 border border-white/5">
+                  <div className="lg:hidden flex gap-1 bg-zinc-900/50 rounded-xl p-1 border border-border">
                     <button
                       onClick={() => setActiveControlTab("image")}
                       className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors ${
@@ -1338,7 +1338,7 @@ export default function RandomCover() {
                   </div>
 
                   {/* Image Upload - Show on desktop or when image tab active on mobile */}
-                  <div className={`bg-zinc-900/50 rounded-2xl border border-white/5 p-3 lg:p-4 ${
+                  <div className={`bg-zinc-900/50 rounded-2xl border border-border p-3 lg:p-4 ${
                     activeControlTab !== "image" ? "hidden lg:block" : ""
                   }`}>
                     <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm lg:text-base">
@@ -1364,7 +1364,7 @@ export default function RandomCover() {
                     </Button>
 
                     {/* AI Image Generation */}
-                    <div className="mt-4 pt-4 border-t border-white/10">
+                    <div className="mt-4 pt-4 border-t border-border">
                       <Label className="text-xs text-primary flex items-center gap-1 mb-2">
                         <Shuffle className="w-3 h-3" />
                         {t('randomCover', 'aiGeneration')}
@@ -1376,7 +1376,7 @@ export default function RandomCover() {
                         value={aiPrompt}
                         onChange={(e) => setAiPrompt(e.target.value)}
                         placeholder={t('randomCover', 'describeImage')}
-                        className="bg-zinc-800 text-sm"
+                        className="bg-muted text-sm"
                         data-testid="ai-prompt-input"
                         disabled={!canUseAI}
                         onKeyDown={(e) => {
@@ -1418,7 +1418,7 @@ export default function RandomCover() {
                             </div>
                           </TooltipTrigger>
                           {!canUseAI && (
-                            <TooltipContent side="bottom" className="bg-zinc-800 border-zinc-700">
+                            <TooltipContent side="bottom" className="bg-muted border-zinc-700">
                               <p>{t('randomCover', 'proOnlyFeature')}</p>
                             </TooltipContent>
                           )}
@@ -1436,7 +1436,7 @@ export default function RandomCover() {
                             saveToHistory();
                           }}
                         >
-                          <SelectTrigger className="mt-1 bg-zinc-800" data-testid="filter-select">
+                          <SelectTrigger className="mt-1 bg-muted" data-testid="filter-select">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1452,7 +1452,7 @@ export default function RandomCover() {
                   </div>
 
                   {/* Text Controls - Live Preview */}
-                  <div className={`bg-zinc-900/50 rounded-2xl border border-white/5 p-3 lg:p-4 ${
+                  <div className={`bg-zinc-900/50 rounded-2xl border border-border p-3 lg:p-4 ${
                     activeControlTab !== "text" ? "hidden lg:block" : ""
                   }`}>
                     <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm lg:text-base">
@@ -1468,7 +1468,7 @@ export default function RandomCover() {
                             <Input
                               value={selectedText.text}
                               onChange={(e) => updateSelectedText("text", e.target.value)}
-                              className="mt-1 bg-zinc-800"
+                              className="mt-1 bg-muted"
                               placeholder={t('randomCover', 'enterText')}
                               data-testid="text-content-input"
                             />
@@ -1480,7 +1480,7 @@ export default function RandomCover() {
                               value={selectedText.fontFamily} 
                               onValueChange={(val) => updateSelectedText("fontFamily", val)}
                             >
-                              <SelectTrigger className="mt-1 bg-zinc-800" data-testid="font-select">
+                              <SelectTrigger className="mt-1 bg-muted" data-testid="font-select">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -1501,13 +1501,13 @@ export default function RandomCover() {
                                   type="color"
                                   value={selectedText.fill}
                                   onChange={(e) => updateSelectedText("fill", e.target.value)}
-                                  className="w-10 h-9 p-1 bg-zinc-800"
+                                  className="w-10 h-9 p-1 bg-muted"
                                   data-testid="color-input"
                                 />
                                 <Input
                                   value={selectedText.fill}
                                   onChange={(e) => updateSelectedText("fill", e.target.value)}
-                                  className="flex-1 bg-zinc-800 font-mono text-xs"
+                                  className="flex-1 bg-muted font-mono text-xs"
                                 />
                               </div>
                             </div>
@@ -1553,7 +1553,7 @@ export default function RandomCover() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className={`bg-zinc-900/50 rounded-2xl border border-white/5 p-3 lg:p-4 space-y-2 lg:space-y-3 ${
+                  <div className={`bg-zinc-900/50 rounded-2xl border border-border p-3 lg:p-4 space-y-2 lg:space-y-3 ${
                     activeControlTab !== "actions" ? "hidden lg:block" : ""
                   }`}>
                     <Button
@@ -1599,8 +1599,8 @@ export default function RandomCover() {
                     <ul className="text-xs text-zinc-400 space-y-1">
                       <li>• {t('randomCover', 'tip1')}</li>
                       <li>• {t('randomCover', 'tip2')}</li>
-                      <li>• <kbd className="px-1 bg-zinc-800 rounded">Ctrl+Z</kbd> — {t('randomCover', 'undo')}, <kbd className="px-1 bg-zinc-800 rounded">Ctrl+Y</kbd> — {t('randomCover', 'redo')}</li>
-                      <li>• <kbd className="px-1 bg-zinc-800 rounded">Ctrl+S</kbd> — {t('randomCover', 'saveProject')}</li>
+                      <li>• <kbd className="px-1 bg-muted rounded">Ctrl+Z</kbd> — {t('randomCover', 'undo')}, <kbd className="px-1 bg-muted rounded">Ctrl+Y</kbd> — {t('randomCover', 'redo')}</li>
+                      <li>• <kbd className="px-1 bg-muted rounded">Ctrl+S</kbd> — {t('randomCover', 'saveProject')}</li>
                       <li>• {t('randomCover', 'tip3')}</li>
                     </ul>
                   </div>
@@ -1613,7 +1613,7 @@ export default function RandomCover() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-zinc-900/50 rounded-2xl border border-white/5 p-6"
+                className="bg-zinc-900/50 rounded-2xl border border-border p-6"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-semibold">{t('randomCover', 'myProjects')}</h2>
@@ -1648,7 +1648,7 @@ export default function RandomCover() {
                       <div
                         key={project.id}
                         onClick={() => loadProject(project.id)}
-                        className={`group relative bg-zinc-800/50 rounded-xl overflow-hidden cursor-pointer transition-all hover:ring-2 hover:ring-primary/50 ${
+                        className={`group relative bg-muted/50 rounded-xl overflow-hidden cursor-pointer transition-all hover:ring-2 hover:ring-primary/50 ${
                           currentProjectId === project.id ? "ring-2 ring-primary" : ""
                         }`}
                         data-testid={`project-card-${project.id}`}

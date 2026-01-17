@@ -279,7 +279,7 @@ export default function Support() {
             {t('common', 'back')}
           </Button>
 
-          <div className="bg-zinc-900/50 rounded-2xl border border-white/5 p-4 sm:p-6 mb-4">
+          <div className="bg-zinc-900/50 rounded-2xl border border-border p-4 sm:p-6 mb-4">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h1 className="text-xl font-semibold mb-1">{selectedTicket.subject}</h1>
@@ -327,12 +327,12 @@ export default function Support() {
 
           {/* Reply form - only if not closed */}
           {selectedTicket.status !== 'closed' && (
-            <div className="bg-zinc-900/50 rounded-2xl border border-white/5 p-4">
+            <div className="bg-zinc-900/50 rounded-2xl border border-border p-4">
               <Textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder={t('support', 'replyPlaceholder')}
-                className="bg-zinc-800 border-zinc-700 min-h-[100px] mb-3"
+                className="bg-muted border-zinc-700 min-h-[100px] mb-3"
               />
               <Button
                 onClick={sendReply}
@@ -410,7 +410,7 @@ export default function Support() {
                       <AccordionItem 
                         key={itemIndex} 
                         value={`${categoryIndex}-${itemIndex}`}
-                        className="border border-white/5 rounded-xl px-3 bg-zinc-800/30 data-[state=open]:bg-zinc-800/50"
+                        className="border border-border rounded-xl px-3 bg-muted/30 data-[state=open]:bg-muted/50"
                       >
                         <AccordionTrigger className="text-xs sm:text-sm text-left hover:no-underline py-3">
                           {getText(item.question)}
@@ -468,10 +468,10 @@ export default function Support() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         onClick={() => openTicket(ticket.id)}
-                        className={`p-4 rounded-xl border cursor-pointer transition-colors hover:bg-zinc-800/50 ${
+                        className={`p-4 rounded-xl border cursor-pointer transition-colors hover:bg-muted/50 ${
                           hasUnread 
                             ? 'bg-primary/5 border-primary/30' 
-                            : 'bg-zinc-900/50 border-white/5'
+                            : 'bg-zinc-900/50 border-border'
                         }`}
                       >
                         <div className="flex items-start justify-between">
