@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [siteModeLoading, setSiteModeLoading] = useState(false);
   const { user, refreshUser } = useAuth();
   const { t } = useLanguage();
+  const { theme } = useTheme();
 
   useEffect(() => {
     fetchPages();
