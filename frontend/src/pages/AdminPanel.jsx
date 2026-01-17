@@ -59,6 +59,8 @@ export default function AdminPanel() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [ticketReply, setTicketReply] = useState("");
   const [ticketStatusFilter, setTicketStatusFilter] = useState("");
+  const [waitlistEmails, setWaitlistEmails] = useState([]);
+  const [waitlistTotal, setWaitlistTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState(null);
   const [activeTab, setActiveTab] = useState("analytics");
