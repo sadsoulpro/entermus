@@ -28,6 +28,11 @@ export default function Dashboard() {
   const { t } = useLanguage();
   const { theme } = useTheme();
 
+  // Card styles based on theme
+  const cardClass = theme === 'dark' 
+    ? 'bg-zinc-900/50 border-white/5' 
+    : 'bg-white border-gray-200 shadow-sm';
+
   useEffect(() => {
     fetchPages();
     // Initialize site mode from user settings
