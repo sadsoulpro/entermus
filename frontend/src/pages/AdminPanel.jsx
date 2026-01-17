@@ -1069,7 +1069,7 @@ export default function AdminPanel() {
                         ? 'bg-red-950/20 border-red-500/20' 
                         : sub.is_active 
                           ? 'bg-card/50 border-border hover:border-border' 
-                          : 'bg-card/30 border-zinc-800/50'
+                          : 'bg-card/30 border-border'
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -1094,7 +1094,7 @@ export default function AdminPanel() {
                               </span>
                             )}
                             {!sub.is_active && !sub.disabled_by_admin && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-zinc-700 text-zinc-400">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground">
                                 {t('common', 'disabled')}
                               </span>
                             )}
