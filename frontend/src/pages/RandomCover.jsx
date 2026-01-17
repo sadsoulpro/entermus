@@ -32,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { api, useAuth } from "@/App";
 import { toast } from "sonner";
 import Sidebar from "@/components/Sidebar";
+import ProFeatureModal from "@/components/ProFeatureModal";
 import { 
   Upload, Type, Shuffle, Download, Trash2, 
   Loader2, Image as ImageIcon, RotateCcw,
