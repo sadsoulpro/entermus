@@ -128,6 +128,7 @@ All pages now use CSS variables (`bg-background`, `bg-muted`, `border-border`, `
 - [x] Email notification for waitlist
 - [x] Theme persists in localStorage
 - [x] System theme preference detection
+- [x] Light mode fixes for RandomCover, Domains, AdminPanel pages
 
 ## Pending/Future Tasks
 
