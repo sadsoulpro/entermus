@@ -136,12 +136,14 @@ export default function Verification() {
               </div>
               <h2 className="text-2xl font-bold text-white mb-3">{t('verification', 'applyTitle')} - {t('analytics', 'proFeature')}</h2>
               <p className="text-muted-foreground mb-6">{t('verification', 'applyDesc')}</p>
-              <Link to="/pricing">
-                <Button size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600">
-                  <Crown className="w-4 h-4 mr-2" />
-                  {t('common', 'upgrade')}
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                onClick={handleUpgradeClick}
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                {t('common', 'upgrade')}
+              </Button>
             </div>
           </div>
         )}
