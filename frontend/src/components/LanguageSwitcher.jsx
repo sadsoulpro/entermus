@@ -58,6 +58,10 @@ const LanguageSwitcher = ({ variant = 'default', className = '', dropDirection =
 
   // Compact variant for sidebar
   if (variant === 'compact') {
+    // Determine dropdown direction
+    const isDropUp = dropDirection === 'up' || (dropDirection === 'auto' && false); // Default to down for landing
+    const isDropDown = dropDirection === 'down' || dropDirection === 'auto';
+    
     return (
       <div className={`relative ${className}`} ref={dropdownRef}>
         <button
@@ -67,20 +71,25 @@ const LanguageSwitcher = ({ variant = 'default', className = '', dropDirection =
           aria-expanded={isOpen}
         >
           <Globe className="w-4 h-4" />
-          <LanguageChip code={language} isActive={true} onClick={(e) => e.stopPropagation()} />
+          <span 
+            className="w-5 h-5 flex items-center justify-center rounded bg-primary text-white text-[10px] font-bold uppercase"
+            style={{ borderRadius: '4px' }}
+          >
+            {language}
+          </span>
           <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              initial={{ opacity: 0, y: isDropDown ? -10 : 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              exit={{ opacity: 0, y: isDropDown ? -10 : 10, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute left-0 bottom-full mb-2 py-2 px-2 bg-card border border-border rounded-lg shadow-xl z-[100]"
+              className={`absolute left-0 ${isDropDown ? 'top-full mt-2' : 'bottom-full mb-2'} py-2 px-2 bg-card border border-border rounded-lg shadow-xl z-[100] min-w-[140px]`}
             >
-              <div className="flex flex-col gap-1">{/* Changed to vertical layout */}
+              <div className="flex flex-col gap-1">
                 {Object.values(languages).map((lang) => (
                   <button
                     key={lang.code}
