@@ -311,9 +311,15 @@ export default function PublicPage() {
   }
 
   const coverUrl = getCoverUrl(page.cover_image);
+  const isLightTheme = page.page_theme === "light";
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden bg-zinc-950" data-testid="public-page">
+    <div 
+      className={`min-h-screen flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden ${
+        isLightTheme ? 'bg-gray-50' : 'bg-zinc-950'
+      }`} 
+      data-testid="public-page"
+    >
       {/* Blurred Background */}
       {coverUrl && (
         <div 
@@ -322,13 +328,17 @@ export default function PublicPage() {
             backgroundImage: `url(${coverUrl})`,
             filter: 'blur(80px)',
             transform: 'scale(1.3)',
-            opacity: 0.3,
+            opacity: isLightTheme ? 0.15 : 0.3,
           }}
         />
       )}
       
       {/* Gradient Overlay */}
-      <div className="fixed inset-0 bg-gradient-to-b from-transparent via-zinc-950/50 to-zinc-950" />
+      <div className={`fixed inset-0 ${
+        isLightTheme 
+          ? 'bg-gradient-to-b from-transparent via-gray-50/50 to-gray-50' 
+          : 'bg-gradient-to-b from-transparent via-zinc-950/50 to-zinc-950'
+      }`} />
       
       {/* Navigation Arrows */}
       <AnimatePresence>
