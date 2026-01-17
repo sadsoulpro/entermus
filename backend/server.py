@@ -3574,46 +3574,39 @@ async def shutdown_db_client():
 # Include router and configure CORS
 app.include_router(api_router)
 
-# ===================== PUBLIC PAGE ROUTE FOR BOTS =====================
-# This catch-all route handles bot requests to /{slug} with OG tags
-# Must be added AFTER api_router to not interfere with API routes
+# ===================== SHARE LINK ROUTE FOR SOCIAL MEDIA =====================
+# Use /s/{slug} for sharing links that bots will crawl correctly
+# Example: https://mus.link/s/artist-name
 
-@app.get("/{slug:path}")
-async def serve_public_page_or_spa(slug: str, request: Request):
+@app.get("/s/{slug}")
+async def share_link_with_og(slug: str, request: Request):
     """
-    Catch-all route for public pages.
-    - For bots: serve HTML with OG tags
-    - For regular users: let frontend SPA handle it (return 404 to trigger frontend routing)
+    Share link route with OG tags for social media bots.
+    - For bots: serve HTML with OG tags, then redirect via JS
+    - For regular users: redirect to the actual page immediately
     """
-    # Skip certain paths that should go to frontend
-    if (slug.startswith('static/') or 
-        slug.startswith('assets/') or 
-        slug.startswith('api/') or
-        slug in ['login', 'register', 'forgot-password', 'reset-password', 'demo', 'pricing', 
-                 'multilinks', 'random-cover', 'analytics', 'domains', 'settings', 
-                 'verification', 'support', 'admin'] or
-        slug.startswith('page/') or
-        '.' in slug.split('/')[-1]):  # Files with extensions
-        raise HTTPException(status_code=404)
-    
-    # Check if this is a bot
     user_agent = request.headers.get('user-agent', '')
     
-    if is_bot(user_agent):
-        # Get page data
-        page_data = await get_page_for_og(slug)
-        if page_data:
-            html = generate_og_html(
-                slug=slug,
-                title=page_data['title'],
-                cover_image=page_data['cover_image'],
-                language=page_data['language']
-            )
-            logging.info(f"Serving OG for bot: {user_agent[:50]}... slug: {slug}")
-            return HTMLResponse(content=html)
+    # Get page data
+    page_data = await get_page_for_og(slug)
     
-    # For non-bots or pages not found, return 404 to let frontend handle
-    raise HTTPException(status_code=404)
+    if not page_data:
+        # Page not found, redirect to home
+        return RedirectResponse(url="/", status_code=302)
+    
+    if is_bot(user_agent):
+        # Generate OG HTML for bots
+        html = generate_og_html(
+            slug=slug,
+            title=page_data['title'],
+            cover_image=page_data['cover_image'],
+            language=page_data['language']
+        )
+        logging.info(f"Serving OG for bot via /s/: {user_agent[:50]}... slug: {slug}")
+        return HTMLResponse(content=html)
+    
+    # For regular users, redirect to the actual page
+    return RedirectResponse(url=f"/{slug}", status_code=302)
 
 app.add_middleware(
     CORSMiddleware,
