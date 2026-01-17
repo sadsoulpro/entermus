@@ -22,7 +22,6 @@ import Domains from "@/pages/Domains";
 import Settings from "@/pages/Settings";
 import Verification from "@/pages/Verification";
 import RandomCover from "@/pages/RandomCover";
-import Pricing from "@/pages/Pricing";
 import Support from "@/pages/Support";
 import { getSubdomain } from "@/utils/subdomain";
 
