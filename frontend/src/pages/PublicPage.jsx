@@ -251,10 +251,12 @@ export default function PublicPage() {
       console.log("Share tracking failed");
     }
     
-    const url = `${window.location.origin}/${slug}`;
+    // Use /api/s/{slug} for social sharing (has OG tags for bots)
+    const shareUrl = `${window.location.origin}/api/s/${slug}`;
+    const directUrl = `${window.location.origin}/${slug}`;
     
     if (type === "link") {
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } else if (type === "social" && navigator.share) {
@@ -262,7 +264,7 @@ export default function PublicPage() {
         await navigator.share({
           title: `${page.artist_name} - ${page.release_title}`,
           text: `Послушай ${page.release_title} от ${page.artist_name}`,
-          url: url
+          url: shareUrl
         });
       } catch (e) {
         // User cancelled or error
