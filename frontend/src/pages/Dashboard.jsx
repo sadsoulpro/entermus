@@ -110,7 +110,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 sm:p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+            className={`p-4 sm:p-6 rounded-2xl border ${cardClass}`}
           >
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -125,7 +125,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-4 sm:p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+            className={`p-4 sm:p-6 rounded-2xl border ${cardClass}`}
           >
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
@@ -140,7 +140,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-4 sm:p-6 rounded-2xl bg-zinc-900/50 border border-white/5"
+            className={`p-4 sm:p-6 rounded-2xl border ${cardClass}`}
           >
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
