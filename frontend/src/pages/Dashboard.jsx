@@ -271,7 +271,7 @@ export default function Dashboard() {
                             <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-zinc-900 border-zinc-800">
+                        <DropdownMenuContent align="end" className="bg-card border-border">
                           <DropdownMenuItem asChild>
                             <Link to={`/page/${page.id}/edit`} className="flex items-center gap-2">
                               <Edit className="w-4 h-4" />
