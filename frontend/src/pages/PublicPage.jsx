@@ -532,8 +532,8 @@ export default function PublicPage() {
               onClick={() => handleShare("link")}
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 ${
                 isLightTheme 
-                  ? 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-700' 
-                  : 'bg-zinc-800/80 hover:bg-zinc-700 border-white/10 text-white'
+                  ? 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700' 
+                  : 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
               } border rounded-lg text-xs sm:text-sm transition-all`}
             >
               {copied ? (
@@ -553,11 +553,11 @@ export default function PublicPage() {
               <button
                 onClick={() => handleShare("social")}
                 className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-lg text-xs sm:text-sm transition-all ${
-                  isLightTheme ? 'text-primary' : ''
+                  isLightTheme ? 'text-primary' : 'text-white'
                 }`}
               >
                 <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                <span className={isLightTheme ? 'text-primary' : ''}>Поделиться</span>
+                <span className={isLightTheme ? 'text-primary' : 'text-white'}>Поделиться</span>
               </button>
             )}
           </motion.div>
