@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { BadgeCheck, Clock, CheckCircle, XCircle, Send, Info, ToggleLeft, ToggleRight, Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
+import ProFeatureModal from "@/components/ProFeatureModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Verification() {
