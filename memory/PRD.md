@@ -131,6 +131,7 @@ All pages now use CSS variables (`bg-background`, `bg-muted`, `border-border`, `
 - [x] Theme persists in localStorage
 - [x] System theme preference detection
 - [x] Light mode fixes for RandomCover, Domains, AdminPanel pages
+- [x] Light mode fixes for Analytics page and Dashboard dropdown
 
 ## Pending/Future Tasks
 
