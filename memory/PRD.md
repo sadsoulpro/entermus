@@ -25,8 +25,10 @@ Application cloned from GitHub repository `https://github.com/sadsoulpro/prefina
 - **RandomCover.jsx**: Fixed background, dialogs, tooltips, tabs, and empty state colors
 - **Domains.jsx**: Fixed background, loading state, plan badge, toggle switch, and empty state
 - **AdminPanel.jsx**: Fixed background, loading state, plan config, select dropdowns, toggle switches, disabled states, and subdomains list
+- **Analytics.jsx**: Fixed background, loading state, header, empty states, and PRO overlay
+- **Dashboard.jsx**: Fixed dropdown menu, card backgrounds, and image placeholders
 
-All pages now use CSS variables (`bg-background`, `bg-muted`, `border-border`, `text-muted-foreground`) instead of hardcoded Zinc colors.
+All pages now use CSS variables (`bg-background`, `bg-muted`, `border-border`, `text-muted-foreground`, `bg-card`) instead of hardcoded Zinc colors.
 
 ### Session Updates (2025-01-17) - Major Redesign
 
