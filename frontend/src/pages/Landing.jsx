@@ -471,15 +471,13 @@ export default function Landing() {
       
       {/* Footer */}
       <footer className={`py-8 px-4 sm:px-6 lg:px-8 border-t ${theme === 'dark' ? 'border-white/5' : 'border-gray-200'}`}>
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <MuslinkLogo height={24} theme={theme} />
-            <span className="text-sm text-muted-foreground">
-              — {t('newLanding', 'footerTagline')}
-            </span>
-          </div>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            © 2026 Muslink. {t('newLanding', 'footerRights')}
+            © 2026 Muslink.
+          </p>
+          <MuslinkLogo height={24} theme={theme} />
+          <p className="text-sm text-muted-foreground">
+            {t('newLanding', 'footerRights')}
           </p>
         </div>
       </footer>
