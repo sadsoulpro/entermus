@@ -232,12 +232,14 @@ export default function Analytics() {
             </div>
           </div>
           {!hasAdvancedAnalytics && (
-            <Link to="/settings">
-              <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs">
-                <Crown className="w-3 h-3 mr-1" />
-                {t('common', 'upgrade')}
-              </Button>
-            </Link>
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs"
+              onClick={handleUpgradeClick}
+            >
+              <Crown className="w-3 h-3 mr-1" />
+              {t('common', 'upgrade')}
+            </Button>
           )}
         </div>
       </header>
