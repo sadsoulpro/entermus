@@ -479,7 +479,7 @@ export default function PageBuilder() {
       }
 
       if (detectedLinks.length === 0) {
-        toast.info("Все доступные ссылки уже добавлены");
+        toast.info(t('pageBuilder', 'allLinksAdded'));
         setScanningSource(false);
         return;
       }
