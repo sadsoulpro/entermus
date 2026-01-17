@@ -547,6 +547,13 @@ export default function Analytics() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* PRO Feature Modal */}
+      <ProFeatureModal
+        open={proModalOpen}
+        onOpenChange={setProModalOpen}
+        featureName="Advanced Analytics"
+      />
     </div>
   );
 }
