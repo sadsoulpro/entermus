@@ -388,6 +388,9 @@ export default function RandomCover() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [generatingAI, setGeneratingAI] = useState(false);
   
+  // PRO Feature Modal state
+  const [proModalOpen, setProModalOpen] = useState(false);
+  
   // Mobile UI state
   const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
   const [activeControlTab, setActiveControlTab] = useState("image"); // image, text, actions
