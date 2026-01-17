@@ -405,6 +405,7 @@ class PageCreate(BaseModel):
     description: Optional[str] = ""
     cover_image: Optional[str] = ""
     qr_enabled: Optional[bool] = True
+    page_theme: Optional[str] = "dark"
 
 class PageUpdate(BaseModel):
     title: Optional[str] = None
@@ -415,6 +416,7 @@ class PageUpdate(BaseModel):
     cover_image: Optional[str] = None
     status: Optional[str] = None
     qr_enabled: Optional[bool] = None
+    page_theme: Optional[str] = None
 
 class LinkCreate(BaseModel):
     platform: str
