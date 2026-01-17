@@ -144,6 +144,11 @@ All pages now use CSS variables (`bg-background`, `bg-muted`, `border-border`, `
 - [x] Removed /pricing page
 - [x] Added E-Mails tab in Admin Panel for waitlist management
 - [x] PRO feature modal in RandomCover (AI Generation)
+- [x] Fixed "Pro plan required" text visibility in Domains (light mode)
+- [x] PRO modal for Domains, Analytics, Verification, Dashboard pages
+- [x] Fixed PageBuilder Preview visibility in light mode
+- [x] Localized limit reached notifications (EN, RU, ES)
+- [x] "Already submitted" notification if user already in waitlist
 
 ## Pending/Future Tasks
 
