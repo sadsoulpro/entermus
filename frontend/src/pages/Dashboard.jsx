@@ -16,22 +16,43 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
+import ProFeatureModal from "@/components/ProFeatureModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [siteMode, setSiteMode] = useState(false);
   const [siteModeLoading, setSiteModeLoading] = useState(false);
+  const [proModalOpen, setProModalOpen] = useState(false);
   const { user, refreshUser } = useAuth();
   const { t } = useLanguage();
   const { theme } = useTheme();
+
+  // Get max pages from user plan
+  const maxPages = user?.plan_config?.max_pages || 3;
+  const canCreateMore = pages.length < maxPages;
 
   // Card styles based on theme
   const cardClass = theme === 'dark' 
     ? 'bg-card/50 border-border' 
     : 'bg-white border-gray-200 shadow-sm';
+
+  const handleCreateClick = () => {
+    if (canCreateMore) {
+      navigate('/page/new');
+    } else {
+      const submittedEmail = localStorage.getItem('waitlist_email_submitted');
+      if (submittedEmail) {
+        toast.info(t('proModal', 'alreadySubmitted'));
+      } else {
+        toast.warning(t('proModal', 'limitReached'));
+        setProModalOpen(true);
+      }
+    }
+  };
 
   useEffect(() => {
     fetchPages();
