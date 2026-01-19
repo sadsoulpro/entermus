@@ -1010,7 +1010,7 @@ export default function PageBuilder() {
                 </span>
                 <Switch
                   checked={qrEnabled}
-                  onCheckedChange={setQrEnabled}
+                  onCheckedChange={(checked) => { setQrEnabled(checked); setHasUnsavedChanges(true); }}
                   data-testid="qr-toggle"
                 />
               </div>
