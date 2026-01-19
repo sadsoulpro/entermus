@@ -153,7 +153,7 @@ export default function SubdomainPage() {
   useEffect(() => {
     // Get subdomain from hostname
     const host = window.location.hostname.toLowerCase();
-    const mainDomain = 'mytrack.cc';
+    const mainDomain = 'mus.link';
     let sub = "";
     
     if (host.endsWith(`.${mainDomain}`)) {
@@ -216,9 +216,9 @@ export default function SubdomainPage() {
           <Globe className="w-16 h-16 mx-auto mb-4 text-zinc-600" />
           <h1 className="text-2xl font-bold mb-2">{error}</h1>
           <p className="text-muted-foreground mb-6">
-            {subdomain ? `${subdomain}.mytrack.cc` : "Неизвестный домен"}
+            {subdomain ? `${subdomain}.mus.link` : "Неизвестный домен"}
           </p>
-          <a href="https://mytrack.cc" className="text-primary hover:underline">
+          <a href="https://mus.link" className="text-primary hover:underline">
             Перейти на главную →
           </a>
         </div>
