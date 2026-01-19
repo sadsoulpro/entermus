@@ -134,18 +134,11 @@ export default function Landing() {
               <ThemeToggle />
               <LanguageSwitcher variant="compact" dropDirection="down" />
               {isAuthenticated ? (
-                <>
-                  <Link to={user?.role === 'admin' || user?.role === 'owner' ? '/admin' : '/multilinks'}>
-                    <Button variant="ghost" size="sm" data-testid="nav-panel-btn">
-                      {t('nav', 'panel')}
-                    </Button>
-                  </Link>
-                  <Link to="/page/new">
-                    <Button size="sm" data-testid="nav-create-btn" className="bg-primary hover:bg-primary/90">
-                      {t('nav', 'create')}
-                    </Button>
-                  </Link>
-                </>
+                <Link to={user?.role === 'admin' || user?.role === 'owner' ? '/admin' : '/multilinks'}>
+                  <Button size="sm" data-testid="nav-panel-btn" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                    {t('nav', 'panel')}
+                  </Button>
+                </Link>
               ) : (
                 <>
                   <Link to="/login">
