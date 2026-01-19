@@ -392,7 +392,7 @@ function PagesListView({ data, subdomain }) {
           ) : (
             <p className="text-zinc-500 text-sm">
               <Globe className="w-4 h-4 inline mr-1" />
-              {subdomain}.mytrack.cc
+              {subdomain}.mus.link
             </p>
           )}
         </motion.div>
@@ -492,12 +492,12 @@ function PagesListView({ data, subdomain }) {
         {/* Branding Footer */}
         <div className="text-center mt-12">
           <a 
-            href="https://mytrack.cc" 
+            href="https://mus.link" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors"
           >
-            Создано на MyTrack
+            Создано на Mus.Link
           </a>
         </div>
       </div>
