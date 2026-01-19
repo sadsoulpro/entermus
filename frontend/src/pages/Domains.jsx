@@ -279,7 +279,7 @@ export default function Domains() {
                     maxLength={32}
                   />
                   <div className="h-10 px-3 flex items-center bg-muted border border-l-0 border-border rounded-r-lg text-muted-foreground text-sm">
-                    .mytrack.cc
+                    .mus.link
                   </div>
                 </div>
                 
