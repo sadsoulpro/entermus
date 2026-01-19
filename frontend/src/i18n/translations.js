@@ -1357,12 +1357,6 @@ export const translations = {
       proRequired: "Plan Pro requerido para subdominios adicionales",
     },
   },
-      record: "Registro",
-      type: "Tipo",
-      value: "Valor",
-      proRequired: "Se requiere plan Pro para dominios personalizados",
-    },
-  },
 
   // ==================== PUBLIC PAGE ====================
   publicPage: {
