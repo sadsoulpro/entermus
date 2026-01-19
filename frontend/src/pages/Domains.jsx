@@ -406,7 +406,7 @@ export default function Domains() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className={`font-mono font-semibold ${!sub.is_active && 'text-zinc-500'}`}>
-                              {sub.subdomain}.mytrack.cc
+                              {sub.subdomain}.mus.link
                             </p>
                             {!sub.is_active && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground">
@@ -443,7 +443,7 @@ export default function Domains() {
 
                         {/* External link */}
                         <a 
-                          href={`https://${sub.subdomain}.mytrack.cc`} 
+                          href={`https://${sub.subdomain}.mus.link`} 
                           target="_blank" 
                           rel="noopener noreferrer"
                         >
