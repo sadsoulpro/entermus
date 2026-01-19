@@ -1215,7 +1215,7 @@ export default function PageBuilder() {
                   
                   {/* Footer */}
                   <div className="mt-auto pt-4">
-                    <p className="text-[10px] text-zinc-500">Powered by MyTrack</p>
+                    <p className="text-[10px] text-zinc-500">Powered by Mus.Link</p>
                   </div>
                 </div>
               </div>
