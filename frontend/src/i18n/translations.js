@@ -640,6 +640,9 @@ export const translations = {
       darkTheme: "Dark",
       lightTheme: "Light",
       pageDesignHint: "Choose the theme for your public page",
+      deletePage: "Delete Page",
+      confirmDelete: "Are you sure you want to delete this page?",
+      pageDeleted: "Page deleted successfully",
     },
     ru: {
       title: "Конструктор страницы",
