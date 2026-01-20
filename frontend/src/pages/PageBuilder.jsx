@@ -341,12 +341,11 @@ export default function PageBuilder() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setHasUnsavedChanges(true);
     setFormData(prev => {
       const updated = { ...prev, [name]: value };
       
       // Auto-generate title and slug from artist_name and release_title
-      if ((name === "artist_name" || name === "release_title") && !isEditing) {
+      if (name === "artist_name" || name === "release_title") {
         const artist = name === "artist_name" ? value : prev.artist_name;
         const release = name === "release_title" ? value : prev.release_title;
         
@@ -363,6 +362,11 @@ export default function PageBuilder() {
       
       return updated;
     });
+    
+    // Instant save after change (debounced slightly to avoid too many requests)
+    if (isEditing) {
+      setTimeout(() => instantSave(), 500);
+    }
   };
 
   const handleUpload = async (e) => {
