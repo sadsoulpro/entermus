@@ -878,23 +878,51 @@ export default function PageBuilder() {
                 <Input
                   placeholder={t('pageBuilder', 'autofillPlaceholder')}
                   value={scanInput}
-                  onChange={(e) => setScanInput(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setScanInput(value);
+                    setIsTypingUrl(true);
+                    
+                    // Clear previous timeout
+                    if (scanInputTimeoutRef.current) {
+                      clearTimeout(scanInputTimeoutRef.current);
+                    }
+                    
+                    // Set new timeout - wait for user to stop typing (1 second)
+                    scanInputTimeoutRef.current = setTimeout(() => {
+                      setIsTypingUrl(false);
+                    }, 1000);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !scanningSource && !isTypingUrl && scanInput.trim()) {
+                      e.preventDefault();
+                      scanSource();
+                    }
+                  }}
                   data-testid="scan-source-input"
                   className="h-9 sm:h-10 bg-muted border-zinc-700 flex-1 text-xs sm:text-sm"
                 />
                 <Button 
                   onClick={scanSource}
-                  disabled={scanningSource}
+                  disabled={scanningSource || isTypingUrl || !scanInput.trim()}
                   className="h-9 sm:h-10 bg-primary hover:bg-primary/90 px-3"
                   data-testid="scan-source-btn"
+                  title={isTypingUrl ? (t('pageBuilder', 'waitingForInput') || 'Ожидание окончания ввода...') : ''}
                 >
                   {scanningSource ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : isTypingUrl ? (
+                    <Loader2 className="w-4 h-4 animate-spin opacity-50" />
                   ) : (
                     <Search className="w-4 h-4" />
                   )}
                 </Button>
               </div>
+              {isTypingUrl && scanInput.trim() && (
+                <p className="text-[10px] text-muted-foreground mt-1 animate-pulse">
+                  {t('pageBuilder', 'waitingForInput') || 'Ожидание окончания ввода...'}
+                </p>
+              )}
             </div>
           </section>
           
