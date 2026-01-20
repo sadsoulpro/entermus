@@ -42,11 +42,11 @@ const getFaqData = (t) => [
     subtitle: { en: "For beginners", ru: "Для новичков", es: "Para principiantes" },
     items: [
       {
-        question: { en: "What is MyTrack?", ru: "Что такое MyTrack?", es: "¿Qué es MyTrack?" },
+        question: { en: "What is Mus.Link?", ru: "Что такое Mus.Link?", es: "¿Qué es Mus.Link?" },
         answer: { 
-          en: "MyTrack is a tool for artists that combines all links to streaming platforms (Spotify, Apple Music, YouTube Music, etc.) on one beautiful page.",
+          en: "Mus.Link is a tool for artists that combines all links to streaming platforms (Spotify, Apple Music, YouTube Music, etc.) on one beautiful page.",
           ru: "Это инструмент для артистов, который объединяет все ссылки на стриминговые платформы (Spotify, Apple Music, VK Музыка и др.) на одной красивой странице.",
-          es: "MyTrack es una herramienta para artistas que combina todos los enlaces a plataformas de streaming (Spotify, Apple Music, YouTube Music, etc.) en una página hermosa."
+          es: "Mus.Link es una herramienta para artistas que combina todos los enlaces a plataformas de streaming (Spotify, Apple Music, YouTube Music, etc.) en una página hermosa."
         }
       },
       {
@@ -82,9 +82,9 @@ const getFaqData = (t) => [
       {
         question: { en: "What is a 'slug'?", ru: 'Что такое "Вид ссылки"?', es: "¿Qué es un 'slug'?" },
         answer: {
-          en: "It's the unique name of your page in the URL. For example: mytrack.cc/mysong - the word 'mysong' is the slug.",
-          ru: "Это уникальное имя вашей страницы в адресной строке. Например: mytrack.cc/mysong, слово mysong — это и есть вид ссылки.",
-          es: "Es el nombre único de tu página en la URL. Por ejemplo: mytrack.cc/mysong - la palabra 'mysong' es el slug."
+          en: "It's the unique name of your page in the URL. For example: mus.link/mysong - the word 'mysong' is the slug.",
+          ru: "Это уникальное имя вашей страницы в адресной строке. Например: mus.link/mysong, слово mysong — это и есть вид ссылки.",
+          es: "Es el nombre único de tu página en la URL. Por ejemplo: mus.link/mysong - la palabra 'mysong' es el slug."
         }
       }
     ]
