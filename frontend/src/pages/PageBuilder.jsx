@@ -230,7 +230,9 @@ export default function PageBuilder() {
       return createPageFirst(overrideData);
     }
     
-    if (!isEditing && !pageId) return;
+    // Use pageId for editing, or createdPageId for newly created pages
+    const targetPageId = pageId || createdPageId;
+    if (!targetPageId) return;
     
     const currentFormData = { ...formDataRef.current, ...overrideData };
     
@@ -255,7 +257,7 @@ export default function PageBuilder() {
         page_theme: pageThemeRef.current
       };
       
-      await api.put(`/pages/${pageId}`, pageData);
+      await api.put(`/pages/${targetPageId}`, pageData);
       toast.success(t('pageBuilder', 'autoSaved'), { duration: 1500 });
     } catch (error) {
       console.error('Auto-save failed:', error);
