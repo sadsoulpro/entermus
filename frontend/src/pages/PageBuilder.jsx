@@ -962,7 +962,10 @@ export default function PageBuilder() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => { setPageTheme("dark"); setHasUnsavedChanges(true); }}
+                onClick={() => { 
+                  setPageTheme("dark"); 
+                  if (isEditing) setTimeout(() => instantSave({ page_theme: "dark" }), 100);
+                }}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   pageTheme === "dark" 
                     ? "border-primary bg-primary/10" 
@@ -979,7 +982,10 @@ export default function PageBuilder() {
               </button>
               <button
                 type="button"
-                onClick={() => { setPageTheme("light"); setHasUnsavedChanges(true); }}
+                onClick={() => { 
+                  setPageTheme("light"); 
+                  if (isEditing) setTimeout(() => instantSave({ page_theme: "light" }), 100);
+                }}
                 className={`p-4 rounded-xl border-2 transition-all ${
                   pageTheme === "light" 
                     ? "border-primary bg-primary/10" 
